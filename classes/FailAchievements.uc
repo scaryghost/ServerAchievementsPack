@@ -60,7 +60,7 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     diedCurrentWave= true;
 }
 
-event killedMonster(Pawn target, class<DamageType> damageType) {
+event killedMonster(Pawn target, class<DamageType> damageType, vector Momentum, bool headshot) {
     if (ZombieBloat(target) != none && ZombieBloat(target).bDecapitated && damageType == class'PipeBombProjectile'.default.MyDamageType) {
         addProgress(FailIndex.AMATEUR_DEMOLITIONS, 1);
     } else if (ZombieStalker(target) != none && damageType == class'KFMod.DamTypeRocketImpact') {
