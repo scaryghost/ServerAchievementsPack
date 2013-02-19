@@ -27,9 +27,11 @@ function Timer() {
     if (PlayerController(Owner).PlayerReplicationInfo.Score > 10000) {
         achievementCompleted(FunIndex.IM_RICH);
     }
-    numTimesPinged++;
-    if (PlayerController(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
-        numTimesUnder200++;
+    if (achievements[FunIndex.NET_LOSS].canEarn) {
+        numTimesPinged++;
+        if (PlayerController(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
+            numTimesUnder200++;
+        }
     }
 }
 
@@ -37,7 +39,9 @@ function MatchStarting() {
     if (KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetFieldMedic') {
         achievements[FunIndex.MEDIC_GAME].canEarn= true;
     }
-    achievements[FunIndex.NET_LOSS].canEarn= true;
+    if (Level.GetLocalPlayerController() != PlayerController(Owner)) {
+        achievements[FunIndex.NET_LOSS].canEarn= true;
+    }
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result) {
@@ -59,7 +63,7 @@ event matchEnd(string mapname, float difficulty, int length, byte result) {
             achievementCompleted(FunIndex.WILD_WILD_WEST);
         }
     }
-    if (Abs(selfPipeKillTime - patKillTime) <= 5) {
+    if (patKillTime != 0 && selfPipeKillTime != 0 && Abs(selfPipeKillTime - patKillTime) <= 5) {
         achievementCompleted(FunIndex.KAMIKAZE);
     }
 }

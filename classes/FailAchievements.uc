@@ -4,7 +4,6 @@ enum FailIndex {
     GORED_FAST, AMATEUR_DEMOLITIONS, LOST_BAGGAGE, LEVEL_6_PRO,
     PROFESSIONAL_DEMOLITIONS, WATCH_YOUR_STEP, PISTOL_PETE, HOT_TRIGGER,
     MELTING_POINT, MASTER_DEMOLITIONS, DEMOLITIONS_GOD, USELESS_BAGGAGE
-
 };
 
 var bool diedCurrentWave;
@@ -19,7 +18,7 @@ function MatchStarting() {
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result) {
-    if (achievements[FailIndex.USELESS_BAGGAGE].canEarn) {
+    if (achievements[FailIndex.USELESS_BAGGAGE].canEarn && result == 2 && KFGameType(Level.Game).WaveNum == KFGameType(Level.Game).FinalWave + 1) {
         achievementCompleted(FailIndex.USELESS_BAGGAGE);
     }
 }
@@ -36,7 +35,10 @@ event waveEnd(int waveNum) {
 
 event playerDied(Controller killer, class<DamageType> damageType) {
     local Weapon currWpn;
+    local class<KFVeterancyTypes> selectedSkill;
 
+    Level.Game.Broadcast(PlayerController(Owner), "I died!"@killer@damageType);
+    selectedSkill= KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill;
     currWpn= PlayerController(Owner).Pawn.Weapon;
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
@@ -44,7 +46,7 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     if (Level.Game.GameDifficulty <= 2) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
-    if (damageType == class'KFBloatVomit'.default.MyDamageType && (KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetBerserker' || KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetFieldMedic')) {
+    if (damageType == class'KFBloatVomit'.default.MyDamageType && (selectedSkill == class'KFVetBerserker' || selectedSkill == class'KFVetFieldMedic')) {
         achievementCompleted(FailIndex.MELTING_POINT);
     }
     if (KFMonster(Killer.Pawn) != none && KFMonster(Killer.Pawn).bDecapitated) {
