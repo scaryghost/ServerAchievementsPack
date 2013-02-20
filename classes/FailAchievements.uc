@@ -37,13 +37,13 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     local Weapon currWpn;
     local class<KFVeterancyTypes> selectedSkill;
 
-    Level.Game.Broadcast(PlayerController(Owner), "I died!"@killer@damageType);
     selectedSkill= KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill;
     currWpn= PlayerController(Owner).Pawn.Weapon;
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
     }
-    if (Level.Game.GameDifficulty <= 2) {
+    if (KFGameType(Level.Game).WaveNum == 1 && Level.Game.GameDifficulty <= 2 && 
+            KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
     if (damageType == class'KFBloatVomit'.default.MyDamageType && (selectedSkill == class'KFVetBerserker' || selectedSkill == class'KFVetFieldMedic')) {
@@ -56,8 +56,8 @@ event playerDied(Controller killer, class<DamageType> damageType) {
         achievementCompleted(FailIndex.WATCH_YOUR_STEP);
     }
     if ((class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || 
-            class<DamTypeM203Grenade>(damageType) != none) && (ZombieBloat(Killer.Pawn) != none || ZombieHusk(Killer.Pawn) != none)) {
-        achievementCompleted(FailIndex.DEMOLITIONS_GOD);
+            class<DamTypeM203Grenade>(damageType) != none) && Killer == Controller(Owner)) {
+        addProgress(FailIndex.DEMOLITIONS_GOD, 1);
     }
     diedCurrentWave= true;
 }
@@ -71,7 +71,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, vector Momentum, 
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
-    if (ZombieFleshpound(target) != none && damageType != class'SingleFire'.default.DamageType && damage < target.Health && 
+    if (ZombieFleshpound(target) != none && damageType == class'SingleFire'.default.DamageType && damage < target.Health && 
             (!target.IsInState('BeginRaging') && !target.IsInState('RageCharging')) && 
             ZombieFleshpound(target).TwoSecondDamageTotal + damage > ZombieFleshpound(target).RageDamageThreshold) {
         achievementCompleted(FailIndex.PISTOL_PETE);
@@ -92,13 +92,13 @@ defaultproperties {
     achievements(0)=(title="Gored Fast",description="Be killed by a headless gorefast")
     achievements(1)=(title="Amateur Demolitions",description="Kill 20 headless bloats with pipe bombs",maxProgress=20,notifyIncrement=0.20)
     achievements(2)=(title="Lost Baggage",description="Die with your syringe, welder, or knife out 10 times",maxProgress=10,notifyIncrement=0.5)
-    achievements(3)=(title="Level 6 Pro",description="Die on wave 1 with a level 6 perk on normal difficulty")
+    achievements(3)=(title="Level 6 Pro",description="Die on wave 1 with a level 6 perk on normal or beginner difficulty")
     achievements(4)=(title="Professional Demolitions",description="Kill 20 stalkers with impact damage from explosives",maxProgress=20,notifyIncrement=0.20)
     achievements(5)=(title="Watch Your Step",description="Be killed while still having full armor")
     achievements(6)=(title="Pistol Pete",description="Enrage a fleshpound with the 9mm or dual 9mm")
     achievements(7)=(title="Hot Trigger",description="Light 20 scrakes or fleshpounds on fire",maxProgress=20,notifyIncrement=0.20)
     achievements(8)=(title="Melting Point",description="Be killed by bloat bile as a berserker or medic")
     achievements(9)=(title="Master Demolitions",description="Enrage 50 scrakes with explosives",maxProgress=50,notifyIncrement=0.1)
-    achievements(10)=(title="Demolitions God",description="Be killed by your own explosive, detonated by bloat bile or a husk fireball")
+    achievements(10)=(title="Demolitions God",description="Be killed by your own explosive 100 times",maxProgress=100,notifyIncrement=0.1)
     achievements(11)=(title="Useless Baggage",description="Win a match, having died every wave starting from wave 1")
 }
