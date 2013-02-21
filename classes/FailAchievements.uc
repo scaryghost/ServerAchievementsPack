@@ -8,6 +8,19 @@ enum FailIndex {
 
 var bool diedCurrentWave;
 
+function Timer() {
+    local Inventory inv;
+    super.Timer();
+
+    if (KFGameType(Level.Game).WaveNum == 1) {
+        for(inv= PlayerController(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
+            if (Flamethrower(inv) != none && Flamethrower(inv).AmmoAmount(0) == 0) {
+                achievementCompleted(FailIndex.HOT_TRIGGER);
+            }
+        }
+    }
+}
+    
 function bool isScrakeRaged(ZombieScrake scrake, optional float healthOffset) {
     return Level.Game.GameDifficulty < 5.0 && (scrake.Health - healthOffset) < 0.5 * scrake.HealthMax 
         || (scrake.Health - healthOffset) < 0.75 * scrake.HealthMax;
@@ -42,7 +55,7 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
     }
-    if (KFGameType(Level.Game).WaveNum == 1 && Level.Game.GameDifficulty <= 2 && 
+    if (KFGameType(Level.Game).WaveNum + 1 == 1 && Level.Game.GameDifficulty <= 2 && 
             KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
@@ -76,12 +89,8 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
             ZombieFleshpound(target).TwoSecondDamageTotal + damage > ZombieFleshpound(target).RageDamageThreshold) {
         achievementCompleted(FailIndex.PISTOL_PETE);
     }
-    if ((ZombieFleshpound(target) != none || ZombieScrake(target) != none) && KFMonster(target).BurnDown == 10) {
-        addProgress(FailIndex.HOT_TRIGGER, 1);
-    }
     if (ZombieScrake(target) != none && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
-            (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || 
-            class<DamTypeM203Grenade>(damageType) != none)) {
+            (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || class<DamTypeM203Grenade>(damageType) != none)) {
         addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
     }
 }
@@ -96,7 +105,7 @@ defaultproperties {
     achievements(4)=(title="Professional Demolitions",description="Kill 20 stalkers with impact damage from explosives",maxProgress=20,notifyIncrement=0.20)
     achievements(5)=(title="Watch Your Step",description="Be killed while still having full armor")
     achievements(6)=(title="Pistol Pete",description="Enrage a fleshpound with the 9mm or dual 9mm")
-    achievements(7)=(title="Hot Trigger",description="Light 20 scrakes or fleshpounds on fire",maxProgress=20,notifyIncrement=0.20)
+    achievements(7)=(title="Hot Trigger",description="Consume all of your flamethrower ammo on wave 1")
     achievements(8)=(title="Melting Point",description="Be killed by bloat bile as a berserker or medic")
     achievements(9)=(title="Master Demolitions",description="Enrage 50 scrakes with explosives",maxProgress=50,notifyIncrement=0.1)
     achievements(10)=(title="Demolitions God",description="Be killed by your own explosive 100 times",maxProgress=100,notifyIncrement=0.1)
