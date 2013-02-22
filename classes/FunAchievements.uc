@@ -74,7 +74,7 @@ event playerDied(Controller Killer, class<DamageType> damageType) {
     }
 }
 
-event killedMonster(Pawn target, class<DamageType> damageType, vector momentum, bool headshot) {
+event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local int i;
 
     achievements[FunIndex.MEDIC_GAME].canEarn= false;
@@ -84,7 +84,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, vector momentum, 
     if (ZombieHusk(target) != none && damageType == class'KFMod.DamTypeRocketImpact' && headshot) {
         addProgress(FunIndex.BLUNT_TRAUMA, 1);
     }
-    if (ZombieScrake(target) != none && momentum.Z > 40000) {
+    if (ZombieScrake(target) != none && ZombieScrake(target).LastMomentum.Z > 40000) {
         scrakesUppercutted++;
         if (scrakesUppercutted == 10) {
             achievementCompleted(FunIndex.SHORYUKEN);
