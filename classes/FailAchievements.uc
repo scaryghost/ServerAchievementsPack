@@ -12,7 +12,7 @@ function Timer() {
     local Inventory inv;
     super.Timer();
 
-    if (KFGameType(Level.Game).WaveNum == 1 && Owner != none) {
+    if (KFGameType(Level.Game).WaveNum == 0 && Owner != none && PlayerController(Owner).Pawn != none) {
         for(inv= PlayerController(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
             if (Flamethrower(inv) != none && Flamethrower(inv).AmmoAmount(0) == 0) {
                 achievementCompleted(FailIndex.HOT_TRIGGER);
@@ -55,7 +55,7 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
     }
-    if (KFGameType(Level.Game).WaveNum + 1 == 1 && Level.Game.GameDifficulty <= 2 && 
+    if (KFGameType(Level.Game).WaveNum == 0 && Level.Game.GameDifficulty <= 2 && 
             KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
