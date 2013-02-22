@@ -21,13 +21,13 @@ function bool isPistolDamage(class<DamageType> damageType) {
 function Timer() {
     super.Timer();
 
-    if (KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill != class'KFVetFieldMedic') {
+    if (Owner != none && KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill != class'KFVetFieldMedic') {
         achievements[FunIndex.MEDIC_GAME].canEarn= false;
     }
-    if (PlayerController(Owner).PlayerReplicationInfo.Score > 10000) {
+    if (Owner != none && PlayerController(Owner).PlayerReplicationInfo.Score > 10000) {
         achievementCompleted(FunIndex.IM_RICH);
     }
-    if (achievements[FunIndex.NET_LOSS].canEarn) {
+    if (Owner != none && achievements[FunIndex.NET_LOSS].canEarn) {
         numTimesPinged++;
         if (PlayerController(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
             numTimesUnder200++;

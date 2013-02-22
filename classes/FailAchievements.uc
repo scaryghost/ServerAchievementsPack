@@ -12,7 +12,7 @@ function Timer() {
     local Inventory inv;
     super.Timer();
 
-    if (KFGameType(Level.Game).WaveNum == 1) {
+    if (KFGameType(Level.Game).WaveNum == 1 && Owner != none) {
         for(inv= PlayerController(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
             if (Flamethrower(inv) != none && Flamethrower(inv).AmmoAmount(0) == 0) {
                 achievementCompleted(FailIndex.HOT_TRIGGER);
@@ -89,7 +89,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
             ZombieFleshpound(target).TwoSecondDamageTotal + damage > ZombieFleshpound(target).RageDamageThreshold) {
         achievementCompleted(FailIndex.PISTOL_PETE);
     }
-    if (ZombieScrake(target) != none && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
+    if (damage < target.Health && ZombieScrake(target) != none && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
             (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || class<DamTypeM203Grenade>(damageType) != none)) {
         addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
     }
