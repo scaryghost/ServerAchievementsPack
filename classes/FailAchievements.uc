@@ -62,7 +62,7 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     if (damageType == class'KFBloatVomit'.default.MyDamageType && (selectedSkill == class'KFVetBerserker' || selectedSkill == class'KFVetFieldMedic')) {
         achievementCompleted(FailIndex.MELTING_POINT);
     }
-    if (KFMonster(Killer.Pawn) != none && KFMonster(Killer.Pawn).bDecapitated) {
+    if (Killer != none && ZombieGorefast(Killer.Pawn) != none && ZombieGorefast(Killer.Pawn).bDecapitated) {
         achievementCompleted(FailIndex.GORED_FAST);
     }
     if (KFPawn(PlayerController(Owner).Pawn).ShieldStrength == KFPawn(PlayerController(Owner).Pawn).ShieldStrengthMax) {
