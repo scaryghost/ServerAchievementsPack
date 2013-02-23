@@ -50,7 +50,7 @@ event matchEnd(string mapname, float difficulty, int length, byte result) {
     if (length == KFGameType(Level.Game).GL_Long && achievements[FunIndex.MEDIC_GAME].canEarn) {
         achievementCompleted(FunIndex.MEDIC_GAME);
     }
-    if (achievements[FunIndex.NET_LOSS].canEarn && numTimesPinged * 0.95 <= numTimesUnder200) {
+    if (achievements[FunIndex.NET_LOSS].canEarn && numTimesPinged * 0.05 >= numTimesUnder200) {
         achievementCompleted(FunIndex.NET_LOSS);
     }
     if (speciesKilled.Length == KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length + 1) {
@@ -97,11 +97,12 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     if (isPistolDamage(damageType)) {
         if (ZombieBoss(target) != none) {
             speciesKilled[KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length]= 1;
-        }
-        for(i= 0; i < KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length; i++) {
-            if (string(target.class) ~= KFGameType(Level.Game).MonsterCollection.default.MonsterClasses[i].MClassName) {
-                speciesKilled[i]= 1;
-                break;
+        } else {
+            for(i= 0; i < KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length; i++) {
+                if (string(target.class) ~= KFGameType(Level.Game).MonsterCollection.default.MonsterClasses[i].MClassName) {
+                    speciesKilled[i]= 1;
+                    break;
+                }
             }
         }
     }
@@ -124,13 +125,13 @@ defaultproperties {
 
     achievements(0)=(title="Medic Game",description="Play and win a long game as medic, without killing a single specimen")
     achievements(1)=(title="Goomba Stomp",description="Kill a crawler by jumping on it")
-    achievements(2)=(title="Blunt Trauma",description="Kill 10 husks with impact head shots",maxProgress=20,notifyIncrement=0.25)
+    achievements(2)=(title="Blunt Trauma",description="Kill 10 husks with blunt grenade headshots",maxProgress=20,notifyIncrement=0.25)
     achievements(3)=(title="Shoryuken",description="Uppercut 10 scrakes in a game")
     achievements(4)=(title="I'm Rich!",description="Hold over £10000")
     achievements(5)=(title="Hadoken",description="Kill 10 fleshpounds with the husk cannon impact damage",maxProgress=10,notifyIncrement=0.5)
     achievements(6)=(title="Wild Wild West",description="Kill one of every specimen with pistols")
     achievements(7)=(title="I am a Spy",description="Backstab a fleshpound with the knife")
     achievements(8)=(title="Kamikaze",description="Kill yourself and the patriarch with a pipebomb")
-    achievements(9)=(title="Bluntly Stated",description="Stun a scrake with impact damage")
+    achievements(9)=(title="Bluntly Stated",description="Stun a scrake with a blunt grenade")
     achievements(10)=(title="Net Loss",description="Play a full match on a server with 200+ ping")
 }

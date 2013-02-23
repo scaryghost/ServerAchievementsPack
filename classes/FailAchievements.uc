@@ -102,7 +102,7 @@ defaultproperties {
     achievements(1)=(title="Amateur Demolitions",description="Kill 20 headless bloats with pipe bombs",maxProgress=20,notifyIncrement=0.20)
     achievements(2)=(title="Lost Baggage",description="Die with your syringe, welder, or knife out 10 times",maxProgress=10,notifyIncrement=0.5)
     achievements(3)=(title="Level 6 Pro",description="Die on wave 1 with a level 6 perk on normal or beginner difficulty")
-    achievements(4)=(title="Professional Demolitions",description="Kill 20 stalkers with impact damage from explosives",maxProgress=20,notifyIncrement=0.20)
+    achievements(4)=(title="Professional Demolitions",description="Kill 20 stalkers with blunt grenades",maxProgress=20,notifyIncrement=0.20)
     achievements(5)=(title="Watch Your Step",description="Be killed while still having full armor")
     achievements(6)=(title="Pistol Pete",description="Enrage a fleshpound with the 9mm or dual 9mm")
     achievements(7)=(title="Hot Trigger",description="Consume all of your flamethrower ammo on wave 1")
