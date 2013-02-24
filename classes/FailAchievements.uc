@@ -31,7 +31,7 @@ function MatchStarting() {
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result) {
-    if (achievements[FailIndex.USELESS_BAGGAGE].canEarn && result == 2 && KFGameType(Level.Game).WaveNum == KFGameType(Level.Game).FinalWave + 1) {
+    if (achievements[FailIndex.USELESS_BAGGAGE].canEarn && result == 2) {
         achievementCompleted(FailIndex.USELESS_BAGGAGE);
     }
 }
@@ -59,16 +59,15 @@ event playerDied(Controller killer, class<DamageType> damageType) {
             KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
-    if (damageType == class'KFBloatVomit'.default.MyDamageType && (selectedSkill == class'KFVetBerserker' || selectedSkill == class'KFVetFieldMedic')) {
-        achievementCompleted(FailIndex.MELTING_POINT);
+    if (KFPawn(PlayerController(Owner).Pawn).ShieldStrength == KFPawn(PlayerController(Owner).Pawn).ShieldStrengthMax) {
+        achievementCompleted(FailIndex.WATCH_YOUR_STEP);
     }
     if (Killer != none && ZombieGorefast(Killer.Pawn) != none && ZombieGorefast(Killer.Pawn).bDecapitated) {
         achievementCompleted(FailIndex.GORED_FAST);
     }
-    if (KFPawn(PlayerController(Owner).Pawn).ShieldStrength == KFPawn(PlayerController(Owner).Pawn).ShieldStrengthMax) {
-        achievementCompleted(FailIndex.WATCH_YOUR_STEP);
-    }
-    if ((class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || 
+    if (damageType == class'KFBloatVomit'.default.MyDamageType && (selectedSkill == class'KFVetBerserker' || selectedSkill == class'KFVetFieldMedic')) {
+        achievementCompleted(FailIndex.MELTING_POINT);
+    } else if ((class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || 
             class<DamTypeM203Grenade>(damageType) != none) && Killer == Controller(Owner)) {
         addProgress(FailIndex.DEMOLITIONS_GOD, 1);
     }
@@ -88,8 +87,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
             (!target.IsInState('BeginRaging') && !target.IsInState('RageCharging')) && 
             ZombieFleshpound(target).TwoSecondDamageTotal + damage > ZombieFleshpound(target).RageDamageThreshold) {
         achievementCompleted(FailIndex.PISTOL_PETE);
-    }
-    if (damage < target.Health && ZombieScrake(target) != none && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
+    } else if (damage < target.Health && ZombieScrake(target) != none && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
             (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || class<DamTypeM203Grenade>(damageType) != none)) {
         addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
     }

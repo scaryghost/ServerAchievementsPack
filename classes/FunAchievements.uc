@@ -47,7 +47,7 @@ function MatchStarting() {
 event matchEnd(string mapname, float difficulty, int length, byte result) {
     local int i;
 
-    if (length == KFGameType(Level.Game).GL_Long && achievements[FunIndex.MEDIC_GAME].canEarn) {
+    if (achievements[FunIndex.MEDIC_GAME].canEarn) {
         achievementCompleted(FunIndex.MEDIC_GAME);
     }
     if (achievements[FunIndex.NET_LOSS].canEarn && numTimesPinged * 0.05 >= numTimesUnder200) {
@@ -80,18 +80,17 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     achievements[FunIndex.MEDIC_GAME].canEarn= false;
     if (ZombieCrawler(target) != none && damageType == class'Crushed') {
         achievementCompleted(FunIndex.GOOMBA_STOMP);
-    }
-    if (ZombieHusk(target) != none && damageType == class'KFMod.DamTypeRocketImpact' && headshot) {
+    } else if (ZombieHusk(target) != none && damageType == class'KFMod.DamTypeRocketImpact' && headshot) {
         addProgress(FunIndex.BLUNT_TRAUMA, 1);
-    }
-    if (ZombieScrake(target) != none && ZombieScrake(target).LastMomentum.Z > 40000) {
+    } else if (ZombieScrake(target) != none && ZombieScrake(target).LastMomentum.Z > 40000) {
         scrakesUppercutted++;
         if (scrakesUppercutted == 10) {
             achievementCompleted(FunIndex.SHORYUKEN);
         }
-    }
-    if (ZombieFleshpound(target) != none && damageType == class'HuskGunProjectile'.default.ImpactDamageType) {
+    } else if (ZombieFleshpound(target) != none && damageType == class'HuskGunProjectile'.default.ImpactDamageType) {
         addProgress(FunIndex.HADOKEN, 1);
+    } else if (ZombieBoss(target) != none && damageType == class'PipeBombProjectile'.default.MyDamageType) {
+        patKillTime= Level.TimeSeconds;
     }
 
     if (isPistolDamage(damageType)) {
@@ -106,16 +105,12 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             }
         }
     }
-    if (ZombieBoss(target) != none && damageType == class'PipeBombProjectile'.default.MyDamageType) {
-        patKillTime= Level.TimeSeconds;
-    }
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
     if (ZombieScrake(target) != none && damageType == class'DamTypeRocketImpact' && damage * 1.5 > target.default.HealthMax) {
         achievementCompleted(FunIndex.BLUNTLY_STATED);
-    }
-    if (ZombieFleshpound(target) != none && damageType == class'DamTypeKnife' && ZombieFleshpound(target).bBackstabbed) {
+    } else if (ZombieFleshpound(target) != none && damageType == class'DamTypeKnife' && ZombieFleshpound(target).bBackstabbed) {
         achievementCompleted(FunIndex.I_AM_A_SPY);
     }
 }
@@ -123,7 +118,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
 defaultproperties {
     packName= "Fun Pack"
 
-    achievements(0)=(title="Medic Game",description="Play and win a long game as medic, without killing a single specimen")
+    achievements(0)=(title="Medic Game",description="Play a full game as medic, without killing a single specimen")
     achievements(1)=(title="Goomba Stomp",description="Kill a crawler by jumping on it")
     achievements(2)=(title="Blunt Trauma",description="Kill 10 husks with blunt grenade headshots",maxProgress=20,notifyIncrement=0.25)
     achievements(3)=(title="Shoryuken",description="Uppercut 10 scrakes in a game")
