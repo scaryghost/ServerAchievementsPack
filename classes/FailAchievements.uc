@@ -3,7 +3,8 @@ class FailAchievements extends AchievementPackPartImpl;
 enum FailIndex {
     GORED_FAST, AMATEUR_DEMOLITIONS, LOST_BAGGAGE, LEVEL_6_PRO,
     PROFESSIONAL_DEMOLITIONS, WATCH_YOUR_STEP, PISTOL_PETE, HOT_TRIGGER,
-    MELTING_POINT, MASTER_DEMOLITIONS, DEMOLITIONS_GOD, USELESS_BAGGAGE
+    MELTING_POINT, MASTER_DEMOLITIONS, DEMOLITIONS_GOD, USELESS_BAGGAGE, 
+    SHARP_SHOOTER
 };
 
 var bool diedCurrentWave;
@@ -87,9 +88,13 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
             (!target.IsInState('BeginRaging') && !target.IsInState('RageCharging')) && 
             ZombieFleshpound(target).TwoSecondDamageTotal + damage > ZombieFleshpound(target).RageDamageThreshold) {
         achievementCompleted(FailIndex.PISTOL_PETE);
-    } else if (damage < target.Health && ZombieScrake(target) != none && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
+    } else if (ZombieScrake(target) != none) {
+        if (damage < target.Health && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
             (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || class<DamTypeM203Grenade>(damageType) != none)) {
-        addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
+            addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
+        } else if (damageType == class'DamTypeM99SniperRifle' && !headshot) {
+            addProgress(FailIndex.SHARP_SHOOTER, 1);
+        }
     }
 }
 
@@ -108,4 +113,5 @@ defaultproperties {
     achievements(9)=(title="Master Demolitions",description="Enrage 50 scrakes with explosives",maxProgress=50,notifyIncrement=0.1)
     achievements(10)=(title="Demolitions God",description="Be killed by your own explosive 100 times",maxProgress=100,notifyIncrement=0.1)
     achievements(11)=(title="Useless Baggage",description="Win a match, having died every wave starting from wave 1")
+    achievements(12)=(title="Sharp Shooter",description="Body shot scrakes 10 times with the M99",maxProgress=10,notifyIncrement=0.5)
 }

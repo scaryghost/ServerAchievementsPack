@@ -3,7 +3,7 @@ class FunAchievements extends AchievementPackPartImpl;
 enum FunIndex {
     MEDIC_GAME, GOOMBA_STOMP, BLUNT_TRAUMA, SHORYUKEN, IM_RICH,
     HADOKEN, WILD_WILD_WEST, I_AM_A_SPY, KAMIKAZE, BLUNTLY_STATED,
-    NET_LOSS
+    NET_LOSS, HIGH_PRIORITY_TARGET
 };
 
 
@@ -12,10 +12,23 @@ var int scrakesUppercutted;
 var int numTimesUnder200;
 var int numtimesPinged;
 var float PatKillTime, selfPipeKillTime;
+var array<class<DamageType> > pistolDamage, bigGunsDamage;
 
+
+function bool contains(array<class<DamageType> > list, class<DamageType> key) {
+    local int i;
+
+    for(i= 0; i < list.Length && list[i] != key; i++) {
+    }
+    return i < list.Length;
+}
+    
 function bool isPistolDamage(class<DamageType> damageType) {
-    return class<DamTypeDualies>(damageType) != none || class<DamTypeMK23Pistol>(damageType) != none || class<DamTypeMagnum44Pistol>(damageType) != none || 
-            class<DamTypeDeagle>(damageType) != none || class<DamTypeFlareProjectileImpact>(damageType) != none || class<DamTypeFlareRevolver>(damageType) != none;
+    return contains(pistolDamage, damageType);
+}
+
+function bool isBigWeaponDamage(class<DamageType> damageType) {
+    return contains(bigGunsDamage, damageType);
 }
 
 function Timer() {
@@ -78,9 +91,13 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local int i;
 
     achievements[FunIndex.MEDIC_GAME].canEarn= false;
-    if (ZombieCrawler(target) != none && damageType == class'Crushed') {
-        achievementCompleted(FunIndex.GOOMBA_STOMP);
-    } else if (ZombieHusk(target) != none && damageType == class'KFMod.DamTypeRocketImpact' && headshot) {
+    if (ZombieCrawler(target) != none) {
+        if (isBigWeaponDamage(damageType)) {
+            addProgress(FunIndex.HIGH_PRIORITY_TARGET, 1);
+        } else if (damageType == class'Crushed') {
+            achievementCompleted(FunIndex.GOOMBA_STOMP);
+        }
+    } else if (ZombieHusk(target) != none && damageType == class'DamTypeRocketImpact' && headshot) {
         addProgress(FunIndex.BLUNT_TRAUMA, 1);
     } else if (ZombieScrake(target) != none && ZombieScrake(target).LastMomentum.Z > 40000) {
         scrakesUppercutted++;
@@ -118,6 +135,24 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
 defaultproperties {
     packName= "Fun Pack"
 
+    pistolDamage(0)= class'SingleFire'.default.DamageType
+    pistolDamage(1)= class'DualiesFire'.default.DamageType
+    pistolDamage(2)= class'MK23Fire'.default.DamageType
+    pistolDamage(3)= class'DualMK23Fire'.default.DamageType
+    pistolDamage(4)= class'Magnum44Fire'.default.DamageType
+    pistolDamage(5)= class'Dual44MagnumFire'.default.DamageType
+    pistolDamage(6)= class'DeagleFire'.default.DamageType
+    pistolDamage(7)= class'DualDeagleFire'.default.DamageType
+    pistolDamage(8)= class'FlareRevolverProjectile'.default.ImpactDamageType
+    pistolDamage(9)= class'FlareRevolverProjectile'.default.MyDamageType
+
+    bigGunsDamage(0)= class'LAWProj'.default.MyDamageType
+    bigGunsDamage(1)= class'M99Bullet'.default.MyDamageType
+    bigGunsDamage(2)= class'M99Bullet'.default.DamageTypeHeadShot
+    bigGunsDamage(3)= class'CrossbowArrow'.default.MyDamageType
+    bigGunsDamage(4)= class'CrossbowArrow'.default.DamageTypeHeadShot
+    bigGunsDamage(5)= class'BoomStickBullet'.default.MyDamageType
+
     achievements(0)=(title="Medic Game",description="Play a full game as medic, without killing a single specimen")
     achievements(1)=(title="Goomba Stomp",description="Kill a crawler by jumping on it")
     achievements(2)=(title="Blunt Trauma",description="Kill 10 husks with blunt grenade headshots",maxProgress=20,notifyIncrement=0.25)
@@ -129,4 +164,5 @@ defaultproperties {
     achievements(8)=(title="Kamikaze",description="Kill yourself and the patriarch with a pipebomb")
     achievements(9)=(title="Bluntly Stated",description="Stun a scrake with a blunt grenade")
     achievements(10)=(title="Net Loss",description="Play a full match on a server with 200+ ping")
+    achievements(11)=(title="High Priority Target",description="Kill 50 crawlers with big guns")
 }
