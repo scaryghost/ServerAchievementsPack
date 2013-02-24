@@ -31,6 +31,28 @@ function bool isBigWeaponDamage(class<DamageType> damageType) {
     return contains(bigGunsDamage, damageType);
 }
 
+function PostBeginPlay() {
+    super.PostBeginPlay();
+
+    pistolDamage[0]= class'SingleFire'.default.DamageType;
+    pistolDamage[1]= class'DualiesFire'.default.DamageType;
+    pistolDamage[2]= class'MK23Fire'.default.DamageType;
+    pistolDamage[3]= class'DualMK23Fire'.default.DamageType;
+    pistolDamage[4]= class'Magnum44Fire'.default.DamageType;
+    pistolDamage[5]= class'Dual44MagnumFire'.default.DamageType;
+    pistolDamage[6]= class'DeagleFire'.default.DamageType;
+    pistolDamage[7]= class'DualDeagleFire'.default.DamageType;
+    pistolDamage[8]= class'FlareRevolverProjectile'.default.ImpactDamageType;
+    pistolDamage[9]= class'FlareRevolverProjectile'.default.MyDamageType;
+
+    bigGunsDamage[0]= class'LAWProj'.default.MyDamageType;
+    bigGunsDamage[1]= class'M99Bullet'.default.MyDamageType;
+    bigGunsDamage[2]= class'M99Bullet'.default.DamageTypeHeadShot;
+    bigGunsDamage[3]= class'CrossbowArrow'.default.MyDamageType;
+    bigGunsDamage[4]= class'CrossbowArrow'.default.DamageTypeHeadShot;
+    bigGunsDamage[5]= class'BoomStickBullet'.default.MyDamageType;
+}
+
 function Timer() {
     super.Timer();
 
@@ -57,7 +79,7 @@ function MatchStarting() {
     }
 }
 
-event matchEnd(string mapname, float difficulty, int length, byte result) {
+event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     local int i;
 
     if (achievements[FunIndex.MEDIC_GAME].canEarn) {
@@ -81,7 +103,7 @@ event matchEnd(string mapname, float difficulty, int length, byte result) {
     }
 }
 
-event playerDied(Controller Killer, class<DamageType> damageType) {
+event playerDied(Controller Killer, class<DamageType> damageType, int waveNum) {
     if (Killer == Controller(Owner) && damageType == class'PipebombProjectile'.default.MyDamageType) {
         selfPipeKillTime= Level.TimeSeconds;
     }
@@ -134,24 +156,6 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
 
 defaultproperties {
     packName= "Fun Pack"
-
-    pistolDamage(0)= class'SingleFire'.default.DamageType
-    pistolDamage(1)= class'DualiesFire'.default.DamageType
-    pistolDamage(2)= class'MK23Fire'.default.DamageType
-    pistolDamage(3)= class'DualMK23Fire'.default.DamageType
-    pistolDamage(4)= class'Magnum44Fire'.default.DamageType
-    pistolDamage(5)= class'Dual44MagnumFire'.default.DamageType
-    pistolDamage(6)= class'DeagleFire'.default.DamageType
-    pistolDamage(7)= class'DualDeagleFire'.default.DamageType
-    pistolDamage(8)= class'FlareRevolverProjectile'.default.ImpactDamageType
-    pistolDamage(9)= class'FlareRevolverProjectile'.default.MyDamageType
-
-    bigGunsDamage(0)= class'LAWProj'.default.MyDamageType
-    bigGunsDamage(1)= class'M99Bullet'.default.MyDamageType
-    bigGunsDamage(2)= class'M99Bullet'.default.DamageTypeHeadShot
-    bigGunsDamage(3)= class'CrossbowArrow'.default.MyDamageType
-    bigGunsDamage(4)= class'CrossbowArrow'.default.DamageTypeHeadShot
-    bigGunsDamage(5)= class'BoomStickBullet'.default.MyDamageType
 
     achievements(0)=(title="Medic Game",description="Play a full game as medic, without killing a single specimen")
     achievements(1)=(title="Goomba Stomp",description="Kill a crawler by jumping on it")
