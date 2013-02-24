@@ -18,7 +18,7 @@ function MatchStarting() {
     achievements[FailIndex.USELESS_BAGGAGE].canEarn= true;
 }
 
-event matchEnd(string mapname, float difficulty, int length, byte result) {
+event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     if (achievements[FailIndex.USELESS_BAGGAGE].canEarn && result == 2) {
         achievementCompleted(FailIndex.USELESS_BAGGAGE);
     }
@@ -34,7 +34,7 @@ event waveEnd(int waveNum) {
     }
 }
 
-event playerDied(Controller killer, class<DamageType> damageType) {
+event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
     local Weapon currWpn;
     local class<KFVeterancyTypes> selectedSkill;
 
@@ -43,7 +43,7 @@ event playerDied(Controller killer, class<DamageType> damageType) {
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
     }
-    if (KFGameType(Level.Game).WaveNum == 0 && Level.Game.GameDifficulty <= 2 && 
+    if (waveNum == 1 && Level.Game.GameDifficulty <= 2 && 
             KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
