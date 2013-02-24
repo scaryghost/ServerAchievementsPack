@@ -8,9 +8,7 @@ enum FunIndex {
 
 
 var array<byte> speciesKilled;
-var int scrakesUppercutted;
-var int numTimesUnder200;
-var int numtimesPinged;
+var int scrakesUppercutted, numTimesUnder200, numtimesPinged, jumpedOnCrawler;
 var float PatKillTime, selfPipeKillTime;
 var array<class<DamageType> > pistolDamage, bigGunsDamage;
 
@@ -103,6 +101,10 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
     }
 }
 
+event waveStart(int waveNum) {
+    jumpedOnCrawler= 0;
+}
+
 event playerDied(Controller Killer, class<DamageType> damageType, int waveNum) {
     if (Killer == Controller(Owner) && damageType == class'PipebombProjectile'.default.MyDamageType) {
         selfPipeKillTime= Level.TimeSeconds;
@@ -113,12 +115,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local int i;
 
     achievements[FunIndex.MEDIC_GAME].canEarn= false;
-    if (ZombieCrawler(target) != none) {
-        if (isBigWeaponDamage(damageType)) {
-            addProgress(FunIndex.HIGH_PRIORITY_TARGET, 1);
-        } else if (damageType == class'Crushed') {
-            achievementCompleted(FunIndex.GOOMBA_STOMP);
-        }
+    if (ZombieCrawler(target) != none && isBigWeaponDamage(damageType)) {
+        addProgress(FunIndex.HIGH_PRIORITY_TARGET, 1);
     } else if (ZombieHusk(target) != none && damageType == class'DamTypeRocketImpact' && headshot) {
         addProgress(FunIndex.BLUNT_TRAUMA, 1);
     } else if (ZombieScrake(target) != none && ZombieScrake(target).LastMomentum.Z > 40000) {
@@ -151,6 +149,11 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
         achievementCompleted(FunIndex.BLUNTLY_STATED);
     } else if (ZombieFleshpound(target) != none && damageType == class'DamTypeKnife' && ZombieFleshpound(target).bBackstabbed) {
         achievementCompleted(FunIndex.I_AM_A_SPY);
+    } else if (ZombieCrawler(target) != none && damageType == class'Crushed') {
+        jumpedOnCrawler++;
+        if (jumpedOnCrawler == 8) {
+            achievementCompleted(FunIndex.GOOMBA_STOMP);
+        }
     }
 }
 
@@ -158,15 +161,15 @@ defaultproperties {
     packName= "Fun Pack"
 
     achievements(0)=(title="Medic Game",description="Play a full game as medic, without killing a single specimen")
-    achievements(1)=(title="Goomba Stomp",description="Kill a crawler by jumping on it")
-    achievements(2)=(title="Blunt Trauma",description="Kill 10 husks with blunt grenade headshots",maxProgress=20,notifyIncrement=0.25)
+    achievements(1)=(title="Goomba Stomp",description="Jump on a crawler 8 times in a wave")
+    achievements(2)=(title="Blunt Trauma",description="Kill 20 husks with blunt grenade headshots",maxProgress=20,notifyIncrement=0.25)
     achievements(3)=(title="Shoryuken",description="Uppercut 10 scrakes in a game")
     achievements(4)=(title="I'm Rich!",description="Hold over £10000")
-    achievements(5)=(title="Hadoken",description="Kill 10 fleshpounds with the husk cannon impact damage",maxProgress=10,notifyIncrement=0.5)
+    achievements(5)=(title="Hadoken",description="Kill 10 fleshpounds with husk cannon impact damage",maxProgress=10,notifyIncrement=0.5)
     achievements(6)=(title="Wild Wild West",description="Kill one of every specimen with pistols")
     achievements(7)=(title="I am a Spy",description="Backstab a fleshpound with the knife")
     achievements(8)=(title="Kamikaze",description="Kill yourself and the patriarch with a pipebomb")
     achievements(9)=(title="Bluntly Stated",description="Stun a scrake with a blunt grenade")
-    achievements(10)=(title="Net Loss",description="Play a full match on a server with 200+ ping")
+    achievements(10)=(title="Net Loss",description="Play a full game on a server with 200+ ping")
     achievements(11)=(title="High Priority Target",description="Kill 50 crawlers with big guns",maxProgress=50,notifyIncrement=0.1)
 }
