@@ -2,26 +2,13 @@ class FailAchievements extends AchievementPackPartImpl;
 
 enum FailIndex {
     GORED_FAST, AMATEUR_DEMOLITIONS, LOST_BAGGAGE, LEVEL_6_PRO,
-    PROFESSIONAL_DEMOLITIONS, WATCH_YOUR_STEP, PISTOL_PETE, HOT_TRIGGER,
+    PROFESSIONAL_DEMOLITIONS, WATCH_YOUR_STEP, PISTOL_PETE,
     MELTING_POINT, MASTER_DEMOLITIONS, DEMOLITIONS_GOD, USELESS_BAGGAGE, 
     SHARP_SHOOTER
 };
 
 var bool diedCurrentWave;
 
-function Timer() {
-    local Inventory inv;
-    super.Timer();
-
-    if (KFGameType(Level.Game).WaveNum == 0 && Owner != none && PlayerController(Owner).Pawn != none) {
-        for(inv= PlayerController(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
-            if (Flamethrower(inv) != none && Flamethrower(inv).AmmoAmount(0) == 0) {
-                achievementCompleted(FailIndex.HOT_TRIGGER);
-            }
-        }
-    }
-}
-    
 function bool isScrakeRaged(ZombieScrake scrake, optional float healthOffset) {
     return Level.Game.GameDifficulty < 5.0 && (scrake.Health - healthOffset) < 0.5 * scrake.HealthMax 
         || (scrake.Health - healthOffset) < 0.75 * scrake.HealthMax;
@@ -108,10 +95,9 @@ defaultproperties {
     achievements(4)=(title="Professional Demolitions",description="Kill 20 stalkers with blunt grenades",maxProgress=20,notifyIncrement=0.20)
     achievements(5)=(title="Watch Your Step",description="Be killed while still having full armor")
     achievements(6)=(title="Pistol Pete",description="Enrage a fleshpound with the 9mm or dual 9mm")
-    achievements(7)=(title="Hot Trigger",description="Consume all of your flamethrower ammo on wave 1")
-    achievements(8)=(title="Melting Point",description="Be killed by bloat bile as a berserker or medic")
-    achievements(9)=(title="Master Demolitions",description="Enrage 50 scrakes with explosives",maxProgress=50,notifyIncrement=0.1)
-    achievements(10)=(title="Demolitions God",description="Be killed by your own explosive 100 times",maxProgress=100,notifyIncrement=0.1)
-    achievements(11)=(title="Useless Baggage",description="Win a match, having died every wave starting from wave 1")
-    achievements(12)=(title="Sharp Shooter",description="Body shot scrakes 10 times with the M99",maxProgress=10,notifyIncrement=0.5)
+    achievements(7)=(title="Melting Point",description="Be killed by bloat bile as a berserker or medic")
+    achievements(8)=(title="Master Demolitions",description="Enrage 50 scrakes with explosives",maxProgress=50,notifyIncrement=0.1)
+    achievements(9)=(title="Demolitions God",description="Be killed by your own explosive 100 times",maxProgress=100,notifyIncrement=0.1)
+    achievements(10)=(title="Useless Baggage",description="Win a match, having died every wave starting from wave 1")
+    achievements(11)=(title="Sharp Shooter",description="Body shot scrakes 10 times with the M99",maxProgress=10,notifyIncrement=0.5)
 }

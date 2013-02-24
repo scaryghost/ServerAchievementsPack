@@ -164,5 +164,5 @@ defaultproperties {
     achievements(8)=(title="Kamikaze",description="Kill yourself and the patriarch with a pipebomb")
     achievements(9)=(title="Bluntly Stated",description="Stun a scrake with a blunt grenade")
     achievements(10)=(title="Net Loss",description="Play a full match on a server with 200+ ping")
-    achievements(11)=(title="High Priority Target",description="Kill 50 crawlers with big guns")
+    achievements(11)=(title="High Priority Target",description="Kill 50 crawlers with big guns",maxProgress=50,notifyIncrement=0.1)
 }
