@@ -3,7 +3,7 @@ class FunAchievements extends AchievementPackPartImpl;
 enum FunIndex {
     MEDIC_GAME, GOOMBA_STOMP, BLUNT_TRAUMA, SHORYUKEN, IM_RICH,
     HADOKEN, WILD_WILD_WEST, I_AM_A_SPY, KAMIKAZE, BLUNTLY_STATED,
-    NET_LOSS, HIGH_PRIORITY_TARGET
+    NET_LOSS, HIGH_PRIORITY_TARGET, MIND_READER
 };
 
 
@@ -154,6 +154,10 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
         if (jumpedOnCrawler == 8) {
             achievementCompleted(FunIndex.GOOMBA_STOMP);
         }
+    } else if (ZombieBoss(target) != none && damageType == class'PipeBombProjectile'.default.MyDamageType) {
+        if (target.IsInState('MakingEntrance')) {
+            achievementCompleted(FunIndex.MIND_READER);
+        }
     }
 }
 
@@ -172,4 +176,5 @@ defaultproperties {
     achievements(9)=(title="Bluntly Stated",description="Stun a scrake with a blunt grenade")
     achievements(10)=(title="Net Loss",description="Play a full game on a server with 200+ ping")
     achievements(11)=(title="High Priority Target",description="Kill 50 crawlers with big guns",maxProgress=50,notifyIncrement=0.1)
+    achievements(12)=(title="Mind Reader",description="Damage the Patriarch with a pipe bomb during the cut scene")
 }
