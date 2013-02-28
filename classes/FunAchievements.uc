@@ -11,7 +11,7 @@ var array<byte> speciesKilled;
 var int scrakesUppercutted, numTimesUnder200, numtimesPinged, jumpedOnCrawler;
 var float PatKillTime, selfPipeKillTime;
 var array<class<DamageType> > pistolDamage, bigGunsDamage;
-
+var bool canEarnMedicGame, canEarnNetLoss;
 
 function bool contains(array<class<DamageType> > list, class<DamageType> key) {
     local int i;
@@ -49,18 +49,20 @@ function PostBeginPlay() {
     bigGunsDamage[3]= class'CrossbowArrow'.default.MyDamageType;
     bigGunsDamage[4]= class'CrossbowArrow'.default.DamageTypeHeadShot;
     bigGunsDamage[5]= class'BoomStickBullet'.default.MyDamageType;
+
+    SetTimer(1.0, true);
 }
 
 function Timer() {
     super.Timer();
 
     if (Owner != none && KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill != class'KFVetFieldMedic') {
-        achievements[FunIndex.MEDIC_GAME].canEarn= false;
+        canEarnMedicGame= false;
     }
     if (Owner != none && PlayerController(Owner).PlayerReplicationInfo.Score > 10000) {
         achievementCompleted(FunIndex.IM_RICH);
     }
-    if (Owner != none && achievements[FunIndex.NET_LOSS].canEarn) {
+    if (Owner != none && canEarnNetLoss) {
         numTimesPinged++;
         if (PlayerController(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
             numTimesUnder200++;
@@ -70,20 +72,20 @@ function Timer() {
 
 function MatchStarting() {
     if (KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetFieldMedic') {
-        achievements[FunIndex.MEDIC_GAME].canEarn= true;
+        canEarnMedicGame= true;
     }
     if (Level.GetLocalPlayerController() != PlayerController(Owner)) {
-        achievements[FunIndex.NET_LOSS].canEarn= true;
+        canEarnNetLoss= true;
     }
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     local int i;
 
-    if (achievements[FunIndex.MEDIC_GAME].canEarn) {
+    if (canEarnMedicGame) {
         achievementCompleted(FunIndex.MEDIC_GAME);
     }
-    if (achievements[FunIndex.NET_LOSS].canEarn && numTimesPinged * 0.05 >= numTimesUnder200) {
+    if (canEarnNetLoss && numTimesPinged > 600 && numTimesPinged * 0.05 >= numTimesUnder200) {
         achievementCompleted(FunIndex.NET_LOSS);
     }
     if (speciesKilled.Length == KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length + 1) {
@@ -114,7 +116,7 @@ event playerDied(Controller Killer, class<DamageType> damageType, int waveNum) {
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local int i;
 
-    achievements[FunIndex.MEDIC_GAME].canEarn= false;
+    canEarnMedicGame= false;
     if (ZombieCrawler(target) != none && isBigWeaponDamage(damageType)) {
         addProgress(FunIndex.HIGH_PRIORITY_TARGET, 1);
     } else if (ZombieHusk(target) != none && damageType == class'DamTypeRocketImpact' && headshot) {

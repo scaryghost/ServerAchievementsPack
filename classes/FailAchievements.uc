@@ -8,6 +8,7 @@ enum FailIndex {
 };
 
 var bool diedCurrentWave;
+var bool canEarnUselessBaggage;
 
 function bool isScrakeRaged(ZombieScrake scrake, optional float healthOffset) {
     return Level.Game.GameDifficulty < 5.0 && (scrake.Health - healthOffset) < 0.5 * scrake.HealthMax 
@@ -15,11 +16,11 @@ function bool isScrakeRaged(ZombieScrake scrake, optional float healthOffset) {
 }
 
 function MatchStarting() {
-    achievements[FailIndex.USELESS_BAGGAGE].canEarn= true;
+    canEarnUselessBaggage= true;
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
-    if (achievements[FailIndex.USELESS_BAGGAGE].canEarn && result == 2) {
+    if (canEarnUselessBaggage && result == 2) {
         achievementCompleted(FailIndex.USELESS_BAGGAGE);
     }
 }
@@ -30,7 +31,7 @@ event waveStart(int waveNum) {
 
 event waveEnd(int waveNum) {
     if (!diedCurrentWave) {
-        achievements[FailIndex.USELESS_BAGGAGE].canEarn= false;
+        canEarnUselessBaggage= false;
     }
 }
 
