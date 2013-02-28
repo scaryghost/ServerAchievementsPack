@@ -15,3 +15,7 @@ Add these lines to ServerAchievements.ini to load the achievement packs into the
 
     achievementPacks=ServerAchievementsPack.FailAchievements
     achievementPacks=ServerAchievementsPack.FunAchievements
+
+## Achievement Packs
+Please see the wiki page for list of achievement packs and descriptions.  
+https://github.com/scaryghost/ServerAchievementsPack/wiki
