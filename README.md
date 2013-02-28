@@ -1,4 +1,17 @@
 ServerAchievementsPack
 ======================
 
-Pack of custom achievements for Killing Floor
+This package contains custom achievements for Killing Floor.  Currently there are no icons for the achievements so the 
+default checkmark will be used for now.
+
+## Version
+1.0
+
+## Install
+Copy the contents of the system folder into your Killing Floor system folder.
+
+## Configure
+Add these lines to ServerAchievements.ini to load the achievement packs into the game.
+
+    achievementPacks=ServerAchievementsPack.FailAchievements
+    achievementPacks=ServerAchievementsPack.FunAchievements
