@@ -1,6 +1,34 @@
 class StockMapsSuicidal extends MapAchievementsBase;
 
 defaultproperties {
+    packName= "Stock Maps - Suicidal"
+    requiredDifficulty= 5.0
+
+    mapIndexes(0)=(mapname="kf-abusementpark",achvIndex=19)
+    mapIndexes(1)=(mapname="kf-aperture",achvIndex=18)
+    mapIndexes(2)=(mapname="kf-bedlam",achvIndex=6)
+    mapIndexes(3)=(mapname="kf-biohazard",achvIndex=8)
+    mapIndexes(4)=(mapname="kf-bioticslab",achvIndex=4)
+    mapIndexes(5)=(mapname="kf-crash",achvIndex=9)
+    mapIndexes(6)=(mapname="kf-departed",achvIndex=10)
+    mapIndexes(7)=(mapname="kf-evilsantaslair",achvIndex=17)
+    mapIndexes(8)=(mapname="kf-farm",achvIndex=2)
+    mapIndexes(9)=(mapname="kf-filthscross",achvIndex=11)
+    mapIndexes(10)=(mapname="kf-foundry",achvIndex=5)
+    mapIndexes(11)=(mapname="kf-hellride",achvIndex=21)
+    mapIndexes(12)=(mapname="kf-hillbillyhorror",achvIndex=22)
+    mapIndexes(13)=(mapname="kf-hospitalhorrors",achvIndex=12)
+    mapIndexes(14)=(mapname="kf-icebreaker",achvIndex=13)
+    mapIndexes(15)=(mapname="kf-icecave",achvIndex=20)
+    mapIndexes(16)=(mapname="kf-manor",achvIndex=1)
+    mapIndexes(17)=(mapname="kf-moonbase",achvIndex=23)
+    mapIndexes(18)=(mapname="kf-mountainpass",achvIndex=14)
+    mapIndexes(19)=(mapname="kf-offices",achvIndex=3)
+    mapIndexes(20)=(mapname="kf-suburbia",achvIndex=15)
+    mapIndexes(21)=(mapname="kf-waterworks",achvIndex=16)
+    mapIndexes(22)=(mapname="kf-westlondon",achvIndex=0)
+    mapIndexes(23)=(mapname="kf-wyre",achvIndex=7)
+
     achievements(0)=(title="Suicidal Pub Crawl",description="Win a medium or long game on West London on Suicidal difficulty",image=Texture'KillingFloorHUD.Achievements.Achievement_12')
     achievements(1)=(title="Emperor of the Manor",description="Win a medium or long game on Manor on Suicidal difficulty",image=Texture'KillingFloorHUD.Achievements.Achievement_12')
     achievements(2)=(title="Alligator Farmer",description="Win a medium or long game on Farm on Suicidal difficulty",image=Texture'KillingFloorHUD.Achievements.Achievement_14')
@@ -24,4 +52,5 @@ defaultproperties {
     achievements(20)=(title="On Thre Rocks",description="Win a medium or long game on Ice Cave on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_173')
     achievements(21)=(title="Demoic Road",description="Win a medium or long game on Hellride on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_183')
     achievements(22)=(title="First Coustins (Once Removed)",description="Win a medium or long game on Hillbilly Horror on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_191')
+    achievements(23)=(title="Amusing Death",description="Win a medium or long game on Moonbase on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_206')
 }
