@@ -1,4 +1,4 @@
-class MapAchievements extends AchievementPackPartImpl;
+class StockMapsNormal extends AchievementPackPartImpl;
 
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     Level.Game.Broadcast(PlayerController(Owner), mapname);
@@ -30,5 +30,4 @@ defaultproperties {
     achievements(20)=(title="Snow Cave",description="Win a medium or long game on Ice Cave on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_171')
     achievements(21)=(title="Highway to Heaven",description="Win a medium or long game on Hellride on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_181')
     achievements(22)=(title="Third Cousins",description="Win a medium or long game on Hillbilly Horror on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_189')
-    
 }
