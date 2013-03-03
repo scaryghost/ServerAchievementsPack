@@ -1,9 +1,5 @@
 class StockMapsNormal extends MapAchievementsBase;
 
-event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
-    Level.Game.Broadcast(PlayerController(Owner), mapname);
-}
-
 defaultproperties {
     packName= "Stock Maps - Normal"
     requiredDifficulty= 2.0
