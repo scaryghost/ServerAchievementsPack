@@ -69,6 +69,36 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     }
 }
 
+event pickedUpItem(Pickup item) {
+    local int i;
+    local SAReplicationInfo saRepInfo;
+
+    if (CashPickup(item) != none && Controller(Owner).PlayerReplicationInfo != CashPickup(item).DroppedBy.PlayerReplicationInfo) {
+        if ((CashPickup(item).DroppedBy.PlayerReplicationInfo.Score + float(CashPickup(item).CashAmount)) >= 0.50 * Controller(Owner).PlayerReplicationInfo.Score) {
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(CashPickup(item).DroppedBy.PlayerReplicationInfo);
+            for(i= 0; i < saRepInfo.achievementPacks.Length; i++) {
+                if (StockKFAchievements(saRepInfo.achievementPacks[i]) != none) {
+                    StockKFAchievements(saRepInfo.achievementPacks[i]).addProgress(StockIndex.PHILANTHROPIST, CashPickup(item).CashAmount);
+                }
+            }
+        }
+    }
+}
+
+event touchedHealDart(MP7MHealinglProjectile healDart) {
+    local int i;
+    local SAReplicationInfo saRepInfo;
+
+    if (Controller(Owner).Pawn.Health < Controller(Owner).Pawn.HealthMax && healDart.IsA('MP7MHealinglProjectile')) {
+        saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
+        for(i= 0; i < saRepInfo.achievementPacks.Length; i++) {
+            if (StockKFAchievements(saRepInfo.achievementPacks[i]) != none) {
+                StockKFAchievements(saRepInfo.achievementPacks[i]).addProgress(StockIndex.HEALING_TOUCH, 1);
+            }
+        }
+    }
+}
+
 defaultproperties {
     packName= "Stock KF"
 
