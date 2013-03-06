@@ -4,19 +4,90 @@ enum StockIndex {
     EXPERIMENTICIDE, FACIST_DIETITIAN, HOMERS_HEROES, KEEP_THOSE_SNEAKERS, RANDOM_AXE,
     BITTER_IRONY, HOT_CROSS_FUN, DIGNITY_FOR_THE_DEAD, TOO_CLOSE, MASTER_SURGEON,
     ITS_WHATS_INSIDE, QUARTER_POUNDER, THIN_ICE, PHILANTHROPIST, STRAIGHT_RUSH,
-    BROKE_THE_CAMELS_BACK, DEATH_TO_MAD_SCIENTEST, EXPERIMENTIMILLICIDE, EXPERIMENTILOTTACIDE, 
-    EXPLOSIVE_PERSONALITY, MERRY_MEN, BLOOPER_REAL, DOT_OF_DOOM, SCARD, HEALING_TOUCH,
+    BROKE_THE_CAMELS_BACK, DEATH_TO_THE_MAD_SCIENTIST, EXPERIMENTIMILLICIDE, EXPERIMENTILOTTACIDE, 
+    EXPLOSIVE_PERSONALITY, MERRY_MEN, BLOOPER_REEL, DOT_OF_DOOM, SCARD, HEALING_TOUCH,
     POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN
 };
 
-var int axeKills;
-var int scrakeChainsawKills;
-var int medicKnifeKills;
-//target.Health <= 0 && Damage > DamageType.default.HumanObliterationThreshhold && Damage != 1000 && (!bDecapitated || bPlayBrainSplash)
+var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills;
+var bool onlyCrossbowDmg, survivedWave;
+var array<Pawn> gibbedMonsters;
+
+function bool isGibbed(Pawn monster) {
+    local int i;
+    for(i= 0; i < gibbedMonsters.Length && gibbedMonsters[i] != monster; i++) {
+    }
+    if (i < gibbedMonsters.Length) {
+        gibbedMonsters.remove(i, 1);
+        return true;
+    }
+    return false;
+}
+
+function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> achievementPacks) {
+    local int i;
+
+    for(i= 0; i < achievementPacks.Length; i++) {
+        if (StockKFAchievements(achievementPacks[i]) != none) {
+            return StockKFAchievements(achievementPacks[i]);
+        }
+    }
+    return none;
+}
+
+event waveEnd(int waveNum) {
+    local SAReplicationInfo saRepInfo;
+    local bool onlySurvivor;
+    local Controller C;
+
+    if (survivedWave) {
+        onlySurvivor= true;
+        for(C= Level.ControllerList; C != none; C= C.NextController) {
+            if (!C.PlayerReplicationInfo.bOnlySpectator) {
+                saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
+                onlySurvivor= onlySurvivor && !getStockKFAchievementsObj(saRepInfo.achievementPacks).survivedWave;
+            }
+        }
+        if (onlySurvivor) {
+            addProgress(StockIndex.THIN_ICE, 1);
+        }
+    }
+}
+
+event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
+    if (result == 2 && difficulty >= 5.0) {
+        achievementCompleted(StockIndex.DEATH_TO_THE_MAD_SCIENTIST);
+    }
+}
+
+event waveStart(int waveNum) {
+    survivedWave= true;
+}
+
+event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
+    survivedWave= false;
+}
+
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
+    local Controller C;
+    local SAReplicationInfo saRepInfo;
+    local bool allOnlyCrossbowDmg;
+    local int i;
+    local array<StockKFAchievements> stockKFAchievements;
+
     addProgress(StockIndex.EXPERIMENTICIDE, 1);
     addProgress(StockIndex.EXPERIMENTIMILLICIDE, 1);
     addProgress(StockIndex.EXPERIMENTILOTTACIDE, 1);
+
+    if (isGibbed(target)) {
+        addProgress(StockIndex.ITS_WHATS_INSIDE, 1);
+        if (ZombieFleshpound(target) != none) {
+            addProgress(StockIndex.QUARTER_POUNDER, 1);
+        }
+        if (damageType == class'DamTypeM79Grenade') {
+            addProgress(StockIndex.BLOOPER_REEL, 1);
+        }
+    }
 
     if (ZombieBloat(target) != none) {
         addProgress(StockIndex.FACIST_DIETITIAN, 1);
@@ -36,9 +107,21 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             addProgress(StockIndex.POUND_THIS, 1);
         }
     } else if (ZombieBoss(target) != none) {
-        if (ZombieBoss(target).SyringeCount == 0) {
-            //Need to alert others that he had didn't use any syringes
-            achievementCompleted(StockIndex.STRAIGHT_RUSH);
+        allOnlyCrossbowDmg= true;
+        for(C= Level.ControllerList; C != none; C= C.NextController) {
+            if (!C.PlayerReplicationInfo.bOnlySpectator) {
+                saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
+                stockKFAchievements[stockKFAchievements.Length]= getStockKFAchievementsObj(saRepInfo.achievementPacks);
+                allOnlyCrossbowDmg= allOnlyCrossbowDmg && stockKFAchievements[stockKFAchievements.Length - 1].onlyCrossbowDmg;
+            }
+        }
+        for(i= 0; i < stockKFAchievements.Length; i++) {
+            if (ZombieBoss(target).SyringeCount == 0) {
+                stockKFAchievements[i].achievementCompleted(StockIndex.STRAIGHT_RUSH);
+            }
+        }
+        if (allOnlyCrossbowDmg) {
+            achievementCompleted(StockIndex.MERRY_MEN);
         }
         if (damageType == class'DamTypeLaw') {
             achievementCompleted(StockIndex.BROKE_THE_CAMELS_BACK);
@@ -70,37 +153,54 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
 }
 
 event pickedUpItem(Pickup item) {
-    local int i;
     local SAReplicationInfo saRepInfo;
 
     if (CashPickup(item) != none && Controller(Owner).PlayerReplicationInfo != CashPickup(item).DroppedBy.PlayerReplicationInfo) {
         if ((CashPickup(item).DroppedBy.PlayerReplicationInfo.Score + float(CashPickup(item).CashAmount)) >= 0.50 * Controller(Owner).PlayerReplicationInfo.Score) {
             saRepInfo= class'SAReplicationInfo'.static.findSARI(CashPickup(item).DroppedBy.PlayerReplicationInfo);
-            for(i= 0; i < saRepInfo.achievementPacks.Length; i++) {
-                if (StockKFAchievements(saRepInfo.achievementPacks[i]) != none) {
-                    StockKFAchievements(saRepInfo.achievementPacks[i]).addProgress(StockIndex.PHILANTHROPIST, CashPickup(item).CashAmount);
-                }
-            }
+            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.PHILANTHROPIST, CashPickup(item).CashAmount);
         }
     }
 }
 
+event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
+    if (KFMonster(target) != none) {
+        if (headshot && KFMonster(target).bDecapitated) {
+            if (KFMonster(target).bLaserSightedEBRM14Headshotted) {
+                ebrHeadShotKills++;
+                if (ebrHeadShotKills == 25) {
+                    achievementCompleted(StockIndex.DOT_OF_DOOM);
+                }
+            } else {
+                ebrHeadShotKills= 0;
+            }
+        }
+        if ( target.Health - damage <= 0 && damage > damageType.default.HumanObliterationThreshhold && damage != 1000 && 
+                (!KFMonster(target).bDecapitated || KFMonster(target).bPlayBrainSplash)) {
+            gibbedMonsters[gibbedMonsters.Length]= target;
+        }
+    }
+    if (ZombieBoss(target) != none && (damageType != class'DamTypeCrossbow' && damageType != class'DamTypeCrossbowHeadshot')) {
+        onlyCrossbowDmg= false;
+    }
+    if (damageType == class'DamTypeMAC10MPInc') {
+        addProgress(StockIndex.LET_THEM_BURN, min(damage, target.Health));
+    }
+}
+
 event touchedHealDart(MP7MHealinglProjectile healDart) {
-    local int i;
     local SAReplicationInfo saRepInfo;
 
     if (Controller(Owner).Pawn.Health < Controller(Owner).Pawn.HealthMax && healDart.IsA('MP7MHealinglProjectile')) {
         saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
-        for(i= 0; i < saRepInfo.achievementPacks.Length; i++) {
-            if (StockKFAchievements(saRepInfo.achievementPacks[i]) != none) {
-                StockKFAchievements(saRepInfo.achievementPacks[i]).addProgress(StockIndex.HEALING_TOUCH, 1);
-            }
-        }
+        getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.HEALING_TOUCH, 1);
     }
 }
 
 defaultproperties {
     packName= "Stock KF"
+
+    onlyCrossbowDmg= true;
 
     achievements(0)=(title="Experimenticide",description="Kill 100 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_18',maxProgress=100,notifyIncrement=1.0)
     achievements(1)=(title="Fascist Dietitian",description="Kill 200 bloats",image=Texture'KillingFloorHUD.Achievements.Achievement_21',maxProgress=200,notifyIncrement=0.2)
@@ -123,7 +223,7 @@ defaultproperties {
     achievements(18)=(title="Experimentilottacide",description="Kill 10,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_20',maxProgress=10000,notifyIncrement=0.25)
     achievements(19)=(title="Explosive Personality",description="As Demolitions, kill 1000 specimens with the the pipebomb",image=Texture'KillingFloor2HUD.Achievements.Achievement_56',maxProgress=1000,notifyIncrement=0.1)
     achievements(20)=(title="Merry Men",description="Kill the patriarch when everyone is ONLY using crossbows",image=Texture'KillingFloor2HUD.Achievements.Achievement_58')
-    achievements(21)=(title="Blooper Reel",description="Turn 500 Zeds into Giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
+    achievements(21)=(title="Blooper Reel",description="Turn 500 Zeds into giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
     achievements(22)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
     achievements(23)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
     achievements(24)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
