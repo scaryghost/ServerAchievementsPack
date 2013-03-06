@@ -10,7 +10,7 @@ enum StockIndex {
 };
 
 var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills;
-var bool onlyCrossbowDmg, survivedWave;
+var bool onlyCrossbowDmg, survivedWave, canEarnThinIce;
 var array<Pawn> gibbedMonsters;
 
 function bool isGibbed(Pawn monster) {
@@ -40,10 +40,10 @@ event waveEnd(int waveNum) {
     local bool onlySurvivor;
     local Controller C;
 
-    if (survivedWave) {
+    if (survivedWave && canEarnThinIce) {
         onlySurvivor= true;
         for(C= Level.ControllerList; C != none; C= C.NextController) {
-            if (!C.PlayerReplicationInfo.bOnlySpectator) {
+            if (PlayerController(C) != none && C != Controller(Owner) && !C.PlayerReplicationInfo.bOnlySpectator) {
                 saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
                 onlySurvivor= onlySurvivor && !getStockKFAchievementsObj(saRepInfo.achievementPacks).survivedWave;
             }
@@ -62,6 +62,7 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
 
 event waveStart(int waveNum) {
     survivedWave= true;
+    canEarnThinIce= Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1;
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
@@ -155,8 +156,10 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
 event pickedUpItem(Pickup item) {
     local SAReplicationInfo saRepInfo;
 
-    if (CashPickup(item) != none && Controller(Owner).PlayerReplicationInfo != CashPickup(item).DroppedBy.PlayerReplicationInfo) {
-        if ((CashPickup(item).DroppedBy.PlayerReplicationInfo.Score + float(CashPickup(item).CashAmount)) >= 0.50 * Controller(Owner).PlayerReplicationInfo.Score) {
+    if (CashPickup(item) != none && CashPickup(item).DroppedBy != none && 
+            Controller(Owner).PlayerReplicationInfo != CashPickup(item).DroppedBy.PlayerReplicationInfo) {
+        if ((CashPickup(item).DroppedBy.PlayerReplicationInfo.Score + float(CashPickup(item).CashAmount)) >= 
+                0.50 * Controller(Owner).PlayerReplicationInfo.Score) {
             saRepInfo= class'SAReplicationInfo'.static.findSARI(CashPickup(item).DroppedBy.PlayerReplicationInfo);
             getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.PHILANTHROPIST, CashPickup(item).CashAmount);
         }
@@ -205,7 +208,7 @@ defaultproperties {
     achievements(0)=(title="Experimenticide",description="Kill 100 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_18',maxProgress=100,notifyIncrement=1.0)
     achievements(1)=(title="Fascist Dietitian",description="Kill 200 bloats",image=Texture'KillingFloorHUD.Achievements.Achievement_21',maxProgress=200,notifyIncrement=0.2)
     achievements(2)=(title="Homer's Heroes",description="Kill 100 sirens",image=Texture'KillingFloorHUD.Achievements.Achievement_22',maxProgress=100,notifyIncrement=0.2)
-    achievements(3)=(title="Keep Those Sneakers Off the Floor!",description="Kill 20 stalkers with explosives",image=Texture'KillingFloorHUD.Achievements.Achievement_23',maxProgress=20)
+    achievements(3)=(title="Keep Those Sneakers Off the Floor!",description="Kill 20 stalkers with explosives",image=Texture'KillingFloorHUD.Achievements.Achievement_23',maxProgress=20,notifyIncrement=0.25)
     achievements(4)=(title="Random Axe of Kindness",description="Kill 15 specimens with a fire axe in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_24')
     achievements(5)=(title="Bitter Irony",description="Kill 2 scrakes with a chainsaw in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_25')
     achievements(6)=(title="Hot Cross Fun",description="Kill 25 burning specimens with a crossbow",image=Texture'KillingFloorHUD.Achievements.Achievement_26',maxProgress=25,notifyIncrement=0.2)

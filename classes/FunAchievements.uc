@@ -56,22 +56,22 @@ function PostBeginPlay() {
 function Timer() {
     super.Timer();
 
-    if (Owner != none && KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill != class'KFVetFieldMedic') {
+    if (Owner != none && KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo).ClientVeteranSkill != class'KFVetFieldMedic') {
         canEarnMedicGame= false;
     }
-    if (Owner != none && PlayerController(Owner).PlayerReplicationInfo.Score > 10000) {
+    if (Owner != none && Controller(Owner).PlayerReplicationInfo.Score > 10000) {
         achievementCompleted(FunIndex.IM_RICH);
     }
     if (Owner != none && canEarnNetLoss) {
         numTimesPinged++;
-        if (PlayerController(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
+        if (Controller(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
             numTimesUnder200++;
         }
     }
 }
 
 function MatchStarting() {
-    if (KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetFieldMedic') {
+    if (KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetFieldMedic') {
         canEarnMedicGame= true;
     }
     if (Level.GetLocalPlayerController() != PlayerController(Owner)) {
