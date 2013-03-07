@@ -73,8 +73,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local Controller C;
     local SAReplicationInfo saRepInfo;
     local bool allOnlyCrossbowDmg;
-    local int i;
-    local array<StockKFAchievements> stockKFAchievements;
+    local StockKFAchievements stockKFAchievementObj;
 
     addProgress(StockIndex.EXPERIMENTICIDE, 1);
     addProgress(StockIndex.EXPERIMENTIMILLICIDE, 1);
@@ -108,24 +107,22 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             addProgress(StockIndex.POUND_THIS, 1);
         }
     } else if (ZombieBoss(target) != none) {
+        if (damageType == class'DamTypeLaw') {
+            achievementCompleted(StockIndex.BROKE_THE_CAMELS_BACK);
+        }
         allOnlyCrossbowDmg= true;
         for(C= Level.ControllerList; C != none; C= C.NextController) {
-            if (!C.PlayerReplicationInfo.bOnlySpectator) {
+            if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
                 saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
-                stockKFAchievements[stockKFAchievements.Length]= getStockKFAchievementsObj(saRepInfo.achievementPacks);
-                allOnlyCrossbowDmg= allOnlyCrossbowDmg && stockKFAchievements[stockKFAchievements.Length - 1].onlyCrossbowDmg;
-            }
-        }
-        for(i= 0; i < stockKFAchievements.Length; i++) {
-            if (ZombieBoss(target).SyringeCount == 0) {
-                stockKFAchievements[i].achievementCompleted(StockIndex.STRAIGHT_RUSH);
+                stockKFAchievementObj= getStockKFAchievementsObj(saRepInfo.achievementPacks);
+                if (!ZombieBoss(target).bHealed) {
+                    stockKFAchievementObj.achievementCompleted(StockIndex.STRAIGHT_RUSH);
+                }
+                allOnlyCrossbowDmg= allOnlyCrossbowDmg && stockKFAchievementObj.onlyCrossbowDmg;
             }
         }
         if (allOnlyCrossbowDmg) {
             achievementCompleted(StockIndex.MERRY_MEN);
-        }
-        if (damageType == class'DamTypeLaw') {
-            achievementCompleted(StockIndex.BROKE_THE_CAMELS_BACK);
         }
     } else if (ZombieCrawler(target) != none && target.Physics == PHYS_Falling && damageType == class'DamTypeM79Grenade') {
         addProgress(StockIndex.KILLER_JUNIOR, 1);
