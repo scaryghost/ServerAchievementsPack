@@ -5,8 +5,8 @@ enum StockIndex {
     BITTER_IRONY, HOT_CROSS_FUN, DIGNITY_FOR_THE_DEAD, TOO_CLOSE, MASTER_SURGEON,
     ITS_WHATS_INSIDE, QUARTER_POUNDER, THIN_ICE, PHILANTHROPIST, STRAIGHT_RUSH,
     BROKE_THE_CAMELS_BACK, DEATH_TO_THE_MAD_SCIENTIST, EXPERIMENTIMILLICIDE, EXPERIMENTILOTTACIDE, 
-    EXPLOSIVE_PERSONALITY, MERRY_MEN, BLOOPER_REEL, DOT_OF_DOOM, SCARD, HEALING_TOUCH,
-    POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN
+    EXPLOSIVE_PERSONALITY, FLAMING_HELL, MERRY_MEN, BLOOPER_REEL, DOT_OF_DOOM, SCARD, 
+    HEALING_TOUCH, POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN
 };
 
 var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills;
@@ -126,6 +126,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
     } else if (ZombieCrawler(target) != none && target.Physics == PHYS_Falling && damageType == class'DamTypeM79Grenade') {
         addProgress(StockIndex.KILLER_JUNIOR, 1);
+    } else if (ZombieHusk(target) != none && !ZombieHusk(target).bDamagedAPlayer && (class<DamTypeBurned>(damageType) != none || class<DamTypeFlamethrower>(damageType) != none)) {
+        achievementCompleted(StockIndex.FLAMING_HELL);
     }
 
     if (damageType == class'DamTypeAxe') {
@@ -222,12 +224,13 @@ defaultproperties {
     achievements(17)=(title="Experimentimillicide",description="Kill 1,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_19',maxProgress=1000,notifyIncrement=0.5)
     achievements(18)=(title="Experimentilottacide",description="Kill 10,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_20',maxProgress=10000,notifyIncrement=0.25)
     achievements(19)=(title="Explosive Personality",description="As Demolitions, kill 1000 specimens with the the pipebomb",image=Texture'KillingFloor2HUD.Achievements.Achievement_56',maxProgress=1000,notifyIncrement=0.1)
-    achievements(20)=(title="Merry Men",description="Kill the patriarch when everyone is ONLY using crossbows",image=Texture'KillingFloor2HUD.Achievements.Achievement_58')
-    achievements(21)=(title="Blooper Reel",description="Turn 500 Zeds into giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
-    achievements(22)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
-    achievements(23)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
-    achievements(24)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
-    achievements(25)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
-    achievements(26)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
-    achievements(27)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000)
+    achievements(20)=(title="Flaming Hell, That was Close",description="As Firebug, kill the husk with the flamethrower before he hurts anyone",image=Texture'KillingFloor2HUD.Achievements.Achievement_57')
+    achievements(21)=(title="Merry Men",description="Kill the patriarch when everyone is ONLY using crossbows",image=Texture'KillingFloor2HUD.Achievements.Achievement_58')
+    achievements(22)=(title="Blooper Reel",description="Turn 500 Zeds into giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
+    achievements(23)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
+    achievements(24)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
+    achievements(25)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
+    achievements(26)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
+    achievements(27)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
+    achievements(28)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000)
 }
