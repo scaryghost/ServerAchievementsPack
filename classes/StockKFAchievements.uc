@@ -6,11 +6,16 @@ enum StockIndex {
     ITS_WHATS_INSIDE, QUARTER_POUNDER, THIN_ICE, PHILANTHROPIST, STRAIGHT_RUSH,
     BROKE_THE_CAMELS_BACK, DEATH_TO_THE_MAD_SCIENTIST, EXPERIMENTIMILLICIDE, EXPERIMENTILOTTACIDE, 
     EXPLOSIVE_PERSONALITY, FLAMING_HELL, MERRY_MEN, BLOOPER_REEL, DOT_OF_DOOM, SCARD, 
-    HEALING_TOUCH, POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN
+    HEALING_TOUCH, POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN, BURNING_IRONY,
+    HIGHLANDER, BLOODY_YANKS, FINISH_HIM, I_LOVE_ZE_HEALING, ITALIAN_MEAT_PASTA, FEELING_LUCKY,
+    COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, HISTORICAL_REMNANTS, NAILD,
+    TRENCH_WARFARE
 };
 
-var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills;
-var bool onlyCrossbowDmg, survivedWave, canEarnThinIce;
+var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills;
+var bool onlyCrossbowDmg, survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
+var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
+var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters;
 
 function bool isGibbed(Pawn monster) {
@@ -55,14 +60,44 @@ event waveEnd(int waveNum) {
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
+    local int i;
+
     if (result == 2 && difficulty >= 5.0) {
         achievementCompleted(StockIndex.DEATH_TO_THE_MAD_SCIENTIST);
+    }
+    if (claymoreScKill && claymoreFpKill && claymoreBossKill) {
+        achievementCompleted(StockIndex.HIGHLANDER);
+    } else if (speciesKilled.Length == KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length + 1) {
+        for(i= 0; i < speciesKilled.Length; i++) {
+            if (speciesKilled[i] != 1) {
+                break;
+            }
+        }
+        if (i == speciesKilled.Length) {
+            achievementCompleted(StockIndex.FUGLY);
+        }
     }
 }
 
 event waveStart(int waveNum) {
+    local bool hasDual9mm, hasDualHC, hasDualRevolver;
+    local Inventory inv;
+
     survivedWave= true;
     canEarnThinIce= Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1;
+
+    for(inv= Controller(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
+        if (Dual44Magnum(inv) != none) {
+            hasDualRevolver= true;
+        } else if (DualDeagle(inv) != none) {
+            hasDualHc= true;
+        } else if (Dualies(inv) != none) {
+            hasDual9mm= true;
+        }
+    }
+    if (hasDual9mm && hasDualHC && hasDualRevolver) {
+        achievementCompleted(StockIndex.COWBOY);
+    }
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
@@ -70,6 +105,7 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
+    local int i;
     local Controller C;
     local SAReplicationInfo saRepInfo;
     local bool allOnlyCrossbowDmg;
@@ -93,22 +129,39 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         addProgress(StockIndex.FACIST_DIETITIAN, 1);
     } else if (ZombieSiren(target) != none) {
         addProgress(StockIndex.HOMERS_HEROES, 1);
-    } else if (ZombieStalker(target) != none && class<DamTypeFrag>(damageType) != none) {
-        addProgress(StockIndex.KEEP_THOSE_SNEAKERS, 1);
-    } else if (ZombieScrake(target) != none && damageType == class'DamTypeChainsaw') {
-        scrakeChainsawKills++;
-        if (scrakeChainsawKills == 2) {
-            achievementCompleted(StockIndex.BITTER_IRONY);
+    } else if (ZombieStalker(target) != none) {
+        if (class<DamTypeFrag>(damageType) != none) {
+            addProgress(StockIndex.KEEP_THOSE_SNEAKERS, 1);
+        } else if (damageType == class'DamTypeNailGun') {
+            stalkerNailgunKills++;
+            if (stalkerNailgunKills == 4) {
+                achievementCompleted(StockIndex.NAILD);
+            }
+        }
+    } else if (ZombieScrake(target) != none) {
+        if (damageType == class'DamTypeChainsaw') {
+            scrakeChainsawKills++;
+            if (scrakeChainsawKills == 2) {
+                achievementCompleted(StockIndex.BITTER_IRONY);
+            }
+        } else if (damageType == class'DamTypeClaymoreSword') {
+            claymoreScKill= true;
+        } else if (damageType == class'DamTypeM203Grenade') {
+            achievementCompleted(StockIndex.FINISH_HIM);
         }
     } else if (ZombieFleshpound(target) != none) {
         if (class<DamTypeMelee>(damageType) != none) {
             achievementCompleted(StockIndex.TOO_CLOSE);
         } else if (damageType == class'DamTypeAA12Shotgun') {
             addProgress(StockIndex.POUND_THIS, 1);
+        } else if (damageType == class'DamTypeClaymoreSword') {
+            claymoreFpKill= true;
         }
     } else if (ZombieBoss(target) != none) {
         if (damageType == class'DamTypeLaw') {
             achievementCompleted(StockIndex.BROKE_THE_CAMELS_BACK);
+        } else if (damageType == class'DamTypeClaymoreSword') {
+            claymoreBossKill= true;
         }
         allOnlyCrossbowDmg= true;
         for(C= Level.ControllerList; C != none; C= C.NextController) {
@@ -126,8 +179,15 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
     } else if (ZombieCrawler(target) != none && target.Physics == PHYS_Falling && damageType == class'DamTypeM79Grenade') {
         addProgress(StockIndex.KILLER_JUNIOR, 1);
-    } else if (ZombieHusk(target) != none && !ZombieHusk(target).bDamagedAPlayer && (class<DamTypeBurned>(damageType) != none || class<DamTypeFlamethrower>(damageType) != none)) {
-        achievementCompleted(StockIndex.FLAMING_HELL);
+    } else if (ZombieHusk(target) != none) {
+        if (!ZombieHusk(target).bDamagedAPlayer && (class<DamTypeBurned>(damageType) != none || class<DamTypeFlamethrower>(damageType) != none)) {
+            achievementCompleted(StockIndex.FLAMING_HELL);
+        } else if (class<DamTypeHuskGun>(damageType) != none || 
+                class<DamTypeHuskGunProjectileImpact>(damageType) != none ) {
+            addProgress(StockIndex.BURNING_IRONY, 1);
+        }
+    } else if (ZombieClot(target) != none && damageType == class'DamTypeMK23Pistol') {
+        mk23MagClotKills++;
     }
 
     if (damageType == class'DamTypeAxe') {
@@ -146,7 +206,39 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         addProgress(StockIndex.EXPLOSIVE_PERSONALITY, 1);
     } else if (damageType == class'DamTypeSCARMK17AssaultRifle') {
         addProgress(StockIndex.SCARD, 1);
+    } else if (damageType == class'DamTypeM4AssaultRifle') {
+        m4MagKills++;
+    } else if (damageType == class'DamTypeBenelli') {
+        benelliMagKills++;
+    } else if (damageType == class'DamTypeMagnum44Pistol') {
+        revolverMagKills++;
+    } else if (damageType == class'DamTypeM7A3M' && KFMonster(target).bDamagedAPlayer) {
+        achievementCompleted(StockIndex.COMBAT_MEDIC);
+    } else if (damageType == class'DamTypeBullpup') {
+        killedWithBullpup= true;
+    } else if (damageType == class'DamTypeFNFALAssaultRifle') {
+        killedWithFnFal= true;
+    } else if (damageType == class'DamTypeMkb42AssaultRifle') {
+        mkb42Kills++;
+    } else if (damageType == class'DamTypeTrenchgun') {
+        addProgress(StockIndex.TRENCH_WARFARE, 1);
+    } else if (damageType == class'DamTypeKSGShotgun') {
+        if (ZombieBoss(target) != none) {
+            speciesKilled[KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length]= 1;
+        } else {
+            for(i= 0; i < KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length; i++) {
+                if (string(target.class) ~= KFGameType(Level.Game).MonsterCollection.default.MonsterClasses[i].MClassName) {
+                    speciesKilled[i]= 1;
+                    break;
+                }
+            }
+        }
     }
+
+    if (killedWithBullpup && killedWithFnFal) {
+        achievementCompleted(StockIndex.BRITISH_SUPERIORITY);
+    }
+
     if (Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1 && target.AnimAction == 'ZombieFeed') {
         addProgress(StockIndex.DIGNITY_FOR_THE_DEAD, 1);
     }
@@ -192,10 +284,48 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
 
 event touchedHealDart(MP7MHealinglProjectile healDart) {
     local SAReplicationInfo saRepInfo;
+    local int healAmount;
+    local KFPlayerReplicationInfo instigatorKFPRI;
 
-    if (Controller(Owner).Pawn.Health < Controller(Owner).Pawn.HealthMax && healDart.IsA('MP7MHealinglProjectile')) {
-        saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
-        getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.HEALING_TOUCH, 1);
+    if (Controller(Owner).Pawn.Health < Controller(Owner).Pawn.HealthMax) {
+        if (healDart.IsA('MP7MHealinglProjectile')) {
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
+            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.HEALING_TOUCH, 1);
+        } else if (healDart.IsA('MP5MHealinglProjectile')) {
+            instigatorKFPRI= KFPlayerReplicationInfo(healDart.Instigator.PlayerReplicationInfo);
+            healAmount= healDart.healBoostAmount * instigatorKFPRI.ClientVeteranSkill.static.GetHealPotency(instigatorKFPRI);
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
+            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.I_LOVE_ZE_HEALING, healAmount);
+        }
+    }
+}
+
+event reloadedWeapon(KFWeapon weapon) {
+    if (M4AssaultRifle(weapon) != none) {
+        if (weapon.MagAmmoRemaining == 0 && m4MagKills == 1) {
+            achievementCompleted(StockIndex.BLOODY_YANKS);
+        }
+        m4MagKills= 0;
+    } else if (BenelliShotgun(weapon) != none) {
+        if (weapon.MagAmmoRemaining == 0 && benelliMagKills >= 12) {
+            achievementCompleted(StockIndex.ITALIAN_MEAT_PASTA);
+        }
+        benelliMagKills= 0;
+    } else if (Magnum44Pistol(weapon) != none) {
+        if (weapon.MagAmmoRemaining == 0 && revolverMagKills >= weapon.MagCapacity) {
+            achievementCompleted(StockIndex.FEELING_LUCKY);
+        }
+        revolverMagKills= 0;
+    } else if (MK23Pistol(weapon) != none) {
+        if (mk23MagClotKills >= 12) {
+            achievementCompleted(StockIndex.SPEC_OPS);
+        }
+        mk23MagClotKills= 0;
+    } else if (Mkb42AssaultRifle(weapon) != none) {
+        if (mkb42Kills >= 6) {
+            achievementCompleted(StockIndex.HISTORICAL_REMNANTS);
+        }
+        mkb42Kills= 0;
     }
 }
 
@@ -233,4 +363,19 @@ defaultproperties {
     achievements(26)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
     achievements(27)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
     achievements(28)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000)
+    achievements(29)=(title="Burning Irony",description="Kill 15 husks with the Husk Cannon",image=Texture'KillingFloor2HUD.Achievements.Achievement_163',maxProgress=15,notifyIncrement=0.33333)
+    achievements(30)=(title="Highlander",description="Kill a scrake, a fleshpound, and the patriarch with the Claymore sword within one map",image=Texture'KillingFloor2HUD.Achievements.Achievement_164')
+    achievements(31)=(title="Bloody Yanks",description="Kill 1 specimen ONLY while expending a full M4 Assault Rifle magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_165')
+    achievements(32)=(title="Finish Him",description="Hit a scrake with the M203 Rifle grenade to kill him",image=Texture'KillingFloor2HUD.Achievements.Achievement_166')
+    achievements(33)=(title="I love ze Healing not ze Hurting",description="Heal others for 3000 points of health with the MP5 SMG",image=Texture'KillingFloor2HUD.Achievements.Achievement_167',maxProgress=3000,notifyIncrement=0.33333)
+    achievements(34)=(title="Italian Meat Pasta",description="Kill 12 zeds with a full magazine from the Combat Shotgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_168')
+    achievements(35)=(title="Feeling Lucky?",description="Kill a specimen with every shot from your Revolver for one magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_169')
+    achievements(36)=(title="We Have Ourselves a Cowboy",description="Hold Dual 9mm, Dual Hand Cannons, and Dual Revolvers",image=Texture'KillingFloor2HUD.Achievements.Achievement_170')
+    achievements(37)=(title="Spec Ops",description="Kill 12 clots with one magazine without reloading (MK23)",image=Texture'KillingFloor2HUD.Achievements.Achievement_176')
+    achievements(38)=(title="Combat Medic",description="Kill a zed that has injured a player (M7A3 rifle)",image=Texture'KillingFloor2HUD.Achievements.Achievement_177')
+    achievements(39)=(title="Fugly",description="Kill one of each type of zed in one round (HSG Shotgun)",image=Texture'KillingFloor2HUD.Achievements.Achievement_178')
+    achievements(40)=(title="British Superiority",description="Kill a zed each with both the Bullpup and FN-Fal",image=Texture'KillingFloor2HUD.Achievements.Achievement_179')
+    achievements(41)=(title="Historical Remnants",description="Kill 6 zeds with one magazine, without reloading (Mkb42)",image=Texture'KillingFloor2HUD.Achievements.Achievement_185')
+    achievements(42)=(title="Nail'd!",description="Kill 4 stalkers in a game with the Nailgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_186')
+    achievements(43)=(title="Trench Warfare",description="Set a total of 200 zeds on fire in Hillbilly Horror",image=Texture'KillingFloor2HUD.Achievements.Achievement_188',maxProgress=200,notifyIncrement=50)
 }
