@@ -12,7 +12,8 @@ enum StockIndex {
     TRENCH_WARFARE
 };
 
-var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills;
+var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, 
+        revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills;
 var bool onlyCrossbowDmg, survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
@@ -234,7 +235,6 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             }
         }
     }
-
     if (killedWithBullpup && killedWithFnFal) {
         achievementCompleted(StockIndex.BRITISH_SUPERIORITY);
     }
@@ -284,18 +284,16 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
 
 event touchedHealDart(MP7MHealinglProjectile healDart) {
     local SAReplicationInfo saRepInfo;
-    local int healAmount;
-    local KFPlayerReplicationInfo instigatorKFPRI;
+    local float potentialHealth;
 
-    if (Controller(Owner).Pawn.Health < Controller(Owner).Pawn.HealthMax) {
-        if (healDart.IsA('MP7MHealinglProjectile')) {
+    potentialHealth= Controller(Owner).Pawn.Health + KFPawn(Controller(Owner).Pawn).HealthToGive;
+    if (potentialHealth <= Controller(Owner).Pawn.HealthMax) {
+        if (healDart.class == class'MP5MHealinglProjectile') {
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
+            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.I_LOVE_ZE_HEALING, KFPawn(Controller(Owner).Pawn).HealthToGive);
+        } else if (healDart.class == class'MP7MHealinglProjectile') {
             saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
             getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.HEALING_TOUCH, 1);
-        } else if (healDart.IsA('MP5MHealinglProjectile')) {
-            instigatorKFPRI= KFPlayerReplicationInfo(healDart.Instigator.PlayerReplicationInfo);
-            healAmount= healDart.healBoostAmount * instigatorKFPRI.ClientVeteranSkill.static.GetHealPotency(instigatorKFPRI);
-            saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
-            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.I_LOVE_ZE_HEALING, healAmount);
         }
     }
 }
@@ -377,5 +375,5 @@ defaultproperties {
     achievements(40)=(title="British Superiority",description="Kill a zed each with both the Bullpup and FN-Fal",image=Texture'KillingFloor2HUD.Achievements.Achievement_179')
     achievements(41)=(title="Historical Remnants",description="Kill 6 zeds with one magazine, without reloading (Mkb42)",image=Texture'KillingFloor2HUD.Achievements.Achievement_185')
     achievements(42)=(title="Nail'd!",description="Kill 4 stalkers in a game with the Nailgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_186')
-    achievements(43)=(title="Trench Warfare",description="Set a total of 200 zeds on fire in Hillbilly Horror",image=Texture'KillingFloor2HUD.Achievements.Achievement_188',maxProgress=200,notifyIncrement=50)
+    achievements(43)=(title="Trench Warfare",description="Set a total of 200 zeds on fire",image=Texture'KillingFloor2HUD.Achievements.Achievement_188',maxProgress=200,notifyIncrement=50)
 }
