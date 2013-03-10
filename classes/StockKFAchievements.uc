@@ -2,18 +2,18 @@ class StockKFAchievements extends AchievementPackPartImpl;
 
 enum StockIndex {
     EXPERIMENTICIDE, FACIST_DIETITIAN, HOMERS_HEROES, KEEP_THOSE_SNEAKERS, RANDOM_AXE,
-    BITTER_IRONY, HOT_CROSS_FUN, DIGNITY_FOR_THE_DEAD, TOO_CLOSE, MASTER_SURGEON,
-    ITS_WHATS_INSIDE, QUARTER_POUNDER, THIN_ICE, PHILANTHROPIST, STRAIGHT_RUSH,
+    BITTER_IRONY, HOT_CROSS_FUN, DIGNITY_FOR_THE_DEAD, CAREFUL_SPENDER, TOO_CLOSE, MASTER_SURGEON,
+    ITS_WHATS_INSIDE, QUARTER_POUNDER, SELF_MEDICATOR, THIN_ICE, PHILANTHROPIST, STRAIGHT_RUSH,
     BROKE_THE_CAMELS_BACK, DEATH_TO_THE_MAD_SCIENTIST, EXPERIMENTIMILLICIDE, EXPERIMENTILOTTACIDE, 
     EXPLOSIVE_PERSONALITY, FLAMING_HELL, MERRY_MEN, BLOOPER_REEL, DOT_OF_DOOM, SCARD, 
     HEALING_TOUCH, POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN, BURNING_IRONY,
     HIGHLANDER, BLOODY_YANKS, FINISH_HIM, I_LOVE_ZE_HEALING, ITALIAN_MEAT_PASTA, FEELING_LUCKY,
-    COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, HISTORICAL_REMNANTS, NAILD,
-    TRENCH_WARFARE
+    COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, THE_BIG_ONE, HISTORICAL_REMNANTS,
+    NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN
 };
 
 var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, 
-        revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills;
+        revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills, boomstickKills, m99ScKills;
 var bool onlyCrossbowDmg, survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
@@ -116,6 +116,11 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     addProgress(StockIndex.EXPERIMENTIMILLICIDE, 1);
     addProgress(StockIndex.EXPERIMENTILOTTACIDE, 1);
 
+    if (KFMonster(target) != none && KFMonster(target).bZapped) {
+        saRepInfo= class'SAReplicationInfo'.static.findSARI(KFMonster(target).ZappedBy.PlayerReplicationInfo);
+        getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.GAME_OVER_MAN, 1);
+    }
+
     if (isGibbed(target)) {
         addProgress(StockIndex.ITS_WHATS_INSIDE, 1);
         if (ZombieFleshpound(target) != none) {
@@ -149,14 +154,22 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             claymoreScKill= true;
         } else if (damageType == class'DamTypeM203Grenade') {
             achievementCompleted(StockIndex.FINISH_HIM);
+        } else if (damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot') {
+            m99ScKills++;
+            if (m99ScKills == 2) {
+                achievementCompleted(StockIndex.THE_BIG_ONE);
+            }
         }
     } else if (ZombieFleshpound(target) != none) {
         if (class<DamTypeMelee>(damageType) != none) {
             achievementCompleted(StockIndex.TOO_CLOSE);
-        } else if (damageType == class'DamTypeAA12Shotgun') {
+        }
+        if (damageType == class'DamTypeAA12Shotgun') {
             addProgress(StockIndex.POUND_THIS, 1);
         } else if (damageType == class'DamTypeClaymoreSword') {
             claymoreFpKill= true;
+        } else if (class<DamTypeDwarfAxe>(damageType) != none && KFMonster(target).bBackstabbed) {
+            addProgress(StockIndex.HAVE_MY_AXE, 1);
         }
     } else if (ZombieBoss(target) != none) {
         if (damageType == class'DamTypeLaw') {
@@ -234,7 +247,15 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
                 }
             }
         }
+    } else if (damageType == class'DamTypeDBShotgun') {
+        boomstickKills++;
+        if (boomstickKills == 4) {
+            achievementCompleted(StockIndex.CAREFUL_SPENDER);
+        }
+    } else if (damageType == class'DamTypeKrissM' && Controller(Owner).Pawn != none && Controller(Owner).Pawn.Physics == PHYS_Falling) {
+        addProgress(StockIndex.ONE_SMALL_STEP, 1);
     }
+
     if (killedWithBullpup && killedWithFnFal) {
         achievementCompleted(StockIndex.BRITISH_SUPERIORITY);
     }
@@ -327,6 +348,16 @@ event reloadedWeapon(KFWeapon weapon) {
     }
 }
 
+event firedWeapon(KFWeapon weapon) {
+    if (M99SniperRifle(weapon) != none) {
+        m99ScKills= 0;
+    } else if (BoomStick(weapon) != none) {
+        boomstickKills= 0;
+    } else if (Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1 && Syringe(weapon) != none && weapon.GetFireMode(1).bIsFiring) {
+        addProgress(StockIndex.SELF_MEDICATOR, 1);
+    }
+}
+
 defaultproperties {
     packName= "Stock KF"
 
@@ -340,40 +371,46 @@ defaultproperties {
     achievements(5)=(title="Bitter Irony",description="Kill 2 scrakes with a chainsaw in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_25')
     achievements(6)=(title="Hot Cross Fun",description="Kill 25 burning specimens with a crossbow",image=Texture'KillingFloorHUD.Achievements.Achievement_26',maxProgress=25,notifyIncrement=0.2)
     achievements(7)=(title="Dignity for the Dead",description="Kill 10 specimens feeding on dead teammates' corpses",image=Texture'KillingFloorHUD.Achievements.Achievement_27',maxProgress=10,notifyIncrement=0.5)
-    achievements(8)=(title="Too Close For Comfort",description="Finish off a fleshpound using a melee attack",image=Texture'KillingFloorHUD.Achievements.Achievement_31')
-    achievements(9)=(title="Master Surgeon",description="As a medic, kill 8 specimens using a knife in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_32')
-    achievements(10)=(title="It's What's Inside That Counts",description="Turn 500 specimens into giblets",image=Texture'KillingFloorHUD.Achievements.Achievement_33',maxProgress=500,notifyIncrement=0.25)
-    achievements(11)=(title="Quarter Pounder With Ease",description="Turn 5 fleshpounds into giblets",image=Texture'KillingFloorHUD.Achievements.Achievement_34',maxProgress=5)
-    achievements(12)=(title="Thin-Ice Pirouette",description="Complete 10 waves when the rest of your team has died",image=Texture'KillingFloorHUD.Achievements.Achievement_36',maxProgress=10,notifyIncrement=0.5)
-    achievements(13)=(title="Philanthropist",description="Give 1,000 pounds to teamamtes who have 50% of your cash or less",image=Texture'KillingFloorHUD.Achievements.Achievement_37',maxProgress=1000,notifyIncrement=1.0)
-    achievements(14)=(title="Straight Rush",description="Kill the patriarch before he has a chance to heal",image=Texture'KillingFloorHUD.Achievements.Achievement_40')
-    achievements(15)=(title="The L.A.W. That Broke The Camel's Back",description="Deliver the Killing Blow to the Patriarch with a L.A.W. Rocket",image=Texture'KillingFloorHUD.Achievements.Achievement_41')
-    achievements(16)=(title="Death To the Mad Scientist",description="Defeat the Patriarch on Suicidal",image=Texture'KillingFloorHUD.Achievements.Achievement_42')
-    achievements(17)=(title="Experimentimillicide",description="Kill 1,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_19',maxProgress=1000,notifyIncrement=0.5)
-    achievements(18)=(title="Experimentilottacide",description="Kill 10,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_20',maxProgress=10000,notifyIncrement=0.25)
-    achievements(19)=(title="Explosive Personality",description="As Demolitions, kill 1000 specimens with the the pipebomb",image=Texture'KillingFloor2HUD.Achievements.Achievement_56',maxProgress=1000,notifyIncrement=0.1)
-    achievements(20)=(title="Flaming Hell, That was Close",description="As Firebug, kill the husk with the flamethrower before he hurts anyone",image=Texture'KillingFloor2HUD.Achievements.Achievement_57')
-    achievements(21)=(title="Merry Men",description="Kill the patriarch when everyone is ONLY using crossbows",image=Texture'KillingFloor2HUD.Achievements.Achievement_58')
-    achievements(22)=(title="Blooper Reel",description="Turn 500 Zeds into giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
-    achievements(23)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
-    achievements(24)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
-    achievements(25)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
-    achievements(26)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
-    achievements(27)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
-    achievements(28)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000)
-    achievements(29)=(title="Burning Irony",description="Kill 15 husks with the Husk Cannon",image=Texture'KillingFloor2HUD.Achievements.Achievement_163',maxProgress=15,notifyIncrement=0.33333)
-    achievements(30)=(title="Highlander",description="Kill a scrake, a fleshpound, and the patriarch with the Claymore sword within one map",image=Texture'KillingFloor2HUD.Achievements.Achievement_164')
-    achievements(31)=(title="Bloody Yanks",description="Kill 1 specimen ONLY while expending a full M4 Assault Rifle magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_165')
-    achievements(32)=(title="Finish Him",description="Hit a scrake with the M203 Rifle grenade to kill him",image=Texture'KillingFloor2HUD.Achievements.Achievement_166')
-    achievements(33)=(title="I love ze Healing not ze Hurting",description="Heal others for 3000 points of health with the MP5 SMG",image=Texture'KillingFloor2HUD.Achievements.Achievement_167',maxProgress=3000,notifyIncrement=0.33333)
-    achievements(34)=(title="Italian Meat Pasta",description="Kill 12 zeds with a full magazine from the Combat Shotgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_168')
-    achievements(35)=(title="Feeling Lucky?",description="Kill a specimen with every shot from your Revolver for one magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_169')
-    achievements(36)=(title="We Have Ourselves a Cowboy",description="Hold Dual 9mm, Dual Hand Cannons, and Dual Revolvers",image=Texture'KillingFloor2HUD.Achievements.Achievement_170')
-    achievements(37)=(title="Spec Ops",description="Kill 12 clots with one magazine without reloading (MK23)",image=Texture'KillingFloor2HUD.Achievements.Achievement_176')
-    achievements(38)=(title="Combat Medic",description="Kill a zed that has injured a player (M7A3 rifle)",image=Texture'KillingFloor2HUD.Achievements.Achievement_177')
-    achievements(39)=(title="Fugly",description="Kill one of each type of zed in one round (HSG Shotgun)",image=Texture'KillingFloor2HUD.Achievements.Achievement_178')
-    achievements(40)=(title="British Superiority",description="Kill a zed each with both the Bullpup and FN-Fal",image=Texture'KillingFloor2HUD.Achievements.Achievement_179')
-    achievements(41)=(title="Historical Remnants",description="Kill 6 zeds with one magazine, without reloading (Mkb42)",image=Texture'KillingFloor2HUD.Achievements.Achievement_185')
-    achievements(42)=(title="Nail'd!",description="Kill 4 stalkers in a game with the Nailgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_186')
-    achievements(43)=(title="Trench Warfare",description="Set a total of 200 zeds on fire",image=Texture'KillingFloor2HUD.Achievements.Achievement_188',maxProgress=200,notifyIncrement=50)
+    achievements(8)=(title="Careful Spender",description="Kill 4 specimens with a single shot from a hunting shotgun",image=Texture'KillingFloorHUD.Achievements.Achievement_29')
+    achievements(9)=(title="Too Close For Comfort",description="Finish off a fleshpound using a melee attack",image=Texture'KillingFloorHUD.Achievements.Achievement_31')
+    achievements(10)=(title="Master Surgeon",description="As a medic, kill 8 specimens using a knife in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_32')
+    achievements(11)=(title="It's What's Inside That Counts",description="Turn 500 specimens into giblets",image=Texture'KillingFloorHUD.Achievements.Achievement_33',maxProgress=500,notifyIncrement=0.25)
+    achievements(12)=(title="Quarter Pounder With Ease",description="Turn 5 fleshpounds into giblets",image=Texture'KillingFloorHUD.Achievements.Achievement_34',maxProgress=5)
+    achievements(13)=(title="Self Medicator",description="In co-op mode, use the syringe on yourself 100 times",image=Texture'KillingFloorHUD.Achievements.Achievement_35',maxProgress=100,notifyIncrement=0.2)
+    achievements(14)=(title="Thin-Ice Pirouette",description="Complete 10 waves when the rest of your team has died",image=Texture'KillingFloorHUD.Achievements.Achievement_36',maxProgress=10,notifyIncrement=0.5)
+    achievements(15)=(title="Philanthropist",description="Give 1,000 pounds to teamamtes who have 50% of your cash or less",image=Texture'KillingFloorHUD.Achievements.Achievement_37',maxProgress=1000,notifyIncrement=1.0)
+    achievements(16)=(title="Straight Rush",description="Kill the patriarch before he has a chance to heal",image=Texture'KillingFloorHUD.Achievements.Achievement_40')
+    achievements(17)=(title="The L.A.W. That Broke The Camel's Back",description="Deliver the Killing Blow to the Patriarch with a L.A.W. Rocket",image=Texture'KillingFloorHUD.Achievements.Achievement_41')
+    achievements(18)=(title="Death To the Mad Scientist",description="Defeat the Patriarch on Suicidal",image=Texture'KillingFloorHUD.Achievements.Achievement_42')
+    achievements(19)=(title="Experimentimillicide",description="Kill 1,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_19',maxProgress=1000,notifyIncrement=0.5)
+    achievements(20)=(title="Experimentilottacide",description="Kill 10,000 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_20',maxProgress=10000,notifyIncrement=0.25)
+    achievements(21)=(title="Explosive Personality",description="As Demolitions, kill 1000 specimens with the the pipebomb",image=Texture'KillingFloor2HUD.Achievements.Achievement_56',maxProgress=1000,notifyIncrement=0.1)
+    achievements(22)=(title="Flaming Hell, That was Close",description="As Firebug, kill the husk with the flamethrower before he hurts anyone",image=Texture'KillingFloor2HUD.Achievements.Achievement_57')
+    achievements(23)=(title="Merry Men",description="Kill the patriarch when everyone is ONLY using crossbows",image=Texture'KillingFloor2HUD.Achievements.Achievement_58')
+    achievements(24)=(title="Blooper Reel",description="Turn 500 Zeds into giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
+    achievements(25)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
+    achievements(26)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
+    achievements(27)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
+    achievements(28)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
+    achievements(29)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
+    achievements(30)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000)
+    achievements(31)=(title="Burning Irony",description="Kill 15 husks with the Husk Cannon",image=Texture'KillingFloor2HUD.Achievements.Achievement_163',maxProgress=15,notifyIncrement=0.33333)
+    achievements(32)=(title="Highlander",description="Kill a scrake, a fleshpound, and the patriarch with the Claymore sword within one map",image=Texture'KillingFloor2HUD.Achievements.Achievement_164')
+    achievements(33)=(title="Bloody Yanks",description="Kill 1 specimen ONLY while expending a full M4 Assault Rifle magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_165')
+    achievements(34)=(title="Finish Him",description="Hit a scrake with the M203 Rifle grenade to kill him",image=Texture'KillingFloor2HUD.Achievements.Achievement_166')
+    achievements(35)=(title="I love ze Healing not ze Hurting",description="Heal others for 3000 points of health with the MP5 SMG",image=Texture'KillingFloor2HUD.Achievements.Achievement_167',maxProgress=3000,notifyIncrement=0.33333)
+    achievements(36)=(title="Italian Meat Pasta",description="Kill 12 zeds with a full magazine from the Combat Shotgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_168')
+    achievements(37)=(title="Feeling Lucky?",description="Kill a specimen with every shot from your Revolver for one magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_169')
+    achievements(38)=(title="We Have Ourselves a Cowboy",description="Hold Dual 9mm, Dual Hand Cannons, and Dual Revolvers",image=Texture'KillingFloor2HUD.Achievements.Achievement_170')
+    achievements(39)=(title="Spec Ops",description="Kill 12 clots with one magazine without reloading (MK23)",image=Texture'KillingFloor2HUD.Achievements.Achievement_176')
+    achievements(40)=(title="Combat Medic",description="Kill a zed that has injured a player (M7A3 rifle)",image=Texture'KillingFloor2HUD.Achievements.Achievement_177')
+    achievements(41)=(title="Fugly",description="Kill one of each type of zed in one round (HSG Shotgun)",image=Texture'KillingFloor2HUD.Achievements.Achievement_178')
+    achievements(42)=(title="British Superiority",description="Kill a zed each with both the Bullpup and FN-Fal",image=Texture'KillingFloor2HUD.Achievements.Achievement_179')
+    achievements(43)=(title="The Big One",description="Kill 2 scrakes with one shot (M99)",image=Texture'KillingFloor2HUD.Achievements.Achievement_180')
+    achievements(44)=(title="Historical Remnants",description="Kill 6 zeds with one magazine, without reloading (Mkb42)",image=Texture'KillingFloor2HUD.Achievements.Achievement_185')
+    achievements(45)=(title="Nail'd!",description="Kill 4 stalkers in a game with the Nailgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_186')
+    achievements(46)=(title="Trench Warfare",description="Set a total of 200 zeds on fire",image=Texture'KillingFloor2HUD.Achievements.Achievement_188',maxProgress=200,notifyIncrement=50)
+    achievements(47)=(title="Have My Axe",description="Kill 30 fleshpounds with the Dwarfs!? axe with back attacks",image=Texture'KillingFloor2HUD.Achievements.Achievement_200',maxProgress=30,notifyIncrement=0.33333)
+    achievements(48)=(title="One Small Step for Man",description="Kill 500 zeds with the Schneidzekk Medic Gun while you are falling",image=Texture'KillingFloor2HUD.Achievements.Achievement_201',maxProgress=500,notifyIncrement=0.1)
+    achievements(49)=(title="Game Over, Man!",description="Have 20 zeds you slowed with the Z.E.D. gun killed",image=Texture'KillingFloor2HUD.Achievements.Achievement_203',maxProgress=20,notifyIncrement=1.0)
 }
