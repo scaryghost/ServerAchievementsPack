@@ -364,7 +364,7 @@ defaultproperties {
     onlyCrossbowDmg= true;
 
     achievements(0)=(title="Experimenticide",description="Kill 100 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_18',maxProgress=100,notifyIncrement=1.0)
-    achievements(1)=(title="Fascist Dietitian",description="Kill 200 bloats",image=Texture'KillingFloorHUD.Achievements.Achievement_21',maxProgress=200,notifyIncrement=0.2)
+    achievements(1)=(title="Fascist Dietitian",description="Kill 200 bloats",image=Texture'KillingFloorHUD.Achievements.Achievement_21',maxProgress=200,notifyIncrement=0.1)
     achievements(2)=(title="Homer's Heroes",description="Kill 100 sirens",image=Texture'KillingFloorHUD.Achievements.Achievement_22',maxProgress=100,notifyIncrement=0.2)
     achievements(3)=(title="Keep Those Sneakers Off the Floor!",description="Kill 20 stalkers with explosives",image=Texture'KillingFloorHUD.Achievements.Achievement_23',maxProgress=20,notifyIncrement=0.25)
     achievements(4)=(title="Random Axe of Kindness",description="Kill 15 specimens with a fire axe in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_24')
@@ -393,7 +393,7 @@ defaultproperties {
     achievements(27)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
     achievements(28)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
     achievements(29)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
-    achievements(30)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000)
+    achievements(30)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000,notifyIncrement=0.5)
     achievements(31)=(title="Burning Irony",description="Kill 15 husks with the Husk Cannon",image=Texture'KillingFloor2HUD.Achievements.Achievement_163',maxProgress=15,notifyIncrement=0.33333)
     achievements(32)=(title="Highlander",description="Kill a scrake, a fleshpound, and the patriarch with the Claymore sword within one map",image=Texture'KillingFloor2HUD.Achievements.Achievement_164')
     achievements(33)=(title="Bloody Yanks",description="Kill 1 specimen ONLY while expending a full M4 Assault Rifle magazine",image=Texture'KillingFloor2HUD.Achievements.Achievement_165')
