@@ -1,8 +1,8 @@
 ServerAchievementsPack
 ======================
 
-This package contains custom achievements for Killing Floor and implements most of the stock KF achievements.  Currently 
-there are no icons for the custom achievements.
+This package contains custom achievements for Killing Floor and implements roughly half of the stock KF achievements.  
+Currently there are no icons for the custom achievements.
 
 ## Version
 1.1
