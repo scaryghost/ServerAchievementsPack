@@ -5,7 +5,7 @@ This package contains custom achievements for Killing Floor and implements rough
 Currently there are no icons for the custom achievements.
 
 ## Version
-1.1
+1.1.1
 
 ## Install
 Copy the contents of the system and textures folders into your Killing Floor system and textures folders.
@@ -20,6 +20,10 @@ Add these lines to ServerAchievements.ini to load the achievement packs into the
     achievementPacks=ServerAchievementsPack.StockMapsHellOnEarth
     achievementPacks=ServerAchievementsPack.StockMapsNormal
     achievementPacks=ServerAchievementsPack.StockMapsSuicidal
+
+## Localization
+Localization for the pack names and achievement titles and descriptions are located in the ServerAchievementsPack.int 
+file.  Change the extension to your desired language region and edit the file to translate the achievement text.
 
 ## Achievement Packs
 Please see the wiki page for list of achievement packs and descriptions.  
