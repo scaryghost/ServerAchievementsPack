@@ -19,6 +19,25 @@ var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters;
 
+function checkCowboy() {
+    local bool hasDual9mm, hasDualHC, hasDualRevolver;
+    local Inventory inv;
+
+    for(inv= Controller(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
+        if (Dual44Magnum(inv) != none) {
+            hasDualRevolver= true;
+        } else if (DualDeagle(inv) != none) {
+            hasDualHc= true;
+        } else if (Dualies(inv) != none) {
+            hasDual9mm= true;
+        }
+    }
+    if (hasDual9mm && hasDualHC && hasDualRevolver) {
+        achievementCompleted(StockIndex.COWBOY);
+    }
+
+}
+
 function bool isGibbed(Pawn monster) {
     local int i;
     for(i= 0; i < gibbedMonsters.Length && gibbedMonsters[i] != monster; i++) {
@@ -81,24 +100,10 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
 }
 
 event waveStart(int waveNum) {
-    local bool hasDual9mm, hasDualHC, hasDualRevolver;
-    local Inventory inv;
-
     survivedWave= true;
     canEarnThinIce= Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1;
 
-    for(inv= Controller(Owner).Pawn.Inventory; inv != none; inv= inv.Inventory) {
-        if (Dual44Magnum(inv) != none) {
-            hasDualRevolver= true;
-        } else if (DualDeagle(inv) != none) {
-            hasDualHc= true;
-        } else if (Dualies(inv) != none) {
-            hasDual9mm= true;
-        }
-    }
-    if (hasDual9mm && hasDualHC && hasDualRevolver) {
-        achievementCompleted(StockIndex.COWBOY);
-    }
+    checkCowboy();
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
@@ -275,6 +280,8 @@ event pickedUpItem(Pickup item) {
             saRepInfo= class'SAReplicationInfo'.static.findSARI(CashPickup(item).DroppedBy.PlayerReplicationInfo);
             getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.PHILANTHROPIST, CashPickup(item).CashAmount);
         }
+    } else if (WeaponPickup(item) != none) {
+        checkCowboy();
     }
 }
 
