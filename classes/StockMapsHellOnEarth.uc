@@ -24,7 +24,7 @@ defaultproperties {
     achievements(17)=(title="Grandmas got Eaten by a Reindeer",description="Win a medium or long game on Santa's Evil Lair on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_117')
     achievements(18)=(title="I'm Making a Note Here, Huge Success",description="Win a medium or long game on Aperture on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_136')
     achievements(19)=(title="On Top of the Big Top",description="Win a medium or long game on Abusement Park on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_141')
-    achievements(20)=(title="Anit Freeze",description="Win a medium or long game on Ice Cave on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_174')
+    achievements(20)=(title="Anti Freeze",description="Win a medium or long game on Ice Cave on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_174')
     achievements(21)=(title="Devil's Co-pilot",description="Win a medium or long game on Hellride on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_184')
     achievements(22)=(title="First Cousins",description="Win a medium or long game on Hillbilly Horror on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_192')
     achievements(23)=(title="One Giant Leap (Back) for Mankind",description="Win a medium or long game on Moonbase on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_207')
