@@ -28,4 +28,6 @@ defaultproperties {
     achievements(21)=(title="Stuck in Limbo",description="Win a medium or long game on Hellride on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_182')
     achievements(22)=(title="Second Cousins",description="Win a medium or long game on Hillbilly Horror on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_190')
     achievements(23)=(title="Attempting Re-entry",description="Win a medium or long game on Moonbase on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_205')
+    achievements(24)=(title="Modified Psychoacceleration Achiever",description="Win a medium or long game on Steamland on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_210')
+    achievements(25)=(title="Oscillating Hydrogen Transition Achiever",description="Win Steamland in Objective Mode on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_214')
 }

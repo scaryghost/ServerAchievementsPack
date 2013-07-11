@@ -28,4 +28,6 @@ defaultproperties {
     achievements(21)=(title="Highway to Heaven",description="Win a medium or long game on Hellride on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_181')
     achievements(22)=(title="Third Cousins",description="Win a medium or long game on Hillbilly Horror on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_189')
     achievements(23)=(title="Here is To Us",description="Win a medium or long game on Moonbase on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_204')
+    achievements(24)=(title="Astro Buffer Afficiando",description="Win a medium or long game on Steamland on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_209')
+    achievements(25)=(title="Simplified Force Adhesion Afficianado",description="Win Steamland in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_213')
 }

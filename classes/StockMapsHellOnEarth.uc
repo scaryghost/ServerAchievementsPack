@@ -28,5 +28,7 @@ defaultproperties {
     achievements(21)=(title="Devil's Co-pilot",description="Win a medium or long game on Hellride on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_184')
     achievements(22)=(title="First Cousins",description="Win a medium or long game on Hillbilly Horror on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_192')
     achievements(23)=(title="One Giant Leap (Back) for Mankind",description="Win a medium or long game on Moonbase on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_207')
+    achievements(24)=(title="Advanced Omega Wave Resonance Explorer",description="Win a medium or long game on Steamland on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_212')
+    achievements(25)=(title="Tachyon Cytoneutralization Explorer",description="Win Steamland in Objective Mode on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_216')
 }
 

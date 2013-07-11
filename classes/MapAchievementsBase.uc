@@ -14,9 +14,11 @@ var bool playedBossWave;
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     local int i;
     local string lowerMapName;
+    local bool lengthCheck;
 
-    if (numWavesPlayed >= KFGameType(Level.Game).FinalWave / 2 + 1 && playedBossWave && result == 2 && requiredDifficulty == difficulty && 
-            (length == KFGameType(Level.Game).GL_Normal || length == KFGameType(Level.Game).GL_Long)) {
+    lengthCheck= KFStoryGameInfo(Level.Game) != none || (length == KFGameType(Level.Game).GL_Normal || length == KFGameType(Level.Game).GL_Long);
+    if (numWavesPlayed >= KFGameType(Level.Game).FinalWave / 2 + 1 && playedBossWave && result == 2 && 
+            requiredDifficulty == difficulty &&  lengthCheck) {
         lowerMapName= Locs(mapname);
         for(i= 0; i < mapIndexes.Length && mapIndexes[i].mapname != lowerMapName; i++) {
         }
@@ -56,8 +58,10 @@ defaultproperties {
     mapIndexes(17)=(mapname="kf-moonbase",achvIndex=23)
     mapIndexes(18)=(mapname="kf-mountainpass",achvIndex=14)
     mapIndexes(19)=(mapname="kf-offices",achvIndex=3)
-    mapIndexes(20)=(mapname="kf-suburbia",achvIndex=15)
-    mapIndexes(21)=(mapname="kf-waterworks",achvIndex=16)
-    mapIndexes(22)=(mapname="kf-westlondon",achvIndex=0)
-    mapIndexes(23)=(mapname="kf-wyre",achvIndex=7)    
+    mapIndexes(20)=(mapname="kf-steamland",achvIndex=24)
+    mapIndexes(21)=(mapname="kf-suburbia",achvIndex=15)
+    mapIndexes(22)=(mapname="kf-waterworks",achvIndex=16)
+    mapIndexes(23)=(mapname="kf-westlondon",achvIndex=0)
+    mapIndexes(24)=(mapname="kf-wyre",achvIndex=7)    
+    mapIndexes(25)=(mapname="kfo-steamland",achvIndex=25)
 }

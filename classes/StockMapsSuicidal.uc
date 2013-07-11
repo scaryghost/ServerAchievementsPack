@@ -28,4 +28,6 @@ defaultproperties {
     achievements(21)=(title="Demoic Road",description="Win a medium or long game on Hellride on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_183')
     achievements(22)=(title="First Coustins (Once Removed)",description="Win a medium or long game on Hillbilly Horror on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_191')
     achievements(23)=(title="Amusing Death",description="Win a medium or long game on Moonbase on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_206')
+    achievements(24)=(title="Fractional Neutron Activator",description="Win a medium or long game on Steamland on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_211')
+    achievements(25)=(title="Alpha Wave Osteooxidation Activator",description="Win Steamland in Objective Mode on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_215')
 }
