@@ -34,7 +34,8 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
 }
 
 event droppedWeapon(KFWeaponPickup weaponPickup) {
-    if (!KFWeapon(weaponPickup.Inventory).bPreviouslyDropped && KFWeapon(weaponPickup.Inventory).bIsTier2Weapon) {
+    //KFWeaponPickup.InitDroppedPickupFor does not set DroppedBy if the weapon is a tier2 weapon
+    if (!weaponPickup.bPreviouslyDropped && weaponPickup.DroppedBy == none) {
         droppedT2Weapons++;
         if (droppedT2Weapons >= 5) {
             achievementCompleted(AchvIndex.JUGGLING_ACT);
