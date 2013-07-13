@@ -276,6 +276,9 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         if (boomstickKills == 4) {
             achievementCompleted(StockIndex.CAREFUL_SPENDER);
         }
+        if (ZombieScrake(target) != none && VSize(ZombieScrake(target).LastMomentum) > 5000) {
+            achievementCompleted(StockIndex.FLAYER_ORDINANCE);
+        }
     } else if (damageType == class'DamTypeKrissM' && Controller(Owner).Pawn != none && Controller(Owner).Pawn.Physics == PHYS_Falling) {
         addProgress(StockIndex.ONE_SMALL_STEP, 1);
     } else if (headshot && (damageType == class'DamTypeM14EBR' || damageType == class'DamTypeSPSniper')) {
@@ -461,8 +464,8 @@ defaultproperties {
     achievements(47)=(title="Have My Axe",description="Kill 30 fleshpounds with the Dwarfs!? axe with back attacks",image=Texture'KillingFloor2HUD.Achievements.Achievement_200',maxProgress=30,notifyIncrement=0.33333)
     achievements(48)=(title="One Small Step for Man",description="Kill 500 zeds with the Schneidzekk Medic Gun while you are falling",image=Texture'KillingFloor2HUD.Achievements.Achievement_201',maxProgress=500,notifyIncrement=0.1)
     achievements(49)=(title="Game Over, Man!",description="Have 20 zeds you slowed with the Z.E.D. gun killed",image=Texture'KillingFloor2HUD.Achievements.Achievement_203',maxProgress=20,notifyIncrement=1.0)
-    achievements(50)=(title="Single-shot Equalizer",description="Kill 4 different types of Zeds with headshots with 4 shots from the Long Musket or the M14 without reloading",image=Texture'KillingFloor2HUD.Achievements.Achievement_224')
+    achievements(50)=(title="Single-shot Equalizer",description="Kill 4 different types of Zeds with 4 headshots from the Long Musket or the M14 without reloading",image=Texture'KillingFloor2HUD.Achievements.Achievement_224')
     achievements(51)=(title="Assault Flayer Ordinance",description="Push a scrake back with the direct fire from a Hunting Shotgun or alt fire from the Multi-Chamber ZED Thrower",image=Texture'KillingFloor2HUD.Achievements.Achievement_225')
-    achievements(52)=(title="Single-Load Doom Bombardier",description="Kill a ZED with a direct (unexploded) shot from the Orca Bomb Propeller or the M-79/M32",image=Texture'KillingFloor2HUD.Achievements.Achievement_226')
+    achievements(52)=(title="Single-Load Doom Bombardier",description="Kill a ZED with an impact shot from the Orca Bomb Propeller or the M79/M32",image=Texture'KillingFloor2HUD.Achievements.Achievement_226')
     achievements(53)=(title="Turbo Executioner",description="Kill 5 zeds in ZED time without reloading with Dr. T's LDS or Bullpup",image=Texture'KillingFloor2HUD.Achievements.Achievement_227')
 }
