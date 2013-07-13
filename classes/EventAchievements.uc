@@ -91,7 +91,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             if (clotLarKills >= 3) {
                 achievementCompleted(AchvIndex.SMALL_HANDS);
             }
-        } else if (class<DamTypeBurned>(damageType) != none || class<DamTypeFlamethrower>(damageType) != none) {
+        } else if (class<KFWeaponDamageType>(damageType) != none && class<KFWeaponDamageType>(damageType).default.bDealBurningDamage) {
             clotBurningKills++;
             if (clotBurningKills >= 10) {
                 achievementCompleted(AchvIndex.BURNING_MIDWAY);
