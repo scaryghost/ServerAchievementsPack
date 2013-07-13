@@ -3,29 +3,47 @@ class EventAchievements extends AchievementPackPartImpl;
 enum AchvIndex {
     RINGMASTER, SPARRING_WITH_MASTER, ASSISTANT_HOMICIDE, SEEING_DOUBLE, CLOWN_ALLEY,
     BIG_HUNT, LIFTING_A_DUMBELL, SMALL_HANDS, ELEPHANT_GUN, JUGGLING_ACT, 
-    WINDJAMMER, BIG_TOP, BURNING_MIDWAY
+    WINDJAMMER, BIG_TOP, BURNING_MIDWAY, HIDE_AND_PUKE, ARCADE_GAMER
 };
 
 var int stalkersKilled, crawlersKilled, bloatsKilled, zedTimeMeleeKills, clotLarKills, 
         clotBurningKills, droppedT2Weapons;
 var bool survivedSiren;
+var int screamedTime;
+var BEResettableCounter miniGamesCounter, clownCounter;
 
 function PostBeginPlay() {
-    if (achievements[achvIndex.WINDJAMMER].completed == 0) {
+    local BEResettableCounter achvCounter;
+
+    if (achievements[achvIndex.WINDJAMMER].completed == 0 || achievements[achvIndex.HIDE_AND_PUKE].completed == 0 || 
+            achievements[achvIndex.ARCADE_GAMER].completed == 0) {
         SetTimer(1.0, true);
+    }
+    foreach DynamicActors(class'BEResettableCounter', achvCounter) {
+        if (achvCounter.Event == 'MiniGamesCompleted') {
+            miniGamesCounter= achvCounter;
+        } else if (achvCounter.Event == 'ClownSoulsCompleted') {
+            clownCounter= achvCounter;
+        }
     }
 }
 
 function Timer() {
-    if (TimerRate == 1.0 && KFPlayerController(Owner).bScreamedAt) {
-        SetTimer(10.0, false);
-        survivedSiren= true;
-    } else if (TimerRate == 0.0) {
-        if (survivedSiren && Level.Game.GameDifficulty >= 4.0) {
+    if (KFPlayerController(Owner).bScreamedAt && Level.Game.GameDifficulty >= 4.0) {
+        if (screamedTime == 0) {
+            screamedTime= Level.TimeSeconds;
+            survivedSiren= true;
+        } else if (Level.TimeSeconds - screamedTime >= 10.0 && survivedSiren) {
             achievementCompleted(AchvIndex.WINDJAMMER);
         } else {
-            SetTimer(1.0, true);
+            screamedTime= 0;
         }
+    }
+    if (miniGamesCounter != none && miniGamesCounter.NumToCount <= 0) {
+        achievementCompleted(AchvIndex.ARCADE_GAMER);
+    }
+    if (clownCounter != none && clownCounter.NumToCount <= 0) {
+        achievementCompleted(AchvIndex.HIDE_AND_PUKE);
     }
 }
 
@@ -120,4 +138,6 @@ defaultproperties {
     achievements(10)=(title="Windjammer Enthusiast",description="Survive 10 seconds after being screamed at by at Circus Siren on Hard or above",image=Texture'KillingFloor2HUD.Achievements.Achievement_152')
     achievements(11)=(title="Taking Down the Big Top",description="Kill 4 Circus Zeds in 1 ZED time chain with a Melee weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_153')
     achievements(12)=(title="Burning up the Midway",description="Kill 10 Circus Clots with a Fire-based weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_154')
+    achievements(13)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
+    achievements(14)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
 }
