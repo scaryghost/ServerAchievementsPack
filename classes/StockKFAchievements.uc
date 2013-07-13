@@ -9,15 +9,28 @@ enum StockIndex {
     HEALING_TOUCH, POUND_THIS, KILLER_JUNIOR, LET_THEM_BURN, BURNING_IRONY,
     HIGHLANDER, BLOODY_YANKS, FINISH_HIM, I_LOVE_ZE_HEALING, ITALIAN_MEAT_PASTA, FEELING_LUCKY,
     COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, THE_BIG_ONE, HISTORICAL_REMNANTS,
-    NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN
+    NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN, SINGLE_SHOT_EQUALIZER,
+    FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER
 };
 
 var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, 
-        revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills, boomstickKills, m99ScKills;
+        revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills, boomstickKills, m99ScKills,
+        zedTimePupKills;
 var bool onlyCrossbowDmg, survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters;
+var array<Pawn> m14MusketHeadShotKill;
+
+
+function addM14MusketHeadShotKill(Pawn monster) {
+    local int i;
+    for(i= 0; i < m14MusketHeadShotKill.Length && m14MusketHeadShotKill[i] != monster; i++) {
+    }
+    if (i >= m14MusketHeadShotKill.Length) {
+        m14MusketHeadShotKill[m14MusketHeadShotKill.Length]= monster;
+    }
+}
 
 function checkCowboy() {
     local bool hasDual9mm, hasDualHC, hasDualRevolver;
@@ -233,8 +246,14 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         revolverMagKills++;
     } else if (damageType == class'DamTypeM7A3M' && KFMonster(target).bDamagedAPlayer) {
         achievementCompleted(StockIndex.COMBAT_MEDIC);
-    } else if (damageType == class'DamTypeBullpup') {
-        killedWithBullpup= true;
+    } else if (KFGameType(Level.Game).bZEDTimeActive && (damageType == class'DamTypeBullpup' || damageType == class'DamTypeSPThompson')) {
+        zedTimePupKills++;
+        if (zedTimePupKills >= 5) {
+            achievementCompleted(StockIndex.TURBO_EXECUTIONER);
+        }
+        if (damageType == class'DamTypeBullpup') {
+            killedWithBullpup= true;
+        }
     } else if (damageType == class'DamTypeFNFALAssaultRifle') {
         killedWithFnFal= true;
     } else if (damageType == class'DamTypeMkb42AssaultRifle') {
@@ -259,6 +278,13 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
     } else if (damageType == class'DamTypeKrissM' && Controller(Owner).Pawn != none && Controller(Owner).Pawn.Physics == PHYS_Falling) {
         addProgress(StockIndex.ONE_SMALL_STEP, 1);
+    } else if (headshot && (damageType == class'DamTypeM14EBR' || damageType == class'DamTypeSPSniper')) {
+        addM14MusketHeadShotKill(target);
+        if (m14MusketHeadShotKill.Length == 4) {
+            achievementCompleted(StockIndex.SINGLE_SHOT_EQUALIZER);
+        }
+    } else if (class<DamTypeRocketImpact>(damageType) != none && class<DamTypeLawRocketImpact>(damageType) == none) {
+        achievementCompleted(StockIndex.DOOM_BOMBARDIER);
     }
 
     if (killedWithBullpup && killedWithFnFal) {
@@ -352,6 +378,8 @@ event reloadedWeapon(KFWeapon weapon) {
             achievementCompleted(StockIndex.HISTORICAL_REMNANTS);
         }
         mkb42Kills= 0;
+    } else if (M14EBRBattleRifle(weapon) != none || SPSniperRifle(weapon) != none) {
+        m14MusketHeadShotKill.Length= 0;
     }
 }
 
@@ -362,6 +390,19 @@ event firedWeapon(KFWeapon weapon) {
         boomstickKills= 0;
     } else if (Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1 && Syringe(weapon) != none && weapon.GetFireMode(1).bIsFiring) {
         addProgress(StockIndex.SELF_MEDICATOR, 1);
+    } else if (achievements[StockIndex.FLAYER_ORDINANCE].completed == 0 && SPAutoShotgun(weapon) != none && weapon.GetFireMode(1).bIsFiring) {
+        checkAltFireVictims(weapon);
+    }
+}
+
+function checkAltFireVictims(KFWeapon weapon) {
+    local ZombieScrake victim;
+    local Vector startTrace;
+
+    startTrace = weapon.Instigator.Location + weapon.Instigator.EyePosition();
+    foreach Weapon.VisibleCollidingActors(class'ZombieScrake', Victim, (class'SPShotgunAltFire'.default.PushRange * 2), startTrace) {
+        achievementCompleted(StockIndex.FLAYER_ORDINANCE);
+        break;
     }
 }
 
@@ -420,4 +461,8 @@ defaultproperties {
     achievements(47)=(title="Have My Axe",description="Kill 30 fleshpounds with the Dwarfs!? axe with back attacks",image=Texture'KillingFloor2HUD.Achievements.Achievement_200',maxProgress=30,notifyIncrement=0.33333)
     achievements(48)=(title="One Small Step for Man",description="Kill 500 zeds with the Schneidzekk Medic Gun while you are falling",image=Texture'KillingFloor2HUD.Achievements.Achievement_201',maxProgress=500,notifyIncrement=0.1)
     achievements(49)=(title="Game Over, Man!",description="Have 20 zeds you slowed with the Z.E.D. gun killed",image=Texture'KillingFloor2HUD.Achievements.Achievement_203',maxProgress=20,notifyIncrement=1.0)
+    achievements(50)=(title="Single-shot Equalizer",description="Kill 4 different types of Zeds with headshots with 4 shots from the Long Musket or the M14 without reloading",image=Texture'KillingFloor2HUD.Achievements.Achievement_224')
+    achievements(51)=(title="Assault Flayer Ordinance",description="Push a scrake back with the direct fire from a Hunting Shotgun or alt fire from the Multi-Chamber ZED Thrower",image=Texture'KillingFloor2HUD.Achievements.Achievement_225')
+    achievements(52)=(title="Single-Load Doom Bombardier",description="Kill a ZED with a direct (unexploded) shot from the Orca Bomb Propeller or the M-79/M32",image=Texture'KillingFloor2HUD.Achievements.Achievement_226')
+    achievements(53)=(title="Turbo Executioner",description="Kill 5 zeds in ZED time without reloading with Dr. T's LDS or Bullpup",image=Texture'KillingFloor2HUD.Achievements.Achievement_227')
 }
