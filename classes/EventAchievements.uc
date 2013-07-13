@@ -20,7 +20,7 @@ function Timer() {
     if (TimerRate == 1.0 && KFPlayerController(Owner).bScreamedAt) {
         SetTimer(10.0, false);
         survivedSiren= true;
-    } else if (TimerRate == 10.0) {
+    } else if (TimerRate == 0.0) {
         if (survivedSiren && Level.Game.GameDifficulty >= 4.0) {
             achievementCompleted(AchvIndex.WINDJAMMER);
         } else {
@@ -34,8 +34,10 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
 }
 
 event droppedWeapon(KFWeaponPickup weaponPickup) {
-    //KFWeaponPickup.InitDroppedPickupFor does not set DroppedBy if the weapon is a tier2 weapon
-    if (!weaponPickup.bPreviouslyDropped && weaponPickup.DroppedBy == none) {
+    //User bIsTier2Weapon from the inventory type class
+    //No way to use bPreviouslyDropped variable because KFWeaponPickup doesn't assign it if the weapon was a tier 2
+    if (class<KFWeapon>(weaponPickup.InventoryType) != none && 
+            class<KFWeapon>(weaponPickup.InventoryType).default.bIsTier2Weapon) {
         droppedT2Weapons++;
         if (droppedT2Weapons >= 5) {
             achievementCompleted(AchvIndex.JUGGLING_ACT);
