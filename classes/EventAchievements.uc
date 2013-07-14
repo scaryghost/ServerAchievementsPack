@@ -3,22 +3,23 @@ class EventAchievements extends AchievementPackPartImpl;
 enum AchvIndex {
     RINGMASTER, SPARRING_WITH_MASTER, ASSISTANT_HOMICIDE, SEEING_DOUBLE, CLOWN_ALLEY,
     BIG_HUNT, LIFTING_A_DUMBELL, SMALL_HANDS, ELEPHANT_GUN, JUGGLING_ACT, 
-    WINDJAMMER, BIG_TOP, BURNING_MIDWAY, HIDE_AND_PUKE, ARCADE_GAMER
+    WINDJAMMER, BIG_TOP, BURNING_MIDWAY, HIDE_AND_PUKE, ARCADE_GAMER,
+    FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE
 };
 
 var int stalkersKilled, crawlersKilled, bloatsKilled, zedTimeMeleeKills, clotLarKills, 
         clotBurningKills, droppedT2Weapons;
-var bool survivedSiren;
+var bool survivedSiren, failedEscort, failedDefense, damagedWithBars, goldBarsObjective;
 var int screamedTime;
 var BEResettableCounter miniGamesCounter, clownCounter;
+var array<KF_BreakerBoxNPC> breakerBoxes;
+var KF_RingMasterNPC ringMaster;
+var name prevObjName;
 
 function PostBeginPlay() {
     local BEResettableCounter achvCounter;
+    local KF_BreakerBoxNPC breakerBox;
 
-    if (achievements[achvIndex.WINDJAMMER].completed == 0 || achievements[achvIndex.HIDE_AND_PUKE].completed == 0 || 
-            achievements[achvIndex.ARCADE_GAMER].completed == 0) {
-        SetTimer(1.0, true);
-    }
     foreach DynamicActors(class'BEResettableCounter', achvCounter) {
         if (achvCounter.Event == 'MiniGamesCompleted') {
             miniGamesCounter= achvCounter;
@@ -26,17 +27,74 @@ function PostBeginPlay() {
             clownCounter= achvCounter;
         }
     }
+    foreach DynamicActors(class'KF_BreakerBoxNPC', breakerBox) {
+        breakerBoxes[breakerBoxes.Length]= breakerBox;
+    }
+    SetTimer(1.0, true);
+}
+
+function EventAchievements getEventAchievementsObj(array<AchievementPack> achievementPacks) {
+    local int i;
+
+    for(i= 0; i < achievementPacks.Length; i++) {
+        if (EventAchievements(achievementPacks[i]) != none) {
+            return EventAchievements(achievementPacks[i]);
+        }
+    }
+    return none;
+}
+event objectiveChanged(KF_StoryObjective newObjective) {
+    local EventAchievements eventAchvObj;
+    local KF_RingMasterNPC iterator;
+    local bool noCarriersDamaged;
+    local Controller C;
+    local SAReplicationInfo saRepInfo;
+
+    if (!failedEscort) {
+        achievementCompleted(AchvIndex.MOTION_PROTECTOR);
+    } else if (!failedDefense) {
+        achievementCompleted(AchvIndex.ASSAULT_PROTECTOR);
+    }
+
+    noCarriersDamaged= true;
+    for(C= Level.ControllerList; C != none; C= C.NextController) {
+        if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
+            eventAchvObj= getEventAchievementsObj(saRepInfo.achievementPacks);
+            noCarriersDamaged= noCarriersDamaged && !eventAchvObj.damagedWithBars;
+        }
+    }
+    if (noCarriersDamaged) {
+        achievementCompleted(AchvIndex.CROWN_NOTE);
+    }
+    if (newObjective.ObjectiveName == class'KFSteamStatsAndAchievements'.default.SteamLandEscortObjName) {
+        failedEscort= false;
+        failedDefense= true; 
+        foreach DynamicActors(class'KF_RingMasterNPC', iterator) {
+            ringMaster= iterator;
+            break;
+        }
+    } else if (newObjective.ObjectiveName == class'KFSteamStatsAndAchievements'.default.SteamLandDefendObjName) {
+        failedEscort= true;
+        failedDefense= false;
+    }
+    goldBarsObjective= newObjective.ObjectiveName == class'KFSteamStatsAndAchievements'.default.SteamLandGoldObjName;
+    damagedWithBars= !goldBarsObjective;
 }
 
 function Timer() {
-    if (KFPlayerController(Owner).bScreamedAt && Level.Game.GameDifficulty >= 4.0) {
+    local int i, numBreakersFull;
+
+    if ((KFPlayerController(Owner).bScreamedAt || screamedTime != 0) && Level.Game.GameDifficulty >= 4.0) {
         if (screamedTime == 0) {
             screamedTime= Level.TimeSeconds;
             survivedSiren= true;
-        } else if (Level.TimeSeconds - screamedTime >= 10.0 && survivedSiren) {
-            achievementCompleted(AchvIndex.WINDJAMMER);
-        } else {
-            screamedTime= 0;
+        } else if (Level.TimeSeconds - screamedTime >= 10.0) {
+            if (survivedSiren) {
+                achievementCompleted(AchvIndex.WINDJAMMER);
+            } else {
+                screamedTime= 0;
+            }
         }
     }
     if (miniGamesCounter != none && miniGamesCounter.NumToCount <= 0) {
@@ -44,6 +102,19 @@ function Timer() {
     }
     if (clownCounter != none && clownCounter.NumToCount <= 0) {
         achievementCompleted(AchvIndex.HIDE_AND_PUKE);
+    }
+    for(i= 0; i < breakerBoxes.Length; i++) {
+        if (breakerBoxes[i].Health >= breakerBoxes[i].NPCHealth) {
+            numBreakersFull++;
+        }
+    }
+    if (numBreakersFull >= 5) {
+        achievementCompleted(AchvIndex.FULL_CHARGE);
+    }
+    failedEscort= failedEscort || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
+    failedDefense= failedDefense || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
+    if (goldBarsObjective && !damagedWithBars) {
+        damagedWithBars= KFSteamStatsAndAchievements(PlayerController(Owner).SteamStatsAndAchievements).bObjAchievementFailed;
     }
 }
 
@@ -123,6 +194,10 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
 }
 
 defaultproperties {
+    failedEscort= true
+    failedDefense= true
+    damagedWithBars= true
+
     packName= "Event Achievements"
     
     achievements(0)=(title="Ringmaster",description="Kill the Ring Leader (Circus Patriarch)",image=Texture'KillingFloor2HUD.Achievements.Achievement_142')
@@ -140,4 +215,8 @@ defaultproperties {
     achievements(12)=(title="Burning up the Midway",description="Kill 10 Circus Clots with a Fire-based weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_154')
     achievements(13)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
     achievements(14)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
+    achievements(15)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
+    achievements(16)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
+    achievements(17)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
+    achievements(18)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
 }
