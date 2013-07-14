@@ -43,6 +43,7 @@ function EventAchievements getEventAchievementsObj(array<AchievementPack> achiev
     }
     return none;
 }
+
 event objectiveChanged(KF_StoryObjective newObjective) {
     local EventAchievements eventAchvObj;
     local KF_RingMasterNPC iterator;
@@ -80,6 +81,10 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     }
     goldBarsObjective= newObjective.ObjectiveName == class'KFSteamStatsAndAchievements'.default.SteamLandGoldObjName;
     damagedWithBars= !goldBarsObjective;
+    stalkersKilled= 0;
+    crawlersKilled= 0;
+    clotLarKills= 0;
+    droppedT2Weapons= 0;
 }
 
 function Timer() {

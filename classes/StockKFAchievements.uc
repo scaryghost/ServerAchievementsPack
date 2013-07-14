@@ -73,6 +73,10 @@ function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> ac
     return none;
 }
 
+event objectiveChanged(KF_StoryObjective newObjective) {
+    checkCowboy();
+}
+
 event waveEnd(int waveNum) {
     local SAReplicationInfo saRepInfo;
     local bool onlySurvivor;
