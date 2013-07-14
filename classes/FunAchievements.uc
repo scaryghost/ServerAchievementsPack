@@ -56,9 +56,7 @@ function PostBeginPlay() {
 function Timer() {
     super.Timer();
 
-    if (Owner != none && KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo).ClientVeteranSkill != class'KFVetFieldMedic') {
-        canEarnMedicGame= false;
-    }
+    
     if (Owner != none && Controller(Owner).PlayerReplicationInfo.Score > 10000) {
         achievementCompleted(FunIndex.IM_RICH);
     }
@@ -71,7 +69,7 @@ function Timer() {
 }
 
 function MatchStarting() {
-    if (KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo).ClientVeteranSkill == class'KFVetFieldMedic') {
+    if (class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo))) {
         canEarnMedicGame= true;
     }
     if (Level.GetLocalPlayerController() != PlayerController(Owner)) {
@@ -105,6 +103,9 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
 
 event waveStart(int waveNum) {
     jumpedOnCrawler= 0;
+    if (Owner != none && !class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo))) {
+        canEarnMedicGame= false;
+    }
 }
 
 event playerDied(Controller Killer, class<DamageType> damageType, int waveNum) {
