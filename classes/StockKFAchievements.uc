@@ -343,17 +343,22 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
     }
 }
 
-event touchedHealDart(MP7MHealinglProjectile healDart) {
+event touchedHealDart(HealingProjectile healDart) {
     local SAReplicationInfo saRepInfo;
-    local float potentialHealth;
+    local float healSum;
+    local KFPlayerReplicationInfo kfRepInfo;
+    local KFPawn target;
 
-    potentialHealth= Controller(Owner).Pawn.Health + KFPawn(Controller(Owner).Pawn).HealthToGive;
-    if (potentialHealth <= Controller(Owner).Pawn.HealthMax) {
-        if (healDart.class == class'MP5MHealinglProjectile') {
-            saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
-            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.I_LOVE_ZE_HEALING, KFPawn(Controller(Owner).Pawn).HealthToGive);
-        } else if (healDart.class == class'MP7MHealinglProjectile') {
-            saRepInfo= class'SAReplicationInfo'.static.findSARI(healDart.Instigator.PlayerReplicationInfo);
+    target= KFPawn(Controller(Owner).Pawn);
+    kfRepInfo= KFPlayerReplicationInfo(healDart.Instigator.PlayerReplicationInfo);
+    healSum= kfRepInfo.ClientVeteranSkill.Static.GetHealPotency(kfRepInfo);
+    healSum= max(target.HealthMax - (target.Health + target.HealthToGive + healSum), 0);
+    if (healSum > 0) {
+        if (MP5MHealinglProjectile(healDart) != none) {
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(kfRepInfo);
+            getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.I_LOVE_ZE_HEALING, healSum);
+        } else if (MP7MHealinglProjectile(healDart) != none) {
+            saRepInfo= class'SAReplicationInfo'.static.findSARI(kfRepInfo);
             getStockKFAchievementsObj(saRepInfo.achievementPacks).addProgress(StockIndex.HEALING_TOUCH, 1);
         }
     }
