@@ -1,4 +1,4 @@
-class EventAchievements extends AchievementPackPartImpl;
+class StockEventAchievements extends AchievementPackPartImpl;
 
 enum AchvIndex {
     RINGMASTER, SPARRING_WITH_MASTER, ASSISTANT_HOMICIDE, SEEING_DOUBLE, CLOWN_ALLEY,
@@ -33,12 +33,12 @@ function PostBeginPlay() {
     SetTimer(1.0, true);
 }
 
-function EventAchievements getEventAchievementsObj(array<AchievementPack> achievementPacks) {
+function StockEventAchievements getEventAchievementsObj(array<AchievementPack> achievementPacks) {
     local int i;
 
     for(i= 0; i < achievementPacks.Length; i++) {
-        if (EventAchievements(achievementPacks[i]) != none) {
-            return EventAchievements(achievementPacks[i]);
+        if (StockEventAchievements(achievementPacks[i]) != none) {
+            return StockEventAchievements(achievementPacks[i]);
         }
     }
     return none;
@@ -51,7 +51,7 @@ event playerDamaged(int damage, Pawn instigator, class<DamageType> damageType) {
 }
 
 event objectiveChanged(KF_StoryObjective newObjective) {
-    local EventAchievements eventAchvObj;
+    local StockEventAchievements eventAchvObj;
     local KF_RingMasterNPC iterator;
     local bool noCarriersDamaged;
     local Controller C;

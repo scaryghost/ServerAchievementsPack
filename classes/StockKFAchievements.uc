@@ -131,7 +131,6 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local int i;
     local Controller C;
     local SAReplicationInfo saRepInfo;
-    local bool allOnlyCrossbowDmg;
     local StockKFAchievements stockKFAchievementObj;
 
     addProgress(StockIndex.EXPERIMENTICIDE, 1);
@@ -208,7 +207,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
                 }
             }
         }
-        if (ZombieBos(target).bOnlyDamagedByCrossbow) {
+        if (ZombieBoss(target).bOnlyDamagedByCrossbow) {
             achievementCompleted(StockIndex.MERRY_MEN);
         }
     } else if (ZombieCrawler(target) != none && target.Physics == PHYS_Falling && damageType == class'DamTypeM79Grenade') {
