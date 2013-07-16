@@ -16,7 +16,7 @@ enum StockIndex {
 var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, 
         revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills, boomstickKills, m99ScKills,
         zedTimePupKills;
-var bool onlyCrossbowDmg, survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
+var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters;
@@ -199,18 +199,16 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         } else if (damageType == class'DamTypeClaymoreSword') {
             claymoreBossKill= true;
         }
-        allOnlyCrossbowDmg= true;
-        for(C= Level.ControllerList; C != none; C= C.NextController) {
-            if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
-                saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
-                stockKFAchievementObj= getStockKFAchievementsObj(saRepInfo.achievementPacks);
-                if (!ZombieBoss(target).bHealed) {
+        if (!ZombieBoss(target).bHealed) {
+            for(C= Level.ControllerList; C != none; C= C.NextController) {
+                if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
+                    saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
+                    stockKFAchievementObj= getStockKFAchievementsObj(saRepInfo.achievementPacks);
                     stockKFAchievementObj.achievementCompleted(StockIndex.STRAIGHT_RUSH);
                 }
-                allOnlyCrossbowDmg= allOnlyCrossbowDmg && stockKFAchievementObj.onlyCrossbowDmg;
             }
         }
-        if (allOnlyCrossbowDmg) {
+        if (ZombieBos(target).bOnlyDamagedByCrossbow) {
             achievementCompleted(StockIndex.MERRY_MEN);
         }
     } else if (ZombieCrawler(target) != none && target.Physics == PHYS_Falling && damageType == class'DamTypeM79Grenade') {
@@ -335,9 +333,6 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
             gibbedMonsters[gibbedMonsters.Length]= target;
         }
     }
-    if (ZombieBoss(target) != none && (damageType != class'DamTypeCrossbow' && damageType != class'DamTypeCrossbowHeadshot')) {
-        onlyCrossbowDmg= false;
-    }
     if (damageType == class'DamTypeMAC10MPInc') {
         addProgress(StockIndex.LET_THEM_BURN, min(damage, target.Health));
     }
@@ -420,8 +415,6 @@ function checkAltFireVictims(KFWeapon weapon) {
 
 defaultproperties {
     packName= "Stock KF"
-
-    onlyCrossbowDmg= true;
 
     achievements(0)=(title="Experimenticide",description="Kill 100 specimens",image=Texture'KillingFloorHUD.Achievements.Achievement_18',maxProgress=100,notifyIncrement=1.0)
     achievements(1)=(title="Fascist Dietitian",description="Kill 200 bloats",image=Texture'KillingFloorHUD.Achievements.Achievement_21',maxProgress=200,notifyIncrement=0.1)

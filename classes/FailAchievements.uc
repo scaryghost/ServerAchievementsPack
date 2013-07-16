@@ -19,6 +19,13 @@ function MatchStarting() {
     canEarnUselessBaggage= true;
 }
 
+event objectiveChanged(KF_StoryObjective newObjective) {
+    if (newObjective != none) {
+        canEarnUselessBaggage= canEarnUselessBaggage && diedCurrentWave;
+        diedCurrentWave= false;
+    }
+}
+
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     if (canEarnUselessBaggage && result == 2) {
         achievementCompleted(FailIndex.USELESS_BAGGAGE);
@@ -30,9 +37,7 @@ event waveStart(int waveNum) {
 }
 
 event waveEnd(int waveNum) {
-    if (!diedCurrentWave) {
-        canEarnUselessBaggage= false;
-    }
+    canEarnUselessBaggage= canEarnUselessBaggage && diedCurrentWave;
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {

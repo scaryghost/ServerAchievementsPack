@@ -44,6 +44,12 @@ function EventAchievements getEventAchievementsObj(array<AchievementPack> achiev
     return none;
 }
 
+event playerDamaged(int damage, Pawn instigator, class<DamageType> damageType) {
+    if (KFStoryGameInfo(Level.Game) != none && goldBarsObjective && KFHumanPawn_Story(PlayerController(Owner).Pawn).bHasStoryItem) {
+        damagedWithBars= true;
+    }
+}
+
 event objectiveChanged(KF_StoryObjective newObjective) {
     local EventAchievements eventAchvObj;
     local KF_RingMasterNPC iterator;
@@ -118,9 +124,6 @@ function Timer() {
     }
     failedEscort= failedEscort || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
     failedDefense= failedDefense || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
-    if (goldBarsObjective && !damagedWithBars) {
-        damagedWithBars= KFSteamStatsAndAchievements(PlayerController(Owner).SteamStatsAndAchievements).bObjAchievementFailed;
-    }
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
