@@ -208,6 +208,23 @@ defaultproperties {
 
     packName= "Event Achievements"
     
+    achievements(0)=(title="Merry Friggin Christmas",description="[2010 Xmas] Kill the Christmas Patriarch",image=Texture'KillingFloor2HUD.Achievements.Achievement_118')
+    achievements(0)=(title="Cracked the Nutcracker!",description="[2010 Xmas] Land the killing blow on a Christmas Fleshpound with a Knife",image=Texture'KillingFloor2HUD.Achievements.Achievement_119')
+    achievements(0)=(title="Can't Catch Me!",description="[2010 Xmas] Kill 2 Christmas Gorefasts with a Melee weapon from behind in one wave",image=Texture'KillingFloor2HUD.Achievements.Achievement_120')
+    achievements(0)=(title="Toasted Jack Frost",description="[2010 Xmas] Kill the Christmas Scrake with a Fire-based weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_121')
+    achievements(0)=(title="That's not Santa!",description="[2010 Xmas] Kill 3 Christmas Bloats with the Bullpup in one wave",image=Texture'KillingFloor2HUD.Achievements.Achievement_122')
+    achievements(0)=(title="Back to Work",description="[2010 Xmas] Kill 20 Christmas Clots in one wave",image=Texture'KillingFloor2HUD.Achievements.Achievement_123')
+    achievements(0)=(title="Rudolph, the Bloody Nosed Reindeer",description="[2010 Xmas] Kill a Christmas Crawler with a Crossbow",image=Texture'KillingFloor2HUD.Achievements.Achievement_124')
+    achievements(0)=(title="Not So Silent Night",description="[2010 Xmas] Kill a Christmas Siren with an undetonated LAW rocket",image=Texture'KillingFloor2HUD.Achievements.Achievement_125')
+    achievements(0)=(title="Fending off Mrs. Claws",description="[2010 Xmas] Kill 3 Christmas Stalkers with a Lever Action Rifle without reloading",image=Texture'KillingFloor2HUD.Achievements.Achievement_126')
+    achievements(0)=(title="Who Brings a Gun to a Snow Ball Fight?",description="[2010 Xmas] Kill a Christmas Husk with any Pistol.",image=Texture'KillingFloor2HUD.Achievements.Achievement_127')
+    achievements(0)=(title="Deck the Halls with Buckets o' Blood",description="[2010 Xmas] Kill 3 Christmas Zeds in 1 ZED time chain with a Melee weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_128')
+    achievements(0)=(title="Tis Better to Give than to Receive",description="[2010 Xmas] Drop 3 Tier 3 weapons for others (with which they kill at least one Christmas Zed)",image=Texture'KillingFloor2HUD.Achievements.Achievement_129')
+    achievements(0)=(title="Eggnog Anyone?",description="[2010 Xmas] Get covered in Christmas Bloat Bile and live for 10 seconds on Hard, Suicidal, or Hell on Earth",image=Texture'KillingFloor2HUD.Achievements.Achievement_130')
+
+    achievements(0)=(title="Uber Tuber",description="Expensive but delicious! Brought to you by Dr. Dougley and Lord Ned.",image=Texture'KillingFloor2HUD.Achievements.Achievement_132')
+    achievements(0)=(title="Golden Potato",description="Get into GLaDOS' core on Aperture",image=Texture'KillingFloor2HUD.Achievements.Achievement_137')
+
     achievements(0)=(title="Ringmaster",description="Kill the Ring Leader (Circus Patriarch)",image=Texture'KillingFloor2HUD.Achievements.Achievement_142')
     achievements(1)=(title="Sparring with a Master",description="Kill a Circus Gorefast with a Melee weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_143')
     achievements(2)=(title="Assistant Homicide",description="Kill 2 Circus Stalkers with a Melee weapon to the back in one wave",image=Texture'KillingFloor2HUD.Achievements.Achievement_144')
@@ -221,6 +238,14 @@ defaultproperties {
     achievements(10)=(title="Windjammer Enthusiast",description="Survive 10 seconds after being screamed at by at Circus Siren on Hard or above",image=Texture'KillingFloor2HUD.Achievements.Achievement_152')
     achievements(11)=(title="Taking Down the Big Top",description="Kill 4 Circus Zeds in 1 ZED time chain with a Melee weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_153')
     achievements(12)=(title="Burning up the Midway",description="Kill 10 Circus Clots with a Fire-based weapon",image=Texture'KillingFloor2HUD.Achievements.Achievement_154')
+
+    achievements(12)=(title="Soul Collector",description="Free the souls of the 25 Gnomes hidden on Hillbilly Horror in 1 game",image=Texture'KillingFloor2HUD.Achievements.Achievement_194')
+    achievements(12)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",image=Texture'KillingFloor2HUD.Achievements.Achievement_195',maxProgress=1000,notifyIncrement=0.25)
+    achievements(12)=(title="Creepy Crawlies",description="Kill 15 Hillbilly Crawlers in 1 game with the Tommy Gun or MKb42",image=Texture'KillingFloor2HUD.Achievements.Achievement_196')
+    achievements(12)=(title="Rippin' It Up",description="Kill a Hillbilly Husk and another Hillbilly Zed in the same shot with the Buzzsaw Bow or M99",image=Texture'KillingFloor2HUD.Achievements.Achievement_197')
+    achievements(12)=(title="I Am Become Death",description="Kill 5 Hillbilly Zeds in 10 seconds with the Scythe or Axe",image=Texture'KillingFloor2HUD.Achievements.Achievement_198')
+    achievements(12)=(title="Fiery Personality",description="Set 3 Hillbilly Gorefasts on fire with the Flare Pistol or Trench Gun",image=Texture'KillingFloor2HUD.Achievements.Achievement_199')
+
     achievements(13)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
     achievements(14)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
     achievements(15)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
