@@ -18,8 +18,9 @@ enum AchvIndex {
     FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE
 };
 
-var bool survivedSiren, failedEscort, failedDefense, damagedWithBars, goldBarsObjective;
-var int screamedTime;
+var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective;
+var byte survivedSiren, survivedBloat;
+var int screamedTime, vomitTime;
 var BEResettableCounter miniGamesCounter, clownCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
@@ -53,12 +54,14 @@ function PostBeginPlay() {
     SetTimer(1.0, true);
 }
 
-function StockEventAchievements getEventAchievementsObj(array<AchievementPack> achievementPacks) {
+function StockEventAchievements getEventAchievementsObj(PlayerReplicationInfo playerRepInfo) {
+    local SAReplicationInfo saRepInfo;
     local int i;
 
-    for(i= 0; i < achievementPacks.Length; i++) {
-        if (StockEventAchievements(achievementPacks[i]) != none) {
-            return StockEventAchievements(achievementPacks[i]);
+    saRepInfo= class'SAReplicationInfo'.static.findSAri(playerRepInfo);
+    for(i= 0; i < saRepInfo.achievementPacks.Length; i++) {
+        if (StockEventAchievements(saRepInfo.achievementPacks[i]) != none) {
+            return StockEventAchievements(saRepInfo.achievementPacks[i]);
         }
     }
     return none;
@@ -75,7 +78,6 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     local KF_RingMasterNPC iterator;
     local bool noCarriersDamaged;
     local Controller C;
-    local SAReplicationInfo saRepInfo;
 
     if (!failedEscort) {
         achievementCompleted(AchvIndex.MOTION_PROTECTOR);
@@ -86,8 +88,7 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     noCarriersDamaged= true;
     for(C= Level.ControllerList; C != none; C= C.NextController) {
         if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
-            saRepInfo= class'SAReplicationInfo'.static.findSARI(C.PlayerReplicationInfo);
-            eventAchvObj= getEventAchievementsObj(saRepInfo.achievementPacks);
+            eventAchvObj= getEventAchievementsObj(C.PlayerReplicationInfo);
             noCarriersDamaged= noCarriersDamaged && !eventAchvObj.damagedWithBars;
         }
     }
@@ -111,21 +112,27 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     resetWaveCounters();
 }
 
-function Timer() {
-    local int i, numBreakersFull;
-
-    if ((KFPlayerController(Owner).bScreamedAt || screamedTime != 0) && Level.Game.GameDifficulty >= 4.0) {
-        if (screamedTime == 0) {
-            screamedTime= Level.TimeSeconds;
-            survivedSiren= true;
-        } else if (Level.TimeSeconds - screamedTime >= 10.0) {
-            if (survivedSiren) {
-                achievementCompleted(AchvIndex.WINDJAMMER);
+function checkTimeAchievement(out byte actionState, out int triggerTime, bool controllerState, byte achvIndex) {
+    if ((controllerState || triggerTime != 0) && Level.Game.GameDifficulty >= 4.0) {
+        if (triggerTime == 0) {
+            triggerTime= Level.TimeSeconds;
+            actionState= 1;
+        } else if (Level.TimeSeconds - triggerTime >= 10.0) {
+            if (actionState == 1) {
+                achievementCompleted(achvIndex);
             } else {
-                screamedTime= 0;
+                triggerTime= 0;
             }
         }
     }
+}
+
+function Timer() {
+    local int i, numBreakersFull;
+
+    checkTimeAchievement(survivedSiren, screamedTime, KFPlayerController(Owner).bScreamedAt, AchvIndex.WINDJAMMER);
+    checkTimeAchievement(survivedBloat, vomitTime, KFPlayerController(Owner).bVomittedOn, AchvIndex.EGGNOG);
+
     if (miniGamesCounter != none && miniGamesCounter.NumToCount <= 0) {
         achievementCompleted(AchvIndex.ARCADE_GAMER);
     }
@@ -145,7 +152,8 @@ function Timer() {
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
-    survivedSiren= false;
+    survivedSiren= 0;
+    survivedBloat= 0;
 }
 
 event droppedWeapon(KFWeaponPickup weaponPickup) {
@@ -162,6 +170,12 @@ event waveStart(int waveNum) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
+    if (InStr(String(target.class), "XMAS") != -1) {
+        //@TODO: find a better way to do this weapon check
+        if (PlayerController(Owner).Pawn != none && KFWeapon(PlayerController(Owner).Pawn.Weapon) != none && KFWeapon(PlayerController(Owner).Pawn.Weapon).Tier3WeaponGiver != none) {
+            getEventAchievementsObj(KFWeapon(PlayerController(Owner).Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
+        }
+    }
     if (class<DamTypeMelee>(damageType) != none && KFGameType(Level.Game).bZEDTimeActive) {
         addProgress(AchvIndex.BIG_TOP, 1);
     } else {
