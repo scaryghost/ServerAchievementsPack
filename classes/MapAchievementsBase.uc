@@ -29,7 +29,7 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
 }
 
 event waveStart(int waveNum) {
-    if (!PlayerController(Owner).PlayerReplicationInfo.bOnlySpectator && !PlayerController(Owner).IsDead()) {
+    if (!ownerController.PlayerReplicationInfo.bOnlySpectator && !ownerController.IsDead()) {
         numWavesPlayed++;
         if (waveNum == KFGameType(Level.Game).FinalWave + 1) {
             playedBossWave= true;

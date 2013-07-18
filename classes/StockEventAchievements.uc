@@ -68,7 +68,7 @@ function StockEventAchievements getEventAchievementsObj(PlayerReplicationInfo pl
 }
 
 event playerDamaged(int damage, Pawn instigator, class<DamageType> damageType) {
-    if (KFStoryGameInfo(Level.Game) != none && goldBarsObjective && KFHumanPawn_Story(PlayerController(Owner).Pawn).bHasStoryItem) {
+    if (KFStoryGameInfo(Level.Game) != none && goldBarsObjective && KFHumanPawn_Story(ownerController.Pawn).bHasStoryItem) {
         damagedWithBars= true;
     }
 }
@@ -130,8 +130,8 @@ function checkTimeAchievement(out byte actionState, out int triggerTime, bool co
 function Timer() {
     local int i, numBreakersFull;
 
-    checkTimeAchievement(survivedSiren, screamedTime, KFPlayerController(Owner).bScreamedAt, AchvIndex.WINDJAMMER);
-    checkTimeAchievement(survivedBloat, vomitTime, KFPlayerController(Owner).bVomittedOn, AchvIndex.EGGNOG);
+    checkTimeAchievement(survivedSiren, screamedTime, ownerController.bScreamedAt, AchvIndex.WINDJAMMER);
+    checkTimeAchievement(survivedBloat, vomitTime, ownerController.bVomittedOn, AchvIndex.EGGNOG);
 
     if (miniGamesCounter != none && miniGamesCounter.NumToCount <= 0) {
         achievementCompleted(AchvIndex.ARCADE_GAMER);
@@ -172,8 +172,8 @@ event waveStart(int waveNum) {
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     if (InStr(String(target.class), "XMAS") != -1) {
         //@TODO: find a better way to do this weapon check
-        if (PlayerController(Owner).Pawn != none && KFWeapon(PlayerController(Owner).Pawn.Weapon) != none && KFWeapon(PlayerController(Owner).Pawn.Weapon).Tier3WeaponGiver != none) {
-            getEventAchievementsObj(KFWeapon(PlayerController(Owner).Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
+        if (ownerController.Pawn != none && KFWeapon(ownerController.Pawn.Weapon) != none && KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver != none) {
+            getEventAchievementsObj(KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
         }
     }
     if (class<DamTypeMelee>(damageType) != none && KFGameType(Level.Game).bZEDTimeActive) {

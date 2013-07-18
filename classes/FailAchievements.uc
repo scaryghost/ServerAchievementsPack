@@ -44,16 +44,16 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
     local Weapon currWpn;
     local class<KFVeterancyTypes> selectedSkill;
 
-    selectedSkill= KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkill;
-    currWpn= PlayerController(Owner).Pawn.Weapon;
+    selectedSkill= KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo).ClientVeteranSkill;
+    currWpn= ownerController.Pawn.Weapon;
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
     }
     if (waveNum == 1 && Level.Game.GameDifficulty <= 2 && 
-            KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
+            KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
-    if (KFPawn(PlayerController(Owner).Pawn).ShieldStrength == KFPawn(PlayerController(Owner).Pawn).ShieldStrengthMax) {
+    if (KFPawn(ownerController.Pawn).ShieldStrength == KFPawn(ownerController.Pawn).ShieldStrengthMax) {
         achievementCompleted(FailIndex.WATCH_YOUR_STEP);
     }
     if (Killer != none && ZombieGorefast(Killer.Pawn) != none && ZombieGorefast(Killer.Pawn).bDecapitated) {

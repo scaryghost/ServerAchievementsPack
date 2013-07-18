@@ -230,12 +230,12 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
     } else if ((damageType == class'DamTypeCrossbow' || damageType == class'DamTypeCrossbowHeadShot') && KFMonster(target) != none && KFMonster(target).bBurnified) {
         addProgress(StockIndex.HOT_CROSS_FUN, 1);
-    } else if (damageType == class'DamTypeKnife' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo))) {
+    } else if (damageType == class'DamTypeKnife' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         medicKnifeKills++;
         if (medicKnifeKills == 8) {
             achievementCompleted(StockIndex.MASTER_SURGEON);
         }
-    } else if (damageType == class'DamTypePipebomb' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(PlayerController(Owner).PlayerReplicationInfo))) {
+    } else if (damageType == class'DamTypePipebomb' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         addProgress(StockIndex.EXPLOSIVE_PERSONALITY, 1);
     } else if (damageType == class'DamTypeSCARMK17AssaultRifle') {
         addProgress(StockIndex.SCARD, 1);
