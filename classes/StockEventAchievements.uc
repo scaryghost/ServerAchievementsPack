@@ -11,6 +11,8 @@ enum AchvIndex {
     BIG_HUNT, LIFTING_A_DUMBELL, SMALL_HANDS, ELEPHANT_GUN, JUGGLING_ACT, 
     WINDJAMMER, BIG_TOP, BURNING_MIDWAY,
 
+    SPARKLING_TWILIGHT, CARVING_JACK_O_LANTERN, SCENE_IS_ZED, ZED_OCTOBER, ORDINARY_RABBIT, TRICK_NOT_TREAT,
+
     SOUL_COLLECTOR, MEET_YOUR_MAKER, CREEPY_CRAWLIES, RIPPIN_IT_UP,
     I_AM_DEATH, FIERY_PERSONALITY,
 
@@ -18,7 +20,8 @@ enum AchvIndex {
     FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE
 };
 
-var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, killedHillbillyHuskWithM99, killedOtherHillbillyWithM99;
+var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, 
+        killedHillbillyHuskWithM99, killedOtherHillbillyWithM99, isBedlam;
 var byte survivedSiren, survivedBloat;
 var int screamedTime, vomitTime, axeStartTime;
 var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter;
@@ -61,6 +64,7 @@ function PostBeginPlay() {
         }
     }
     SetTimer(1.0, true);
+    isBedlam= Locs(class'KFGameType'.static.GetCurrentMapName(Level)) == "kf-bedlam";
 }
 
 function StockEventAchievements getEventAchievementsObj(PlayerReplicationInfo playerRepInfo) {
@@ -198,6 +202,12 @@ event waveStart(int waveNum) {
     resetWaveCounters();
 }
 
+event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
+    if (isBedlam && length == KFGameType(Level.Game).GL_Long && difficulty == 4.0) {
+        achievementCompleted(AchvIndex.ZED_OCTOBER);
+    }
+}
+
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local String menuName;
 
@@ -220,6 +230,12 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             }
             addProgress(AchvIndex.I_AM_DEATH, 1);
         }
+    } else if (InStr(menuName, "Halloween") != -1 && isBedlam) {
+        if (KFMonster(target).bDecapitated && KFMonster(target).bBurnified) {
+            achievementCompleted(AchvIndex.CARVING_JACK_O_LANTERN);
+        }
+        addProgress(AchvIndex.SCENE_IS_ZED, 1);
+        addProgress(AchvIndex.TRICK_NOT_TREAT, 1);
     }
 
     if (class<DamTypeMelee>(damageType) != none && KFGameType(Level.Game).bZEDTimeActive) {
@@ -233,6 +249,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.MERRY_CHRISTMAS);
         } else if (target.IsA('ZombieBoss_CIRCUS')) {
             achievementCompleted(AchvIndex.RINGMASTER);
+        } else if (target.IsA('ZombieBoss_HALLOWEEN') && InStr(menuName, "Halloween") != -1 && isBedlam) {
+            achievementCompleted(AchvIndex.SPARKLING_TWILIGHT);
         }
     } else if (target.IsA('ZombieFleshPound')) {
         if (target.IsA('ZombieFleshPound_XMAS') && damageType == class'DamTypeKnife') {
@@ -256,6 +274,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.JACK_FROST);
         } else if (target.IsA('ZombieScrake_CIRCUS') && (damageType == class'DamTypeCrossbow' || damageType == class'DamTypeCrossbowHeadShot')) {
             achievementCompleted(AchvIndex.BIG_HUNT);
+        } else if (target.IsA('ZombieScrake_HALLOWEEN') && InStr(menuName, "Halloween") != -1 && isBedlam) {
+            addProgress(AchvIndex.ORDINARY_RABBIT, 1);
         }
     } else if (target.IsA('ZombieBloat')) {
         if (target.IsA('ZombieBloat_XMAS') && class<DamTypeBullpup>(damageType) != none) {
@@ -313,6 +333,7 @@ event reloadedWeapon(KFWeapon weapon) {
     if (Winchester(weapon) != none) {
         achievements[AchvIndex.MRS_CLAWS].progress= 0;
     }
+    achievements[AchvIndex.TRICK_NOT_TREAT].progress= 0;
 }
 
 event firedWeapon(KFWeapon weapon) {
@@ -360,17 +381,24 @@ defaultproperties {
     achievements(26)=(title="Taking Down the Big Top",description="Kill 4 Circus Zeds in 1 ZED time chain with a Melee weapon",maxProgress=4,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_153')
     achievements(27)=(title="Burning up the Midway",description="Kill 10 Circus Clots with a Fire-based weapon",maxProgress=10,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_154')
 
-    achievements(28)=(title="Soul Collector",description="Free the souls of the 25 Gnomes hidden on Hillbilly Horror in 1 game",image=Texture'KillingFloor2HUD.Achievements.Achievement_194')
-    achievements(29)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",maxProgress=1000,notifyIncrement=0.20,image=Texture'KillingFloor2HUD.Achievements.Achievement_195')
-    achievements(30)=(title="Creepy Crawlies",description="Kill 15 Hillbilly Crawlers in 1 game with the Tommy Gun or MKb42",maxProgress=15,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_196')
-    achievements(31)=(title="Rippin' It Up",description="Kill a Hillbilly Husk and another Hillbilly Zed in the same shot with the Buzzsaw Bow or M99",image=Texture'KillingFloor2HUD.Achievements.Achievement_197')
-    achievements(32)=(title="I Am Become Death",description="Kill 5 Hillbilly Zeds in 10 seconds with the Scythe or Axe",maxProgress=5,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_198')
-    achievements(33)=(title="Fiery Personality",description="Set 3 Hillbilly Gorefasts on fire with the Flare Pistol or Trench Gun",maxProgress=3,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_199')
+    achievements(28)=(title="Sparkling in the Twilight",description="Kill The Vampire Patriarch Ringmaster in Bedlam",image=Texture'KillingFloor2HUD.Achievements.Achievement_156')
+    achievements(29)=(title="Carving The Jack O' Lantern",description="Decapitate a burning Halloween specimen in Bedlam",image=Texture'KillingFloor2HUD.Achievements.Achievement_157')
+    achievements(30)=(title="The Scene is Zed",description="Kill 250 Halloween Specimens in Bedlam",maxProgress=250,notifyIncrement=0.5,image=Texture'KillingFloor2HUD.Achievements.Achievement_158')
+    achievements(31)=(title="Zed October",description="Win a Long Bedlam Match During the Halloween Event on Hard",image=Texture'KillingFloor2HUD.Achievements.Achievement_159')
+    achievements(32)=(title="This is No Ordinary Rabbit!",description="Kill 25 Halloween Scrakes in Bedlam",maxProgress=25,notifyIncrement=0.5,image=Texture'KillingFloor2HUD.Achievements.Achievement_160')
+    achievements(33)=(title="Trick, not Treat",description="Kill 5 Halloween Specimens with any gun without reloading",maxProgress=5,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_161')
 
-    achievements(34)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
-    achievements(35)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
-    achievements(36)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
-    achievements(37)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
-    achievements(38)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
-    achievements(39)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
+    achievements(34)=(title="Soul Collector",description="Free the souls of the 25 Gnomes hidden on Hillbilly Horror in 1 game",image=Texture'KillingFloor2HUD.Achievements.Achievement_194')
+    achievements(35)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",maxProgress=1000,notifyIncrement=0.20,image=Texture'KillingFloor2HUD.Achievements.Achievement_195')
+    achievements(36)=(title="Creepy Crawlies",description="Kill 15 Hillbilly Crawlers in 1 game with the Tommy Gun or MKb42",maxProgress=15,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_196')
+    achievements(37)=(title="Rippin' It Up",description="Kill a Hillbilly Husk and another Hillbilly Zed in the same shot with the Buzzsaw Bow or M99",image=Texture'KillingFloor2HUD.Achievements.Achievement_197')
+    achievements(38)=(title="I Am Become Death",description="Kill 5 Hillbilly Zeds in 10 seconds with the Scythe or Axe",maxProgress=5,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_198')
+    achievements(39)=(title="Fiery Personality",description="Set 3 Hillbilly Gorefasts on fire with the Flare Pistol or Trench Gun",maxProgress=3,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_199')
+
+    achievements(40)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
+    achievements(41)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
+    achievements(42)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
+    achievements(43)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
+    achievements(44)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
+    achievements(45)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
 }
