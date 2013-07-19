@@ -25,6 +25,7 @@ var BEResettableCounter miniGamesCounter, clownCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
 var name prevObjName;
+var KFUseTrigger gladosDoorTrigger;
 
 function resetWaveCounters() {
     achievements[AchvIndex.MRS_CLAWS].progress= 0;
@@ -40,6 +41,7 @@ function resetWaveCounters() {
 function PostBeginPlay() {
     local BEResettableCounter achvCounter;
     local KF_BreakerBoxNPC breakerBox;
+    local KFUseTrigger trigger;
 
     foreach DynamicActors(class'BEResettableCounter', achvCounter) {
         if (achvCounter.Event == 'MiniGamesCompleted') {
@@ -50,6 +52,11 @@ function PostBeginPlay() {
     }
     foreach DynamicActors(class'KF_BreakerBoxNPC', breakerBox) {
         breakerBoxes[breakerBoxes.Length]= breakerBox;
+    }
+    foreach DynamicActors(class'KFUseTrigger', trigger) {
+        if (trigger.event == 'goldenpd01') {
+            gladosDoorTrigger= trigger;
+        }
     }
     SetTimer(1.0, true);
 }
@@ -129,6 +136,7 @@ function checkTimeAchievement(out byte actionState, out int triggerTime, bool co
 
 function Timer() {
     local int i, numBreakersFull;
+    local Controller C;
 
     checkTimeAchievement(survivedSiren, screamedTime, ownerController.bScreamedAt, AchvIndex.WINDJAMMER);
     checkTimeAchievement(survivedBloat, vomitTime, ownerController.bVomittedOn, AchvIndex.EGGNOG);
@@ -138,6 +146,9 @@ function Timer() {
     }
     if (clownCounter != none && clownCounter.NumToCount <= 0) {
         achievementCompleted(AchvIndex.HIDE_AND_PUKE);
+    }
+    if (gladosDoorTrigger != none && gladosDoorTrigger.WeldStrength <= 0) {
+        achievementCompleted(AchvIndex.GOLDEN_POTATOE);
     }
     for(i= 0; i < breakerBoxes.Length; i++) {
         if (breakerBoxes[i].Health >= breakerBoxes[i].NPCHealth) {
@@ -149,6 +160,14 @@ function Timer() {
     }
     failedEscort= failedEscort || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
     failedDefense= failedDefense || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
+
+    if (ownerController.PlayerReplicationInfo.Score >= 70000) {
+        for(C= Level.ControllerList; C != none; C= C.NextController) {
+            if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
+                getEventAchievementsObj(C.PlayerReplicationInfo).achievementCompleted(AchvIndex.UBER_TUBER);
+            }
+        }
+    }
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
