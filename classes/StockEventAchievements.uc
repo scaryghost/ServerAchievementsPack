@@ -18,10 +18,10 @@ enum AchvIndex {
     FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE
 };
 
-var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective;
+var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, killedHillbillyHuskWithM99, killedOtherHillbillyWithM99;
 var byte survivedSiren, survivedBloat;
-var int screamedTime, vomitTime;
-var BEResettableCounter miniGamesCounter, clownCounter;
+var int screamedTime, vomitTime, axeStartTime;
+var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
 var name prevObjName;
@@ -44,10 +44,12 @@ function PostBeginPlay() {
     local KFUseTrigger trigger;
 
     foreach DynamicActors(class'BEResettableCounter', achvCounter) {
-        if (achvCounter.Event == 'MiniGamesCompleted') {
+        if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SteamLandGamesEventName) {
             miniGamesCounter= achvCounter;
-        } else if (achvCounter.Event == 'ClownSoulsCompleted') {
+        } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SteamLandClownsEventName) {
             clownCounter= achvCounter;
+        } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.HillBillyGnomesEventName) {
+            gnomeSoulsCounter= achvCounter;
         }
     }
     foreach DynamicActors(class'KF_BreakerBoxNPC', breakerBox) {
@@ -150,6 +152,9 @@ function Timer() {
     if (gladosDoorTrigger != none && gladosDoorTrigger.WeldStrength <= 0) {
         achievementCompleted(AchvIndex.GOLDEN_POTATOE);
     }
+    if (gnomeSoulsCounter != none && gnomeSoulsCounter.NumToCount <= 0) {
+        achievementCompleted(AchvIndex.SOUL_COLLECTOR);
+    }
     for(i= 0; i < breakerBoxes.Length; i++) {
         if (breakerBoxes[i].Health >= breakerBoxes[i].NPCHealth) {
             numBreakersFull++;
@@ -167,6 +172,11 @@ function Timer() {
                 getEventAchievementsObj(C.PlayerReplicationInfo).achievementCompleted(AchvIndex.UBER_TUBER);
             }
         }
+    }
+
+    if (axeStartTime != 0 && Level.TimeSeconds - axeStartTime >= 10) {
+        achievements[AchvIndex.I_AM_DEATH].progress= 0;
+        axeStartTime= 0;
     }
 }
 
@@ -189,12 +199,29 @@ event waveStart(int waveNum) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
-    if (InStr(String(target.class), "XMAS") != -1) {
+    local String menuName;
+
+    if (KFMonster(target) != none) {
+        menuName= KFMonster(target).MenuName;
+    }
+    if (InStr(menuName, "Christmas") != -1) {
         //@TODO: find a better way to do this weapon check
         if (ownerController.Pawn != none && KFWeapon(ownerController.Pawn.Weapon) != none && KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver != none) {
             getEventAchievementsObj(KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
         }
+    } else if (InStr(menuName, "Hillbilly") != -1) {
+        addProgress(AchvIndex.MEET_YOUR_MAKER, 1);
+        if ((damageType == class'DamTypeCrossbuzzsaw' || damageType == class'DamTypeCrossbuzzsawHeadShot' || 
+                damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot') && !target.IsA('ZombieHusk')) {
+            killedOtherHillbillyWithM99= true;
+        } else if (damageType == class'DamTypeAxe' || damageType == class'DamTypeScythe') {
+            if (achievements[AchvIndex.I_AM_DEATH].progress == 0) {
+                axeStartTime= Level.TimeSeconds;
+            }
+            addProgress(AchvIndex.I_AM_DEATH, 1);
+        }
     }
+
     if (class<DamTypeMelee>(damageType) != none && KFGameType(Level.Game).bZEDTimeActive) {
         addProgress(AchvIndex.BIG_TOP, 1);
     } else {
@@ -220,6 +247,9 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             addProgress(AchvIndex.CANT_CATCH_ME, 1);
         } else if (target.IsA('ZombieGoreFast_CIRCUS') && class<DamTypeMelee>(damageType) != none) {
             achievementCompleted(AchvIndex.SPARRING_WITH_MASTER);
+        } else if (target.IsA('ZombieGoreFast_HALLOWEEN') && InStr(menuName, "Hillbilly") != -1 && (damageType == class'DamTypeTrenchgun' || 
+                damageType == class'DamTypeFlareRevolver' || damageType == class'DamTypeFlareProjectileImpact') && KFMonster(target).BurnDown == 10) {
+            addProgress(AchvIndex.FIERY_PERSONALITY, 1);
         }
     } else if (target.IsA('ZombieScrake')) {
         if (target.IsA('ZombieScrake_XMAS') && class<KFWeaponDamageType>(damageType) != none && class<KFWeaponDamageType>(damageType).default.bDealBurningDamage) {
@@ -248,6 +278,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.RUDOLPH);
         } else if (target.IsA('ZombieCrawler_CIRCUS') && class<DamTypeBullpup>(damageType) != none) {
             addProgress(AchvIndex.SEEING_DOUBLE, 1);
+        } else if (target.IsA('ZombieCrawler_HALLOWEEN') && InStr(menuName, "Hillbilly") != -1 && (damageType == class'DamTypeThompson' || damageType == class'DamTypeMKb42AssaultRifle')) {
+            addProgress(AchvIndex.CREEPY_CRAWLIES, 1);
         }
     } else if (target.IsA('ZombieSiren')) {
         if (target.IsA('ZombieSiren_XMAS') && damageType == class'LAWProj'.default.ImpactDamageType) {
@@ -266,13 +298,27 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.SNOW_BALL_FIGHT);
         } else if (target.IsA('ZombieHusk_CIRCUS') && damageType == class'DamTypeLaw') {
             achievementCompleted(AchvIndex.LIFTING_A_DUMBELL);
+        } else if (target.IsA('ZombieHusk_HALLOWEEN') && InStr(menuName, "Hillbilly") != -1 && (damageType == class'DamTypeCrossbuzzsaw' || damageType == class'DamTypeCrossbuzzsawHeadShot' || 
+                damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot')) {
+            killedHillbillyHuskWithM99= true;
         }
     }    
+
+    if (killedHillbillyHuskWithM99 && killedOtherHillbillyWithM99) {
+        achievementCompleted(AchvIndex.RIPPIN_IT_UP);
+    }
 }
 
 event reloadedWeapon(KFWeapon weapon) {
     if (Winchester(weapon) != none) {
         achievements[AchvIndex.MRS_CLAWS].progress= 0;
+    }
+}
+
+event firedWeapon(KFWeapon weapon) {
+    if (M99SniperRifle(weapon) != none || Crossbuzzsaw(weapon) != none) {
+        killedHillbillyHuskWithM99= false;
+        killedOtherHillbillyWithM99= false;
     }
 }
 
@@ -315,7 +361,7 @@ defaultproperties {
     achievements(27)=(title="Burning up the Midway",description="Kill 10 Circus Clots with a Fire-based weapon",maxProgress=10,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_154')
 
     achievements(28)=(title="Soul Collector",description="Free the souls of the 25 Gnomes hidden on Hillbilly Horror in 1 game",image=Texture'KillingFloor2HUD.Achievements.Achievement_194')
-    achievements(29)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",image=Texture'KillingFloor2HUD.Achievements.Achievement_195',maxProgress=1000,notifyIncrement=0.25)
+    achievements(29)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",maxProgress=1000,notifyIncrement=0.20,image=Texture'KillingFloor2HUD.Achievements.Achievement_195')
     achievements(30)=(title="Creepy Crawlies",description="Kill 15 Hillbilly Crawlers in 1 game with the Tommy Gun or MKb42",maxProgress=15,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_196')
     achievements(31)=(title="Rippin' It Up",description="Kill a Hillbilly Husk and another Hillbilly Zed in the same shot with the Buzzsaw Bow or M99",image=Texture'KillingFloor2HUD.Achievements.Achievement_197')
     achievements(32)=(title="I Am Become Death",description="Kill 5 Hillbilly Zeds in 10 seconds with the Scythe or Axe",maxProgress=5,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_198')
