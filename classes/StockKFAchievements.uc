@@ -13,15 +13,18 @@ enum StockIndex {
     FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER
 };
 
-var int axeKills, scrakeChainsawKills, medicKnifeKills, ebrHeadShotKills, m4MagKills, benelliMagKills, 
-        revolverMagKills, mk23MagClotKills, mkb42Kills, stalkerNailgunKills, boomstickKills, m99ScKills,
-        zedTimePupKills;
+var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills;
 var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
-var array<Pawn> gibbedMonsters;
-var array<Pawn> m14MusketHeadShotKill;
+var array<Pawn> gibbedMonsters, m14MusketHeadShotKill;
 
+
+function resetCounters() {
+    achievements[StockIndex.RANDOM_AXE].progress= 0;
+    achievements[StockIndex.BITTER_IRONY].progress= 0;
+    achievements[StockIndex.MASTER_SURGEON].progress= 0;
+}
 
 function addM14MusketHeadShotKill(Pawn monster) {
     local int i;
@@ -75,6 +78,7 @@ function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> ac
 
 event objectiveChanged(KF_StoryObjective newObjective) {
     checkCowboy();
+    resetCounters();
 }
 
 event waveEnd(int waveNum) {
@@ -121,6 +125,7 @@ event waveStart(int waveNum) {
     canEarnThinIce= Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1;
 
     checkCowboy();
+    resetCounters();
 }
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
@@ -160,26 +165,17 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         if (class<DamTypeFrag>(damageType) != none) {
             addProgress(StockIndex.KEEP_THOSE_SNEAKERS, 1);
         } else if (damageType == class'DamTypeNailGun') {
-            stalkerNailgunKills++;
-            if (stalkerNailgunKills == 4) {
-                achievementCompleted(StockIndex.NAILD);
-            }
+            addProgress(StockIndex.NAILD, 1);
         }
     } else if (ZombieScrake(target) != none) {
         if (damageType == class'DamTypeChainsaw') {
-            scrakeChainsawKills++;
-            if (scrakeChainsawKills == 2) {
-                achievementCompleted(StockIndex.BITTER_IRONY);
-            }
+            addProgress(StockIndex.BITTER_IRONY, 1);
         } else if (damageType == class'DamTypeClaymoreSword') {
             claymoreScKill= true;
         } else if (damageType == class'DamTypeM203Grenade') {
             achievementCompleted(StockIndex.FINISH_HIM);
         } else if (damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot') {
-            m99ScKills++;
-            if (m99ScKills == 2) {
-                achievementCompleted(StockIndex.THE_BIG_ONE);
-            }
+            addProgress(StockIndex.THE_BIG_ONE, 1);
         }
     } else if (ZombieFleshpound(target) != none) {
         if (class<DamTypeMelee>(damageType) != none) {
@@ -224,18 +220,12 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     }
 
     if (damageType == class'DamTypeAxe') {
-        axeKills++;
-        if (axeKills == 15) {
-            achievementCompleted(StockIndex.RANDOM_AXE);
-        }
+        addProgress(StockIndex.RANDOM_AXE, 1);
     } else if ((damageType == class'DamTypeCrossbow' || damageType == class'DamTypeCrossbowHeadShot') && KFMonster(target) != none && KFMonster(target).bBurnified) {
         addProgress(StockIndex.HOT_CROSS_FUN, 1);
     } else if (damageType == class'DamTypeKnife' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
-        medicKnifeKills++;
-        if (medicKnifeKills == 8) {
-            achievementCompleted(StockIndex.MASTER_SURGEON);
-        }
-    } else if (damageType == class'DamTypePipebomb' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
+        addProgress(StockIndex.MASTER_SURGEON, 1);
+    } else if (damageType == class'DamTypePipebomb' && class'VeterancyChecks'.static.isDemolitions(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         addProgress(StockIndex.EXPLOSIVE_PERSONALITY, 1);
     } else if (damageType == class'DamTypeSCARMK17AssaultRifle') {
         addProgress(StockIndex.SCARD, 1);
@@ -248,10 +238,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     } else if (damageType == class'DamTypeM7A3M' && KFMonster(target).bDamagedAPlayer) {
         achievementCompleted(StockIndex.COMBAT_MEDIC);
     } else if (KFGameType(Level.Game).bZEDTimeActive && (damageType == class'DamTypeBullpup' || damageType == class'DamTypeSPThompson')) {
-        zedTimePupKills++;
-        if (zedTimePupKills >= 5) {
-            achievementCompleted(StockIndex.TURBO_EXECUTIONER);
-        }
+        addProgress(StockIndex.TURBO_EXECUTIONER, 1);
         if (damageType == class'DamTypeBullpup') {
             killedWithBullpup= true;
         }
@@ -273,10 +260,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             }
         }
     } else if (damageType == class'DamTypeDBShotgun') {
-        boomstickKills++;
-        if (boomstickKills == 4) {
-            achievementCompleted(StockIndex.CAREFUL_SPENDER);
-        }
+        addProgress(StockIndex.CAREFUL_SPENDER, 1);
         if (ZombieScrake(target) != none && VSize(ZombieScrake(target).LastMomentum) > 5000) {
             achievementCompleted(StockIndex.FLAYER_ORDINANCE);
         }
@@ -319,12 +303,9 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
     if (KFMonster(target) != none) {
         if (headshot && KFMonster(target).bDecapitated) {
             if (KFMonster(target).bLaserSightedEBRM14Headshotted) {
-                ebrHeadShotKills++;
-                if (ebrHeadShotKills == 25) {
-                    achievementCompleted(StockIndex.DOT_OF_DOOM);
-                }
+                addProgress(StockIndex.DOT_OF_DOOM, 1);
             } else {
-                ebrHeadShotKills= 0;
+                achievements[StockIndex.DOT_OF_DOOM].progress= 0;
             }
         }
         if ( target.Health - damage <= 0 && damage > damageType.default.HumanObliterationThreshhold && damage != 1000 && 
@@ -391,9 +372,9 @@ event reloadedWeapon(KFWeapon weapon) {
 
 event firedWeapon(KFWeapon weapon) {
     if (M99SniperRifle(weapon) != none) {
-        m99ScKills= 0;
+        achievements[StockIndex.THE_BIG_ONE].progress= 0;
     } else if (BoomStick(weapon) != none) {
-        boomstickKills= 0;
+        achievements[StockIndex.CAREFUL_SPENDER].progress= 0;
     } else if (Level.NetMode != NM_StandAlone && Level.Game.NumPlayers > 1 && Syringe(weapon) != none && weapon.GetFireMode(1).bIsFiring) {
         addProgress(StockIndex.SELF_MEDICATOR, 1);
     } else if (achievements[StockIndex.FLAYER_ORDINANCE].completed == 0 && SPAutoShotgun(weapon) != none && weapon.GetFireMode(1).bIsFiring) {
@@ -419,13 +400,13 @@ defaultproperties {
     achievements(1)=(title="Fascist Dietitian",description="Kill 200 bloats",image=Texture'KillingFloorHUD.Achievements.Achievement_21',maxProgress=200,notifyIncrement=0.1)
     achievements(2)=(title="Homer's Heroes",description="Kill 100 sirens",image=Texture'KillingFloorHUD.Achievements.Achievement_22',maxProgress=100,notifyIncrement=0.2)
     achievements(3)=(title="Keep Those Sneakers Off the Floor!",description="Kill 20 stalkers with explosives",image=Texture'KillingFloorHUD.Achievements.Achievement_23',maxProgress=20,notifyIncrement=0.25)
-    achievements(4)=(title="Random Axe of Kindness",description="Kill 15 specimens with a fire axe in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_24')
-    achievements(5)=(title="Bitter Irony",description="Kill 2 scrakes with a chainsaw in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_25')
+    achievements(4)=(title="Random Axe of Kindness",description="Kill 15 specimens with a fire axe in a single wave",maxProgress=15,disableSave=true,image=Texture'KillingFloorHUD.Achievements.Achievement_24')
+    achievements(5)=(title="Bitter Irony",description="Kill 2 scrakes with a chainsaw in a single wave",maxProgress=2,disableSave=true,image=Texture'KillingFloorHUD.Achievements.Achievement_25')
     achievements(6)=(title="Hot Cross Fun",description="Kill 25 burning specimens with a crossbow",image=Texture'KillingFloorHUD.Achievements.Achievement_26',maxProgress=25,notifyIncrement=0.2)
     achievements(7)=(title="Dignity for the Dead",description="Kill 10 specimens feeding on dead teammates' corpses",image=Texture'KillingFloorHUD.Achievements.Achievement_27',maxProgress=10,notifyIncrement=0.5)
-    achievements(8)=(title="Careful Spender",description="Kill 4 specimens with a single shot from a hunting shotgun",image=Texture'KillingFloorHUD.Achievements.Achievement_29')
+    achievements(8)=(title="Careful Spender",description="Kill 4 specimens with a single shot from a hunting shotgun",maxProgress=4,disableSave=true,image=Texture'KillingFloorHUD.Achievements.Achievement_29')
     achievements(9)=(title="Too Close For Comfort",description="Finish off a fleshpound using a melee attack",image=Texture'KillingFloorHUD.Achievements.Achievement_31')
-    achievements(10)=(title="Master Surgeon",description="As a medic, kill 8 specimens using a knife in a single wave",image=Texture'KillingFloorHUD.Achievements.Achievement_32')
+    achievements(10)=(title="Master Surgeon",description="As a medic, kill 8 specimens using a knife in a single wave",maxProgress=8,disableSave=true,image=Texture'KillingFloorHUD.Achievements.Achievement_32')
     achievements(11)=(title="It's What's Inside That Counts",description="Turn 500 specimens into giblets",image=Texture'KillingFloorHUD.Achievements.Achievement_33',maxProgress=500,notifyIncrement=0.25)
     achievements(12)=(title="Quarter Pounder With Ease",description="Turn 5 fleshpounds into giblets",image=Texture'KillingFloorHUD.Achievements.Achievement_34',maxProgress=5,notifyIncrement=1.0)
     achievements(13)=(title="Self Medicator",description="In co-op mode, use the syringe on yourself 100 times",image=Texture'KillingFloorHUD.Achievements.Achievement_35',maxProgress=100,notifyIncrement=0.2)
@@ -440,7 +421,7 @@ defaultproperties {
     achievements(22)=(title="Flaming Hell, That was Close",description="As Firebug, kill the husk with the flamethrower before he hurts anyone",image=Texture'KillingFloor2HUD.Achievements.Achievement_57')
     achievements(23)=(title="Merry Men",description="Kill the patriarch when everyone is ONLY using crossbows",image=Texture'KillingFloor2HUD.Achievements.Achievement_58')
     achievements(24)=(title="Blooper Reel",description="Turn 500 Zeds into giblets using the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_59',maxProgress=500,notifyIncrement=0.25)
-    achievements(25)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
+    achievements(25)=(title="Dot of Doom",description="Get 25 headshots in a row with the EBR while using the laser sight",maxProgress=25,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_60')
     achievements(26)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
     achievements(27)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
     achievements(28)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
@@ -460,7 +441,7 @@ defaultproperties {
     achievements(42)=(title="British Superiority",description="Kill a zed each with both the Bullpup and FN-Fal",image=Texture'KillingFloor2HUD.Achievements.Achievement_179')
     achievements(43)=(title="The Big One",description="Kill 2 scrakes with one shot (M99)",image=Texture'KillingFloor2HUD.Achievements.Achievement_180')
     achievements(44)=(title="Historical Remnants",description="Kill 6 zeds with one magazine, without reloading (Mkb42)",image=Texture'KillingFloor2HUD.Achievements.Achievement_185')
-    achievements(45)=(title="Nail'd!",description="Kill 4 stalkers in a game with the Nailgun",image=Texture'KillingFloor2HUD.Achievements.Achievement_186')
+    achievements(45)=(title="Nail'd!",description="Kill 4 stalkers in a game with the Nailgun",maxProgress=4,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_186')
     achievements(46)=(title="Trench Warfare",description="Set a total of 200 zeds on fire",image=Texture'KillingFloor2HUD.Achievements.Achievement_188',maxProgress=200,notifyIncrement=50)
     achievements(47)=(title="Have My Axe",description="Kill 30 fleshpounds with the Dwarfs!? axe with back attacks",image=Texture'KillingFloor2HUD.Achievements.Achievement_200',maxProgress=30,notifyIncrement=0.33333)
     achievements(48)=(title="One Small Step for Man",description="Kill 500 zeds with the Schneidzekk Medic Gun while you are falling",image=Texture'KillingFloor2HUD.Achievements.Achievement_201',maxProgress=500,notifyIncrement=0.1)
@@ -468,5 +449,5 @@ defaultproperties {
     achievements(50)=(title="Single-shot Equalizer",description="Kill 4 different types of Zeds with 4 headshots from the Long Musket or the M14 without reloading",image=Texture'KillingFloor2HUD.Achievements.Achievement_224')
     achievements(51)=(title="Assault Flayer Ordinance",description="Push a scrake back with the direct fire from a Hunting Shotgun or alt fire from the Multi-Chamber ZED Thrower",image=Texture'KillingFloor2HUD.Achievements.Achievement_225')
     achievements(52)=(title="Single-Load Doom Bombardier",description="Kill a ZED with an impact shot from the Orca Bomb Propeller or the M79/M32",image=Texture'KillingFloor2HUD.Achievements.Achievement_226')
-    achievements(53)=(title="Turbo Executioner",description="Kill 5 zeds in ZED time without reloading with Dr. T's LDS or Bullpup",image=Texture'KillingFloor2HUD.Achievements.Achievement_227')
+    achievements(53)=(title="Turbo Executioner",description="Kill 5 zeds in ZED time without reloading with Dr. T's LDS or Bullpup",maxProgress=5,disableSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_227')
 }
