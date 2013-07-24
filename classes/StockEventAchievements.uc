@@ -125,7 +125,7 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     resetWaveCounters();
 }
 
-function checkTimeAchievement(out byte actionState, out int triggerTime, bool controllerState, byte achvIndex) {
+function bool checkTimeAchievement(out byte actionState, out int triggerTime, bool controllerState, byte achvIndex) {
     if ((controllerState || triggerTime != 0) && Level.Game.GameDifficulty >= 4.0) {
         if (triggerTime == 0) {
             triggerTime= Level.TimeSeconds;
@@ -138,27 +138,28 @@ function checkTimeAchievement(out byte actionState, out int triggerTime, bool co
             }
         }
     }
+    return true;
+}
+
+function bool checkCounter(int counter, byte achvIndex) {
+    if (counter <= 0) {
+        achievementCompleted(achvIndex);
+    }
+    return true;
 }
 
 function Timer() {
     local int i, numBreakersFull;
     local Controller C;
 
-    checkTimeAchievement(survivedSiren, screamedTime, ownerController.bScreamedAt, AchvIndex.WINDJAMMER);
-    checkTimeAchievement(survivedBloat, vomitTime, ownerController.bVomittedOn, AchvIndex.EGGNOG);
+    ownerController != none && checkTimeAchievement(survivedSiren, screamedTime, ownerController.bScreamedAt, AchvIndex.WINDJAMMER);
+    ownerController != none && checkTimeAchievement(survivedBloat, vomitTime, ownerController.bVomittedOn, AchvIndex.EGGNOG);
 
-    if (miniGamesCounter != none && miniGamesCounter.NumToCount <= 0) {
-        achievementCompleted(AchvIndex.ARCADE_GAMER);
-    }
-    if (clownCounter != none && clownCounter.NumToCount <= 0) {
-        achievementCompleted(AchvIndex.HIDE_AND_PUKE);
-    }
-    if (gladosDoorTrigger != none && gladosDoorTrigger.WeldStrength <= 0) {
-        achievementCompleted(AchvIndex.GOLDEN_POTATOE);
-    }
-    if (gnomeSoulsCounter != none && gnomeSoulsCounter.NumToCount <= 0) {
-        achievementCompleted(AchvIndex.SOUL_COLLECTOR);
-    }
+    miniGamesCounter != none && checkCounter(miniGamesCounter.NumToCount, AchvIndex.ARCADE_GAMER);
+    clownCounter != none && checkCounter(clownCounter.NumToCount, AchvIndex.HIDE_AND_PUKE);
+    gladosDoorTrigger != none && checkCounter(gladosDoorTrigger.WeldStrength, AchvIndex.GOLDEN_POTATOE);
+    gnomeSoulsCounter != none && checkCounter(gnomeSoulsCounter.NumToCount, AchvIndex.SOUL_COLLECTOR);
+
     for(i= 0; i < breakerBoxes.Length; i++) {
         if (breakerBoxes[i].Health >= breakerBoxes[i].NPCHealth) {
             numBreakersFull++;
@@ -170,7 +171,7 @@ function Timer() {
     failedEscort= failedEscort || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
     failedDefense= failedDefense || ringMaster == none || (ringMaster != none && ringMaster.bFailedAchievement);
 
-    if (ownerController.PlayerReplicationInfo.Score >= 70000) {
+    if (ownerController != none && ownerController.PlayerReplicationInfo.Score >= 70000) {
         for(C= Level.ControllerList; C != none; C= C.NextController) {
             if (PlayerController(C) != none && !C.PlayerReplicationInfo.bOnlySpectator) {
                 getEventAchievementsObj(C.PlayerReplicationInfo).achievementCompleted(AchvIndex.UBER_TUBER);
@@ -208,21 +209,31 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
     }
 }
 
+function checkZEDTimeMeleeKill(class<DamageType> damageType, byte achvIndex) {
+    if (class<DamTypeMelee>(damageType) != none && KFGameType(Level.Game).bZEDTimeActive) {
+        addProgress(achvIndex, 1);
+    } else {
+        achievements[achvIndex].progress= 0;
+    }
+}
+
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local String menuName;
-    local bool isHillbilly, isOldHalloween, isXmas;
+    local bool isHillbilly, isOldHalloween, isXmas, isCircus;
 
     if (KFMonster(target) != none) {
         menuName= KFMonster(target).MenuName;
         isHillbilly= InStr(menuName, "Hillbilly") != -1;
         isOldHalloween= InStr(menuName, "Halloween") != -1;
         isXmas= InStr(menuName, "Christmas") != -1;
+        isCircus= InStr(menuName, "Circus") != -1;
     }
     if (isXmas) {
         //@TODO: find a better way to do this weapon check
         if (ownerController.Pawn != none && KFWeapon(ownerController.Pawn.Weapon) != none && KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver != none) {
             getEventAchievementsObj(KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
         }
+        checkZEDTimeMeleeKill(damageType, AchvIndex.BUCKETS_O_BLOOD);
     } else if (isHillbilly) {
         addProgress(AchvIndex.MEET_YOUR_MAKER, 1);
         if ((damageType == class'DamTypeCrossbuzzsaw' || damageType == class'DamTypeCrossbuzzsawHeadShot' || 
@@ -240,12 +251,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
         addProgress(AchvIndex.SCENE_IS_ZED, 1);
         addProgress(AchvIndex.TRICK_NOT_TREAT, 1);
-    }
-
-    if (class<DamTypeMelee>(damageType) != none && KFGameType(Level.Game).bZEDTimeActive) {
-        addProgress(AchvIndex.BIG_TOP, 1);
-    } else {
-        achievements[AchvIndex.BIG_TOP].progress= 0;
+    } else if (isCircus) {
+        checkZEDTimeMeleeKill(damageType, AchvIndex.BIG_TOP);
     }
 
     if (target.IsA('ZombieBoss')) {
