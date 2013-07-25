@@ -13,6 +13,8 @@ enum AchvIndex {
 
     SPARKLING_TWILIGHT, CARVING_JACK_O_LANTERN, SCENE_IS_ZED, ZED_OCTOBER, ORDINARY_RABBIT, TRICK_NOT_TREAT,
 
+    BLOODY_CHRISTMAS_CAROL,
+
     SOUL_COLLECTOR, MEET_YOUR_MAKER, CREEPY_CRAWLIES, RIPPIN_IT_UP,
     I_AM_DEATH, FIERY_PERSONALITY,
 
@@ -23,7 +25,7 @@ enum AchvIndex {
 var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, 
         killedHillbillyHuskWithM99, killedOtherHillbillyWithM99, isBedlam;
 var byte survivedSiren, survivedBloat;
-var int screamedTime, vomitTime, axeStartTime;
+var int screamedTime, vomitTime, axeStartTime, xmasClot, xmasStalker, xmasCrawler, xmasSiren, xmasBloat;
 var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
@@ -228,32 +230,6 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         isXmas= InStr(menuName, "Christmas") != -1;
         isCircus= InStr(menuName, "Circus") != -1;
     }
-    if (isXmas) {
-        //@TODO: find a better way to do this weapon check
-        if (ownerController.Pawn != none && KFWeapon(ownerController.Pawn.Weapon) != none && KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver != none) {
-            getEventAchievementsObj(KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
-        }
-        checkZEDTimeMeleeKill(damageType, AchvIndex.BUCKETS_O_BLOOD);
-    } else if (isHillbilly) {
-        addProgress(AchvIndex.MEET_YOUR_MAKER, 1);
-        if ((damageType == class'DamTypeCrossbuzzsaw' || damageType == class'DamTypeCrossbuzzsawHeadShot' || 
-                damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot') && !target.IsA('ZombieHusk')) {
-            killedOtherHillbillyWithM99= true;
-        } else if (damageType == class'DamTypeAxe' || damageType == class'DamTypeScythe') {
-            if (achievements[AchvIndex.I_AM_DEATH].progress == 0) {
-                axeStartTime= Level.TimeSeconds;
-            }
-            addProgress(AchvIndex.I_AM_DEATH, 1);
-        }
-    } else if (isOldHalloween && isBedlam) {
-        if (KFMonster(target).bDecapitated && KFMonster(target).bBurnified) {
-            achievementCompleted(AchvIndex.CARVING_JACK_O_LANTERN);
-        }
-        addProgress(AchvIndex.SCENE_IS_ZED, 1);
-        addProgress(AchvIndex.TRICK_NOT_TREAT, 1);
-    } else if (isCircus) {
-        checkZEDTimeMeleeKill(damageType, AchvIndex.BIG_TOP);
-    }
 
     if (target.IsA('ZombieBoss')) {
         if (target.IsA('ZombieBoss_XMAS')) {
@@ -289,14 +265,18 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             addProgress(AchvIndex.ORDINARY_RABBIT, 1);
         }
     } else if (target.IsA('ZombieBloat')) {
-        if (target.IsA('ZombieBloat_XMAS') && class<DamTypeBullpup>(damageType) != none) {
-            addProgress(AchvIndex.NOT_SANTA, 1);
+        if (target.IsA('ZombieBloat_XMAS')) {
+            if (class<DamTypeBullpup>(damageType) != none) {
+                addProgress(AchvIndex.NOT_SANTA, 1);
+            }
+            xmasBloat++;
         } else if (target.IsA('ZombieBloat_CIRCUS')) {
             addProgress(AchvIndex.CLOWN_ALLEY, 1);
         }
     } else if (target.IsA('ZombieClot')) {
         if (target.IsA('ZombieClot_XMAS')) {
             addProgress(AchvIndex.BACK_TO_WORK, 1);
+            xmasClot++;
         } else if (target.IsA('ZombieClot_CIRCUS')) {
             if (damageType == class'DamTypeWinchester') {
                 addProgress(AchvIndex.SMALL_HANDS, 1);
@@ -305,20 +285,29 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             }
         }
     } else if (target.IsA('ZombieCrawler')) {
-        if (target.IsA('ZombieCrawler_XMAS') && (damageType == class'DamTypeCrossbow' || damageType == class'DamTypeCrossbowHeadShot')) {
-            achievementCompleted(AchvIndex.RUDOLPH);
+        if (target.IsA('ZombieCrawler_XMAS')) {
+            if ((damageType == class'DamTypeCrossbow' || damageType == class'DamTypeCrossbowHeadShot')) {
+                achievementCompleted(AchvIndex.RUDOLPH);
+            }
+            xmasCrawler++;
         } else if (target.IsA('ZombieCrawler_CIRCUS') && class<DamTypeBullpup>(damageType) != none) {
             addProgress(AchvIndex.SEEING_DOUBLE, 1);
         } else if (target.IsA('ZombieCrawler_HALLOWEEN') && isHillbilly && (damageType == class'DamTypeThompson' || damageType == class'DamTypeMKb42AssaultRifle')) {
             addProgress(AchvIndex.CREEPY_CRAWLIES, 1);
         }
     } else if (target.IsA('ZombieSiren')) {
-        if (target.IsA('ZombieSiren_XMAS') && damageType == class'LAWProj'.default.ImpactDamageType) {
-            achievementCompleted(AchvIndex.SILENT_NIGHT);
+        if (target.IsA('ZombieSiren_XMAS')) {
+            if (damageType == class'LAWProj'.default.ImpactDamageType) {
+                achievementCompleted(AchvIndex.SILENT_NIGHT);
+            }
+            xmasSiren++;
         }
     } else if (target.IsA('ZombieStalker')) {
-        if (target.IsA('ZombieStalker_XMAS') && damageType == class'DamTypeWinchester') {
-            addProgress(AchvIndex.MRS_CLAWS, 1);
+        if (target.IsA('ZombieStalker_XMAS')) {
+            if (damageType == class'DamTypeWinchester') {
+                addProgress(AchvIndex.MRS_CLAWS, 1);
+            }
+            xmasStalker++;
         } else if (target.IsA('ZombieStalker_CIRCUS') && KFMonster(target).bBackstabbed) {
             addProgress(AchvIndex.ASSISTANT_HOMICIDE, 1);
         }
@@ -338,6 +327,37 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     if (killedHillbillyHuskWithM99 && killedOtherHillbillyWithM99) {
         achievementCompleted(AchvIndex.RIPPIN_IT_UP);
     }
+
+    if (isXmas) {
+        //@TODO: find a better way to do this weapon check
+        if (ownerController.Pawn != none && KFWeapon(ownerController.Pawn.Weapon) != none && KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver != none) {
+            getEventAchievementsObj(KFWeapon(ownerController.Pawn.Weapon).Tier3WeaponGiver.PlayerReplicationInfo).addProgress(AchvIndex.BETTER_TO_GIVE, 1);
+        }
+        checkZEDTimeMeleeKill(damageType, AchvIndex.BUCKETS_O_BLOOD);
+        if (xmasClot >= 15 && xmasStalker >= 5 && xmasCrawler >= 5 && xmasSiren >= 1 && xmasBloat >= 1) {
+            achievementCompleted(AchvIndex.BLOODY_CHRISTMAS_CAROL);
+        }
+    } else if (isHillbilly) {
+        addProgress(AchvIndex.MEET_YOUR_MAKER, 1);
+        if ((damageType == class'DamTypeCrossbuzzsaw' || damageType == class'DamTypeCrossbuzzsawHeadShot' || 
+                damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot') && !target.IsA('ZombieHusk')) {
+            killedOtherHillbillyWithM99= true;
+        } else if (damageType == class'DamTypeAxe' || damageType == class'DamTypeScythe') {
+            if (achievements[AchvIndex.I_AM_DEATH].progress == 0) {
+                axeStartTime= Level.TimeSeconds;
+            }
+            addProgress(AchvIndex.I_AM_DEATH, 1);
+        }
+    } else if (isOldHalloween && isBedlam) {
+        if (KFMonster(target).bDecapitated && KFMonster(target).bBurnified) {
+            achievementCompleted(AchvIndex.CARVING_JACK_O_LANTERN);
+        }
+        addProgress(AchvIndex.SCENE_IS_ZED, 1);
+        addProgress(AchvIndex.TRICK_NOT_TREAT, 1);
+    } else if (isCircus) {
+        checkZEDTimeMeleeKill(damageType, AchvIndex.BIG_TOP);
+    }
+
 }
 
 event reloadedWeapon(KFWeapon weapon) {
@@ -399,17 +419,19 @@ defaultproperties {
     achievements(32)=(title="This is No Ordinary Rabbit!",description="Kill 25 Halloween Scrakes in Bedlam",maxProgress=25,notifyIncrement=0.5,image=Texture'KillingFloor2HUD.Achievements.Achievement_160')
     achievements(33)=(title="Trick, not Treat",description="Kill 5 Halloween Specimens with any gun without reloading",maxProgress=5,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_161')
 
-    achievements(34)=(title="Soul Collector",description="Free the souls of the 25 Gnomes hidden on Hillbilly Horror in 1 game",image=Texture'KillingFloor2HUD.Achievements.Achievement_194')
-    achievements(35)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",maxProgress=1000,notifyIncrement=0.20,image=Texture'KillingFloor2HUD.Achievements.Achievement_195')
-    achievements(36)=(title="Creepy Crawlies",description="Kill 15 Hillbilly Crawlers in 1 game with the Tommy Gun or MKb42",maxProgress=15,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_196')
-    achievements(37)=(title="Rippin' It Up",description="Kill a Hillbilly Husk and another Hillbilly Zed in the same shot with the Buzzsaw Bow or M99",image=Texture'KillingFloor2HUD.Achievements.Achievement_197')
-    achievements(38)=(title="I Am Become Death",description="Kill 5 Hillbilly Zeds in 10 seconds with the Scythe or Axe",maxProgress=5,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_198')
-    achievements(39)=(title="Fiery Personality",description="Set 3 Hillbilly Gorefasts on fire with the Flare Pistol or Trench Gun",maxProgress=3,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_199')
+    achievements(34)=(title="A Bloody Christmas Carol",description="Kill 15 XMas Clots, 5 xmas Stalkers, 5 XMas Crawlers, 1 XMas Siren and 1 XMas Bloat",image=Texture'KillingFloor2HUD.Achievements.Achievement_175')
 
-    achievements(40)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
-    achievements(41)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
-    achievements(42)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
-    achievements(43)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
-    achievements(44)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
-    achievements(45)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
+    achievements(35)=(title="Soul Collector",description="Free the souls of the 25 Gnomes hidden on Hillbilly Horror in 1 game",image=Texture'KillingFloor2HUD.Achievements.Achievement_194')
+    achievements(36)=(title="Meet Your Maker!",description="Kill 1000 Hillbilly Zeds",maxProgress=1000,notifyIncrement=0.20,image=Texture'KillingFloor2HUD.Achievements.Achievement_195')
+    achievements(37)=(title="Creepy Crawlies",description="Kill 15 Hillbilly Crawlers in 1 game with the Tommy Gun or MKb42",maxProgress=15,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_196')
+    achievements(38)=(title="Rippin' It Up",description="Kill a Hillbilly Husk and another Hillbilly Zed in the same shot with the Buzzsaw Bow or M99",image=Texture'KillingFloor2HUD.Achievements.Achievement_197')
+    achievements(39)=(title="I Am Become Death",description="Kill 5 Hillbilly Zeds in 10 seconds with the Scythe or Axe",maxProgress=5,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_198')
+    achievements(40)=(title="Fiery Personality",description="Set 3 Hillbilly Gorefasts on fire with the Flare Pistol or Trench Gun",maxProgress=3,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_199')
+
+    achievements(41)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
+    achievements(42)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
+    achievements(43)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
+    achievements(44)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
+    achievements(45)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
+    achievements(46)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
 }
