@@ -359,7 +359,7 @@ defaultproperties {
     failedDefense= true
     damagedWithBars= true
 
-    packName= "Event Achievements"
+    packName= "Stock Events"
     
     achievements(0)=(title="Merry Friggin Christmas",description="[2010 Xmas] Kill the Christmas Patriarch",image=Texture'KillingFloor2HUD.Achievements.Achievement_118')
     achievements(1)=(title="Cracked the Nutcracker!",description="[2010 Xmas] Land the killing blow on a Christmas Fleshpound with a Knife",image=Texture'KillingFloor2HUD.Achievements.Achievement_119')
