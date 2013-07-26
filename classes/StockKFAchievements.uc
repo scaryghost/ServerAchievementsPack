@@ -69,7 +69,7 @@ function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> ac
     local int i;
 
     for(i= 0; i < achievementPacks.Length; i++) {
-        if (StockKFAchievements(achievementPacks[i]) != none) {
+        if (achievementPacks[i].class != Self.class) {
             return StockKFAchievements(achievementPacks[i]);
         }
     }
