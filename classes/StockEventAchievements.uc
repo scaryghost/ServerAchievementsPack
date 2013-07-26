@@ -49,19 +49,21 @@ function PostBeginPlay() {
     local KFUseTrigger trigger;
 
     foreach DynamicActors(class'BEResettableCounter', achvCounter) {
-        if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SteamLandGamesEventName) {
-            miniGamesCounter= achvCounter;
-        } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SteamLandClownsEventName) {
-            clownCounter= achvCounter;
-        } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.HillBillyGnomesEventName) {
-            gnomeSoulsCounter= achvCounter;
+        if (achvCounter.NumToCount > 0) {
+            if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SteamLandGamesEventName) {
+                miniGamesCounter= achvCounter;
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SteamLandClownsEventName) {
+                clownCounter= achvCounter;
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.HillBillyGnomesEventName) {
+                gnomeSoulsCounter= achvCounter;
+            }
         }
     }
     foreach DynamicActors(class'KF_BreakerBoxNPC', breakerBox) {
         breakerBoxes[breakerBoxes.Length]= breakerBox;
     }
     foreach DynamicActors(class'KFUseTrigger', trigger) {
-        if (trigger.event == 'goldenpd01') {
+        if (trigger.WeldStrength > 0 && trigger.event == 'goldenpd01') {
             gladosDoorTrigger= trigger;
         }
     }
