@@ -237,11 +237,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         revolverMagKills++;
     } else if (damageType == class'DamTypeM7A3M' && KFMonster(target).bDamagedAPlayer) {
         achievementCompleted(StockIndex.COMBAT_MEDIC);
-    } else if (KFGameType(Level.Game).bZEDTimeActive && (damageType == class'DamTypeBullpup' || damageType == class'DamTypeSPThompson')) {
-        addProgress(StockIndex.TURBO_EXECUTIONER, 1);
-        if (damageType == class'DamTypeBullpup') {
-            killedWithBullpup= true;
-        }
+    } else if (damageType == class'DamTypeBullpup') {
+        killedWithBullpup= true;
     } else if (damageType == class'DamTypeFNFALAssaultRifle') {
         killedWithFnFal= true;
     } else if (damageType == class'DamTypeMkb42AssaultRifle') {
@@ -275,6 +272,9 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         achievementCompleted(StockIndex.DOOM_BOMBARDIER);
     }
 
+    if (KFGameType(Level.Game).bZEDTimeActive && (damageType == class'DamTypeBullpup' || damageType == class'DamTypeSPThompson')) {
+        addProgress(StockIndex.TURBO_EXECUTIONER, 1);
+    }
     if (killedWithBullpup && killedWithFnFal) {
         achievementCompleted(StockIndex.BRITISH_SUPERIORITY);
     }
