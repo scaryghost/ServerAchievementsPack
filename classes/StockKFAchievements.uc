@@ -157,41 +157,40 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
     }
 
-    if (ZombieBloat(target) != none) {
+    if (target.IsA('ZombieBloat')) {
         addProgress(StockIndex.FACIST_DIETITIAN, 1);
-    } else if (ZombieSiren(target) != none) {
+    } else if (target.IsA('ZombieSiren')) {
         addProgress(StockIndex.HOMERS_HEROES, 1);
-    } else if (ZombieStalker(target) != none) {
-        if (class<DamTypeFrag>(damageType) != none) {
+    } else if (target.IsA('ZombieStalker')) {
+        if (ClassIsChildOf(damageType, class'DamTypeFrag')) {
             addProgress(StockIndex.KEEP_THOSE_SNEAKERS, 1);
-        } else if (damageType == class'DamTypeNailGun') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeNailGun')) {
             addProgress(StockIndex.NAILD, 1);
         }
-    } else if (ZombieScrake(target) != none) {
-        if (damageType == class'DamTypeChainsaw') {
+    } else if (target.IsA('ZombieScrake')) {
+        if (ClassIsChildOf(damageType, class'DamTypeChainsaw')) {
             addProgress(StockIndex.BITTER_IRONY, 1);
-        } else if (damageType == class'DamTypeClaymoreSword') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeClaymoreSword')) {
             claymoreScKill= true;
-        } else if (damageType == class'DamTypeM203Grenade') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeM203Grenade')) {
             achievementCompleted(StockIndex.FINISH_HIM);
-        } else if (damageType == class'DamTypeM99SniperRifle' || damageType == class'DamTypeM99HeadShot') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeM99SniperRifle') || ClassIsChildOf(damageType, class'DamTypeM99HeadShot')) {
             addProgress(StockIndex.THE_BIG_ONE, 1);
         }
-    } else if (ZombieFleshpound(target) != none) {
-        if (class<DamTypeMelee>(damageType) != none) {
+    } else if (target.IsA('ZombieFleshpound')) {
+        if (ClassIsChildOf(damageType, class'DamTypeMelee')) {
             achievementCompleted(StockIndex.TOO_CLOSE);
-        }
-        if (damageType == class'DamTypeAA12Shotgun') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeAA12Shotgun')) {
             addProgress(StockIndex.POUND_THIS, 1);
-        } else if (damageType == class'DamTypeClaymoreSword') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeClaymoreSword')) {
             claymoreFpKill= true;
-        } else if (class<DamTypeDwarfAxe>(damageType) != none && KFMonster(target).bBackstabbed) {
+        } else if (ClassIsChildOf(damageType, class'DamTypeDwarfAxe') && KFMonster(target).bBackstabbed) {
             addProgress(StockIndex.HAVE_MY_AXE, 1);
         }
-    } else if (ZombieBoss(target) != none) {
-        if (damageType == class'DamTypeLaw') {
+    } else if (target.IsA('ZombieBoss')) {
+        if (ClassIsChildOf(damageType, class'DamTypeLaw')) {
             achievementCompleted(StockIndex.BROKE_THE_CAMELS_BACK);
-        } else if (damageType == class'DamTypeClaymoreSword') {
+        } else if (ClassIsChildOf(damageType, class'DamTypeClaymoreSword')) {
             claymoreBossKill= true;
         }
         if (!ZombieBoss(target).bHealed) {
@@ -206,47 +205,49 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         if (ZombieBoss(target).bOnlyDamagedByCrossbow) {
             achievementCompleted(StockIndex.MERRY_MEN);
         }
-    } else if (ZombieCrawler(target) != none && target.Physics == PHYS_Falling && damageType == class'DamTypeM79Grenade') {
+    } else if (target.IsA('ZombieCrawler') && target.Physics == PHYS_Falling && ClassIsChildOf(damageType, class'DamTypeM79Grenade')) {
         addProgress(StockIndex.KILLER_JUNIOR, 1);
-    } else if (ZombieHusk(target) != none) {
-        if (!ZombieHusk(target).bDamagedAPlayer && (class<DamTypeBurned>(damageType) != none || class<DamTypeFlamethrower>(damageType) != none)) {
+    } else if (target.IsA('ZombieHusk')) {
+        if (!ZombieHusk(target).bDamagedAPlayer && (ClassIsChildOf(damageType, class'DamTypeBurned') || ClassIsChildOf(damageType, class'DamTypeFlamethrower'))) {
             achievementCompleted(StockIndex.FLAMING_HELL);
-        } else if (class<DamTypeHuskGun>(damageType) != none || 
-                class<DamTypeHuskGunProjectileImpact>(damageType) != none ) {
+        } else if (ClassIsChildOf(damageType, class'DamTypeHuskGun') || ClassIsChildOf(damageType, class'DamTypeHuskGunProjectileImpact')) {
             addProgress(StockIndex.BURNING_IRONY, 1);
         }
-    } else if (ZombieClot(target) != none && damageType == class'DamTypeMK23Pistol') {
+    } else if (target.IsA('ZombieClot') && ClassIsChildOf(damageType, class'DamTypeMK23Pistol')) {
         mk23MagClotKills++;
     }
 
-    if (damageType == class'DamTypeAxe') {
+    if (ClassIsChildOf(damageType, class'DamTypeAxe')) {
         addProgress(StockIndex.RANDOM_AXE, 1);
-    } else if ((damageType == class'DamTypeCrossbow' || damageType == class'DamTypeCrossbowHeadShot') && KFMonster(target) != none && KFMonster(target).bBurnified) {
+    } else if ((ClassIsChildOf(damageType, class'DamTypeCrossbow') || ClassIsChildOf(damageType, class'DamTypeCrossbowHeadShot')) 
+            && target.IsA('KFMonster') && KFMonster(target).bBurnified) {
         addProgress(StockIndex.HOT_CROSS_FUN, 1);
-    } else if (damageType == class'DamTypeKnife' && class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
+    } else if (ClassIsChildOf(damageType, class'DamTypeKnife') && 
+            class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         addProgress(StockIndex.MASTER_SURGEON, 1);
-    } else if (damageType == class'DamTypePipebomb' && class'VeterancyChecks'.static.isDemolitions(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
+    } else if (ClassIsChildOf(damageType, class'DamTypePipebomb') && 
+            class'VeterancyChecks'.static.isDemolitions(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         addProgress(StockIndex.EXPLOSIVE_PERSONALITY, 1);
-    } else if (damageType == class'DamTypeSCARMK17AssaultRifle') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeSCARMK17AssaultRifle')) {
         addProgress(StockIndex.SCARD, 1);
-    } else if (damageType == class'DamTypeM4AssaultRifle') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeM4AssaultRifle')) {
         m4MagKills++;
-    } else if (damageType == class'DamTypeBenelli') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeBenelli')) {
         benelliMagKills++;
-    } else if (damageType == class'DamTypeMagnum44Pistol') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeMagnum44Pistol')) {
         revolverMagKills++;
-    } else if (damageType == class'DamTypeM7A3M' && KFMonster(target).bDamagedAPlayer) {
+    } else if (ClassIsChildOf(damageType, class'DamTypeM7A3M') && KFMonster(target).bDamagedAPlayer) {
         achievementCompleted(StockIndex.COMBAT_MEDIC);
-    } else if (damageType == class'DamTypeBullpup') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeBullpup')) {
         killedWithBullpup= true;
-    } else if (damageType == class'DamTypeFNFALAssaultRifle') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeFNFALAssaultRifle')) {
         killedWithFnFal= true;
-    } else if (damageType == class'DamTypeMkb42AssaultRifle') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeMkb42AssaultRifle')) {
         mkb42Kills++;
-    } else if (damageType == class'DamTypeTrenchgun') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeTrenchgun')) {
         addProgress(StockIndex.TRENCH_WARFARE, 1);
-    } else if (damageType == class'DamTypeKSGShotgun') {
-        if (ZombieBoss(target) != none) {
+    } else if (ClassIsChildOf(damageType, class'DamTypeKSGShotgun')) {
+        if (target.IsA('ZombieBoss')) {
             speciesKilled[KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length]= 1;
         } else {
             for(i= 0; i < KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length; i++) {
@@ -256,14 +257,15 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
                 }
             }
         }
-    } else if (damageType == class'DamTypeDBShotgun') {
+    } else if (ClassIsChildOf(damageType, class'DamTypeDBShotgun')) {
         addProgress(StockIndex.CAREFUL_SPENDER, 1);
         if (ZombieScrake(target) != none && VSize(ZombieScrake(target).LastMomentum) > 5000) {
             achievementCompleted(StockIndex.FLAYER_ORDINANCE);
         }
-    } else if (damageType == class'DamTypeKrissM' && Controller(Owner).Pawn != none && Controller(Owner).Pawn.Physics == PHYS_Falling) {
+    } else if (ClassIsChildOf(damageType, class'DamTypeKrissM') && ownerController.Pawn != none && 
+            ownerController.Pawn.Physics == PHYS_Falling) {
         addProgress(StockIndex.ONE_SMALL_STEP, 1);
-    } else if (headshot && (damageType == class'DamTypeM14EBR' || damageType == class'DamTypeSPSniper')) {
+    } else if (headshot && (ClassIsChildOf(damageType, class'DamTypeM14EBR') || ClassIsChildOf(damageType, class'DamTypeSPSniper'))) {
         addM14MusketHeadShotKill(target);
         if (m14MusketHeadShotKill.Length == 4) {
             achievementCompleted(StockIndex.SINGLE_SHOT_EQUALIZER);
@@ -272,7 +274,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         achievementCompleted(StockIndex.DOOM_BOMBARDIER);
     }
 
-    if (KFGameType(Level.Game).bZEDTimeActive && (damageType == class'DamTypeBullpup' || damageType == class'DamTypeSPThompson')) {
+    if (KFGameType(Level.Game).bZEDTimeActive && (ClassIsChildOf(damageType, class'DamTypeBullpup') || 
+            ClassIsChildOf(damageType, class'DamTypeSPThompson'))) {
         addProgress(StockIndex.TURBO_EXECUTIONER, 1);
     }
     if (killedWithBullpup && killedWithFnFal) {
@@ -300,7 +303,7 @@ event pickedUpItem(Pickup item) {
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
-    if (KFMonster(target) != none) {
+    if (target.IsA('KFMonster')) {
         if (headshot && KFMonster(target).bDecapitated) {
             if (KFMonster(target).bLaserSightedEBRM14Headshotted) {
                 addProgress(StockIndex.DOT_OF_DOOM, 1);
@@ -313,7 +316,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
             gibbedMonsters[gibbedMonsters.Length]= target;
         }
     }
-    if (damageType == class'DamTypeMAC10MPInc') {
+    if (ClassIsChildOf(damageType, class'DamTypeMAC10MPInc')) {
         addProgress(StockIndex.LET_THEM_BURN, min(damage, target.Health));
     }
 }
