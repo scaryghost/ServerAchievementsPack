@@ -57,19 +57,19 @@ function Timer() {
     super.Timer();
 
     
-    if (Owner != none && Controller(Owner).PlayerReplicationInfo.Score > 10000) {
+    if (Owner != none && ownerController.PlayerReplicationInfo.Score > 10000) {
         achievementCompleted(FunIndex.IM_RICH);
     }
     if (Owner != none && canEarnNetLoss) {
         numTimesPinged++;
-        if (Controller(Owner).PlayerReplicationInfo.Ping * 4 < 200) {
+        if (ownerController.PlayerReplicationInfo.Ping * 4 < 200) {
             numTimesUnder200++;
         }
     }
 }
 
 function MatchStarting() {
-    if (class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo))) {
+    if (class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         canEarnMedicGame= true;
     }
     if (Level.GetLocalPlayerController() != PlayerController(Owner)) {
@@ -103,13 +103,13 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
 
 event waveStart(int waveNum) {
     jumpedOnCrawler= 0;
-    if (Owner != none && !class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(Controller(Owner).PlayerReplicationInfo))) {
+    if (Owner != none && !class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         canEarnMedicGame= false;
     }
 }
 
 event playerDied(Controller Killer, class<DamageType> damageType, int waveNum) {
-    if (Killer == Controller(Owner) && damageType == class'PipebombProjectile'.default.MyDamageType) {
+    if (Killer == ownerController && ClassIsChildOf(damageType, class'PipebombProjectile'.default.MyDamageType)) {
         selfPipeKillTime= Level.TimeSeconds;
     }
 }
@@ -120,16 +120,16 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     canEarnMedicGame= false;
     if (ZombieCrawler(target) != none && isBigWeaponDamage(damageType)) {
         addProgress(FunIndex.HIGH_PRIORITY_TARGET, 1);
-    } else if (ZombieHusk(target) != none && damageType == class'DamTypeRocketImpact' && headshot) {
+    } else if (ZombieHusk(target) != none && ClassIsChildOf(damageType, class'DamTypeRocketImpact') && headshot) {
         addProgress(FunIndex.BLUNT_TRAUMA, 1);
     } else if (ZombieScrake(target) != none && ZombieScrake(target).LastMomentum.Z > 40000) {
         scrakesUppercutted++;
         if (scrakesUppercutted == 10) {
             achievementCompleted(FunIndex.SHORYUKEN);
         }
-    } else if (ZombieFleshpound(target) != none && damageType == class'HuskGunProjectile'.default.ImpactDamageType) {
+    } else if (ZombieFleshpound(target) != none && ClassIsChildOf(damageType, class'HuskGunProjectile'.default.ImpactDamageType)) {
         addProgress(FunIndex.HADOKEN, 1);
-    } else if (ZombieBoss(target) != none && damageType == class'PipeBombProjectile'.default.MyDamageType) {
+    } else if (ZombieBoss(target) != none && ClassIsChildOf(damageType, class'PipebombProjectile'.default.MyDamageType)) {
         patKillTime= Level.TimeSeconds;
     }
 
@@ -148,16 +148,16 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
-    if (ZombieScrake(target) != none && damageType == class'DamTypeRocketImpact' && damage * 1.5 > target.default.HealthMax) {
+    if (ZombieScrake(target) != none && ClassIsChildOf(damageType, class'DamTypeRocketImpact') && damage * 1.5 > target.default.HealthMax) {
         achievementCompleted(FunIndex.BLUNTLY_STATED);
-    } else if (ZombieFleshpound(target) != none && damageType == class'DamTypeKnife' && ZombieFleshpound(target).bBackstabbed) {
+    } else if (ZombieFleshpound(target) != none && ClassIsChildOf(damageType, class'DamTypeKnife') && ZombieFleshpound(target).bBackstabbed) {
         achievementCompleted(FunIndex.I_AM_A_SPY);
-    } else if (ZombieCrawler(target) != none && damageType == class'Crushed') {
+    } else if (ZombieCrawler(target) != none && ClassIsChildOf(damageType, class'Crushed')) {
         jumpedOnCrawler++;
         if (jumpedOnCrawler == 8) {
             achievementCompleted(FunIndex.GOOMBA_STOMP);
         }
-    } else if (ZombieBoss(target) != none && damageType == class'PipeBombProjectile'.default.MyDamageType) {
+    } else if (ZombieBoss(target) != none && ClassIsChildOf(damageType, class'PipebombProjectile'.default.MyDamageType)) {
         if (target.IsInState('MakingEntrance')) {
             achievementCompleted(FunIndex.MIND_READER);
         }

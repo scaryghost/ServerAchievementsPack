@@ -42,9 +42,11 @@ event waveEnd(int waveNum) {
 
 event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
     local Weapon currWpn;
+    local KFPlayerReplicationInfo kfRepInfo;
     local class<KFVeterancyTypes> selectedSkill;
 
-    selectedSkill= KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo).ClientVeteranSkill;
+    kfRepInfo= KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo);
+    selectedSkill= kfRepInfo.ClientVeteranSkill;
     currWpn= ownerController.Pawn.Weapon;
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
@@ -59,7 +61,7 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
     if (Killer != none && ZombieGorefast(Killer.Pawn) != none && ZombieGorefast(Killer.Pawn).bDecapitated) {
         achievementCompleted(FailIndex.GORED_FAST);
     }
-    if (damageType == class'KFBloatVomit'.default.MyDamageType && (selectedSkill == class'KFVetBerserker' || selectedSkill == class'KFVetFieldMedic')) {
+    if (ClassIsChildOf(damageType, class'DamTypeVomit') && selectedSkill.static.ReduceDamage(kfRepInfo, None, None, 1, class'DamTypeVomit') < 1.0) {
         achievementCompleted(FailIndex.MELTING_POINT);
     } else if ((class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || 
             class<DamTypeM203Grenade>(damageType) != none) && Killer == Controller(Owner)) {
@@ -69,9 +71,9 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
-    if (ZombieBloat(target) != none && ZombieBloat(target).bDecapitated && damageType == class'PipeBombProjectile'.default.MyDamageType) {
+    if (ZombieBloat(target) != none && ZombieBloat(target).bDecapitated && ClassIsChildOf(damageType, class'DamTypePipebomb')) {
         addProgress(FailIndex.AMATEUR_DEMOLITIONS, 1);
-    } else if (ZombieStalker(target) != none && damageType == class'KFMod.DamTypeRocketImpact') {
+    } else if (ZombieStalker(target) != none && ClassIsChildOf(damageType, class'DamTypeRocketImpact')) {
         addProgress(FailIndex.PROFESSIONAL_DEMOLITIONS, 1);
     }
 }
@@ -85,7 +87,7 @@ event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool
         if (damage < target.Health && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
             (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || class<DamTypeM203Grenade>(damageType) != none)) {
             addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
-        } else if (damageType == class'DamTypeM99SniperRifle' && !headshot) {
+        } else if (ClassIsChildOf(damageType, class'DamTypeM99HeadShot')) {
             addProgress(FailIndex.SHARP_SHOOTER, 1);
         }
     }
@@ -101,7 +103,7 @@ defaultproperties {
     achievements(4)=(title="Professional Demolitions",description="Kill 15 stalkers with blunt grenades",maxProgress=15,notifyIncrement=0.3333)
     achievements(5)=(title="Watch Your Step",description="Be killed while still having full armor")
     achievements(6)=(title="Pistol Pete",description="Enrage a fleshpound with the 9mm or dual 9mm")
-    achievements(7)=(title="Melting Point",description="Be killed by bloat bile as a berserker or medic")
+    achievements(7)=(title="Melting Point",description="Be killed by bloat bile using a perk with bile resistance")
     achievements(8)=(title="Master Demolitions",description="Enrage 10 scrakes with explosives",maxProgress=10,notifyIncrement=0.5)
     achievements(9)=(title="Demolitions God",description="Be killed by your own explosive 25 times",maxProgress=25,notifyIncrement=0.2)
     achievements(10)=(title="Useless Baggage",description="Win a match, having died every wave starting from wave 1")

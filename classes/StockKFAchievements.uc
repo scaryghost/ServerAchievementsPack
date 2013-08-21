@@ -135,12 +135,14 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local int i;
     local Controller C;
+    local KFPlayerReplicationInfo kfRepInfo;
     local SAReplicationInfo saRepInfo;
     local StockKFAchievements stockKFAchievementObj;
 
     addProgress(StockIndex.EXPERIMENTICIDE, 1);
     addProgress(StockIndex.EXPERIMENTIMILLICIDE, 1);
     addProgress(StockIndex.EXPERIMENTILOTTACIDE, 1);
+    kfRepInfo= KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo);
 
     if (KFMonster(target) != none && KFMonster(target).bZapped) {
         saRepInfo= class'SAReplicationInfo'.static.findSARI(KFMonster(target).ZappedBy.PlayerReplicationInfo);
@@ -226,7 +228,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             class'VeterancyChecks'.static.isFieldMedic(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
         addProgress(StockIndex.MASTER_SURGEON, 1);
     } else if (ClassIsChildOf(damageType, class'DamTypePipebomb') && 
-            class'VeterancyChecks'.static.isDemolitions(KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo))) {
+            kfRepInfo.ClientVeteranSkill.static.AddDamage(kfRepInfo, None, None, 1, class'DamTypePipeBomb') > 1.0) {
         addProgress(StockIndex.EXPLOSIVE_PERSONALITY, 1);
     } else if (ClassIsChildOf(damageType, class'DamTypeSCARMK17AssaultRifle')) {
         addProgress(StockIndex.SCARD, 1);
