@@ -19,18 +19,22 @@ enum AchvIndex {
     I_AM_DEATH, FIERY_PERSONALITY,
 
     HIDE_AND_PUKE, ARCADE_GAMER,
-    FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE
+    FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE,
+
+    CLAW_MACHINE_MASTER, EX_SCIENTIST, SEVEN_SEVEN_SEVEN, BLINDING_BIG_BROTHER, FIRE_AND_FORGET,
+    UNDER_THE_WEATHER, BANG_FOR_THE_BUCK
 };
 
 var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, 
         killedHillbillyHuskWithM99, killedOtherHillbillyWithM99, isBedlam;
 var byte survivedSiren, survivedBloat;
 var int screamedTime, vomitTime, axeStartTime, xmasClot, xmasStalker, xmasCrawler, xmasSiren, xmasBloat;
-var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter;
+var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter, cameraCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
 var name prevObjName;
 var KFUseTrigger gladosDoorTrigger;
+var KFStoryGameInfo.SObjectiveProgressEvent clawMaster, exScientist;
 
 function resetWaveCounters() {
     achievements[AchvIndex.MRS_CLAWS].progress= 0;
@@ -56,6 +60,8 @@ function PostBeginPlay() {
                 clownCounter= achvCounter;
             } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.HillBillyGnomesEventName) {
                 gnomeSoulsCounter= achvCounter;
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.FrightyardCamerasEventName) {
+                cameraCounter= achvCounter;
             }
         }
     }
@@ -95,7 +101,15 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     local KF_RingMasterNPC iterator;
     local bool noCarriersDamaged;
     local Controller C;
+    local int i, j;
 
+    if (clawMaster != none && !clawMaster.bWasTriggered) {
+        achievementCompleted(AchvIndex.CLAW_MACHINE_MASTER);
+        clawMaster= none;
+    } else if (exScientist != none && !exScientist.bWasTriggered) {
+        achievementCompleted(AchvIndex.EX_SCIENTIST);
+        exScientist= none;
+    }
     if (!failedEscort) {
         achievementCompleted(AchvIndex.MOTION_PROTECTOR);
     } else if (!failedDefense) {
@@ -122,6 +136,16 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     } else if (newObjective.ObjectiveName == class'KFSteamStatsAndAchievements'.default.SteamLandDefendObjName) {
         failedEscort= true;
         failedDefense= false;
+    } else {
+        for(i= 0; i < newObjective.OptionalConditions.Length; i++) {
+            for(j= 0; j < newObjective.OptionalConditions[i].ProgressEvents.Length; j++) {
+                if (newObjective.OptionalConditions[i].ProcessEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.FrightyardClawMasterFailedEventName) {
+                    clawMaster= newObjective.OptionalConditions[i].ProcessEvents[j];
+                } else if (newObjective.OptionalConditions[i].ProcessEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.FrightyardContaminationFailedEventName) {
+                    exScientist= newObjective.OptionalConditions[i].ProcessEvents[j];
+                }
+            }
+        }
     }
     goldBarsObjective= newObjective.ObjectiveName == class'KFSteamStatsAndAchievements'.default.SteamLandGoldObjName;
     damagedWithBars= !goldBarsObjective;
@@ -163,6 +187,7 @@ function Timer() {
     clownCounter != none && checkCounter(clownCounter.NumToCount, AchvIndex.HIDE_AND_PUKE);
     gladosDoorTrigger != none && checkCounter(gladosDoorTrigger.WeldStrength, AchvIndex.GOLDEN_POTATOE);
     gnomeSoulsCounter != none && checkCounter(gnomeSoulsCounter.NumToCount, AchvIndex.SOUL_COLLECTOR);
+    cameraCounter != none && checkCounter(cameraCounter.NumToCount, AchvIndex.BLINDING_BIG_BROTHER);
 
     for(i= 0; i < breakerBoxes.Length; i++) {
         if (breakerBoxes[i].Health >= breakerBoxes[i].NPCHealth) {
