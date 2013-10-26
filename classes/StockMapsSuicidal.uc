@@ -30,4 +30,7 @@ defaultproperties {
     achievements(23)=(title="Amusing Death",description="Win a medium or long game on Moonbase on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_206')
     achievements(24)=(title="Fractional Neutron Activator",description="Win a medium or long game on Steamland on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_211')
     achievements(25)=(title="Alpha Wave Osteooxidation Activator",description="Win Steamland in Objective Mode on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_215')
+    achievements(26)=(title="Stevedore",description="Win a medium or long game on Fright Yard on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_230')
+    achievements(27)=(title="Crane Operator",description="Win Fright Yard in Objective Mode on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_234')
+
 }

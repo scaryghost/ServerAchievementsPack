@@ -30,4 +30,6 @@ defaultproperties {
     achievements(23)=(title="Here is To Us",description="Win a medium or long game on Moonbase on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_204')
     achievements(24)=(title="Astro Buffer Afficiando",description="Win a medium or long game on Steamland on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_209')
     achievements(25)=(title="Simplified Force Adhesion Afficianado",description="Win Steamland in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_213')
+    achievements(26)=(title="Longshorman",description="Win a medium or long game on Fright Yard on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_228')
+    achievements(27)=(title="Fork Lift Operator",description="Win Fright Yard in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_232')
 }

@@ -30,5 +30,8 @@ defaultproperties {
     achievements(23)=(title="One Giant Leap (Back) for Mankind",description="Win a medium or long game on Moonbase on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_207')
     achievements(24)=(title="Advanced Omega Wave Resonance Explorer",description="Win a medium or long game on Steamland on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_212')
     achievements(25)=(title="Tachyon Cytoneutralization Explorer",description="Win Steamland in Objective Mode on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_216')
+    achievements(26)=(title="Wharfinger",description="Win a medium or long game on Fright Yard on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_231')
+    achievements(27)=(title="Shipping Magnate",description="Win Fright Yard in Objective Mode on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_235')
+
 }
 
