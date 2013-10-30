@@ -11,8 +11,7 @@ enum StockIndex {
     COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, THE_BIG_ONE, HISTORICAL_REMNANTS,
     NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN, SINGLE_SHOT_EQUALIZER,
     FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER,
-    CLAW_MACHINE_MASTER, EX_SCIENTIST, SEVEN_SEVEN_SEVEN, BLINDING_BIG_BROTHER, FIRE_AND_FORGET,
-    UNDER_THE_WEATHER, BANG_FOR_THE_BUCK
+    CLAW_MACHINE_MASTER, EX_SCIENTIST, SEVEN_SEVEN_SEVEN, BLINDING_BIG_BROTHER
 };
 
 var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills;
@@ -144,22 +143,13 @@ event waveEnd(int waveNum) {
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
-    local int i;
-
     if (result == 2 && difficulty >= 5.0) {
         achievementCompleted(StockIndex.DEATH_TO_THE_MAD_SCIENTIST);
     }
     if (claymoreScKill && claymoreFpKill && claymoreBossKill) {
         achievementCompleted(StockIndex.HIGHLANDER);
-    } else if (speciesKilled.Length == KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length + 1) {
-        for(i= 0; i < speciesKilled.Length; i++) {
-            if (speciesKilled[i] != 1) {
-                break;
-            }
-        }
-        if (i == speciesKilled.Length) {
-            achievementCompleted(StockIndex.FUGLY);
-        }
+    } else if (allSpeciesKilled(speciesKilled)) {
+        achievementCompleted(StockIndex.FUGLY);
     }
 }
 
@@ -176,7 +166,6 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
 }
 
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
-    local int i;
     local Controller C;
     local KFPlayerReplicationInfo kfRepInfo;
     local SAReplicationInfo saRepInfo;
@@ -292,16 +281,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     } else if (ClassIsChildOf(damageType, class'DamTypeTrenchgun')) {
         addProgress(StockIndex.TRENCH_WARFARE, 1);
     } else if (ClassIsChildOf(damageType, class'DamTypeKSGShotgun')) {
-        if (target.IsA('ZombieBoss')) {
-            speciesKilled[KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length]= 1;
-        } else {
-            for(i= 0; i < KFGameType(Level.Game).MonsterCollection.default.MonsterClasses.Length; i++) {
-                if (string(target.class) ~= KFGameType(Level.Game).MonsterCollection.default.MonsterClasses[i].MClassName) {
-                    speciesKilled[i]= 1;
-                    break;
-                }
-            }
-        }
+        updateKillTypes(speciesKilled, target.class);
     } else if (ClassIsChildOf(damageType, class'DamTypeDBShotgun')) {
         addProgress(StockIndex.CAREFUL_SPENDER, 1);
         if (ZombieScrake(target) != none && VSize(ZombieScrake(target).LastMomentum) > 5000) {
@@ -317,7 +297,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         }
     } else if (class<DamTypeRocketImpact>(damageType) != none && class<DamTypeLawRocketImpact>(damageType) == none) {
         achievementCompleted(StockIndex.DOOM_BOMBARDIER);
-    }
+    } 
 
     if (KFGameType(Level.Game).bZEDTimeActive && (ClassIsChildOf(damageType, class'DamTypeBullpup') || 
             ClassIsChildOf(damageType, class'DamTypeSPThompson'))) {

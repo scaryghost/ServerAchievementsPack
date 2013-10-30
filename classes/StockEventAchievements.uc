@@ -19,18 +19,21 @@ enum AchvIndex {
     I_AM_DEATH, FIERY_PERSONALITY,
 
     HIDE_AND_PUKE, ARCADE_GAMER,
-    FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE
+    FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE, 
+
+    FIRE_AND_FORGET, UNDER_THE_WEATHER, BANG_FOR_THE_BUCK
 };
 
 var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, 
-        killedHillbillyHuskWithM99, killedOtherHillbillyWithM99, isBedlam;
+        killedHillbillyHuskWithM99, killedOtherHillbillyWithM99, isBedlam, killedScWithLaw, killedFpWithLaw;
 var byte survivedSiren, survivedBloat;
-var int screamedTime, vomitTime, axeStartTime, xmasClot, xmasStalker, xmasCrawler, xmasSiren, xmasBloat;
+var int screamedTime, vomitTime, axeStartTime, xmasClot, xmasStalker, xmasCrawler, xmasSiren, xmasBloat, m32KillStart;
 var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
 var name prevObjName;
 var KFUseTrigger gladosDoorTrigger;
+var array<byte> ftKills;
 
 function resetWaveCounters() {
     achievements[AchvIndex.MRS_CLAWS].progress= 0;
@@ -149,6 +152,7 @@ function Timer() {
     local int i, numBreakersFull;
     local Controller C;
 
+
     ownerController != none && checkTimeAchievement(survivedSiren, screamedTime, ownerController.bScreamedAt, AchvIndex.WINDJAMMER);
     ownerController != none && checkTimeAchievement(survivedBloat, vomitTime, ownerController.bVomittedOn, AchvIndex.EGGNOG);
 
@@ -176,6 +180,10 @@ function Timer() {
         }
     }
 
+    if (M32KillStart != 0 && Level.TimeSeconds - m32KillStart >= 5.0) {
+        achievementCompleted(AchvIndex.BANG_FOR_THE_BUCK);
+        m32KillStart= 0;
+    }
     if (axeStartTime != 0 && Level.TimeSeconds - axeStartTime >= 10) {
         achievements[AchvIndex.I_AM_DEATH].progress= 0;
         axeStartTime= 0;
@@ -203,6 +211,8 @@ event waveStart(int waveNum) {
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
     if (isBedlam && length == KFGameType(Level.Game).GL_Long && difficulty == 4.0) {
         achievementCompleted(AchvIndex.ZED_OCTOBER);
+    } else if (allSpeciesKilled(ftKills)) {
+        achievementCompleted(AchvIndex.UNDER_THE_WEATHER);
     }
 }
 
@@ -249,7 +259,11 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.NUTCRACKER);
         } else if (target.IsA('ZombieFleshPound_CIRCUS') && isPistolDamage(damageType)) {
             achievementCompleted(AchvIndex.ELEPHANT_GUN);
-        } 
+        } else if (target.IsA('ZombieFleshPound_HALLOWEEN')) {
+            if (ClassIsChildOf(damageType, class'DamTypeLAW') || ClassIsChildOf(damageType, class'DamTypeSealSquealExplosion')) {
+                killedFpWithLaw= true;
+            }
+        }
     } else if (target.IsA('ZombieGoreFast')) {
         if (target.IsA('ZombieGoreFast_XMAS') && ZombieGoreFast(target).bBackstabbed) {
             addProgress(AchvIndex.CANT_CATCH_ME, 1);
@@ -267,8 +281,13 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         } else if (target.IsA('ZombieScrake_CIRCUS') && (ClassIsChildOf(damageType, class'DamTypeCrossbow') || 
                 ClassIsChildOf(damageType, class'DamTypeCrossbowHeadShot'))) {
             achievementCompleted(AchvIndex.BIG_HUNT);
-        } else if (target.IsA('ZombieScrake_HALLOWEEN') && isOldHalloween && isBedlam) {
-            addProgress(AchvIndex.ORDINARY_RABBIT, 1);
+        } else if (target.IsA('ZombieScrake_HALLOWEEN')) {
+            if (isOldHalloween && isBedlam) {
+                addProgress(AchvIndex.ORDINARY_RABBIT, 1);
+            }
+            if (ClassIsChildOf(damageType, class'DamTypeLAW') || ClassIsChildOf(damageType, class'DamTypeSeekerSixRocket')) {
+                killedScWithLaw= true;
+            }
         }
     } else if (target.IsA('ZombieBloat')) {
         if (target.IsA('ZombieBloat_XMAS')) {
@@ -330,6 +349,8 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
 
     if (killedHillbillyHuskWithM99 && killedOtherHillbillyWithM99) {
         achievementCompleted(AchvIndex.RIPPIN_IT_UP);
+    } else if (killedScWithLaw && killedFpWithLaw) {
+        achievementCompleted(AchvIndex.FIRE_AND_FORGET);
     }
 
     if (isXmas) {
@@ -350,6 +371,14 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
                 axeStartTime= Level.TimeSeconds;
             }
             addProgress(AchvIndex.I_AM_DEATH, 1);
+        } else if (ClassIsChildOf(damageType, class'DamTypeM32Grenade') || ClassIsChildOf(damageType, class'DamTypeSealSquealExplosion') || 
+                ClassIsChildOf(damageType, class'DamTypeRocketImpact')) {
+            if (achievements[AchvIndex.BANG_FOR_THE_BUCK].progress == 0) {
+                m32KillStart= Level.TimeSeconds;
+            }
+            addProgress(AchvIndex.BANG_FOR_THE_BUCK, 1);
+        } else if (ClassIsChildOf(damageType, class'DamTypeBurned') || ClassIsChildOf(damageType, class'DamTypeFlamethrower') || ClassIsChildOf(damageType, class'DamTypeBlowerThrower')) {
+            updateKillTypes(ftKills, target.class);
         }
     } else if (isOldHalloween && isBedlam) {
         if (KFMonster(target).bDecapitated && KFMonster(target).bBurnified) {
@@ -360,7 +389,6 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     } else if (isCircus) {
         checkZEDTimeMeleeKill(damageType, AchvIndex.BIG_TOP);
     }
-
 }
 
 event reloadedWeapon(KFWeapon weapon) {
@@ -374,6 +402,9 @@ event firedWeapon(KFWeapon weapon) {
     if (M99SniperRifle(weapon) != none || Crossbuzzsaw(weapon) != none) {
         killedHillbillyHuskWithM99= false;
         killedOtherHillbillyWithM99= false;
+    } else if (SealSquealHarpoonBomber(weapon) != none || LAW(weapon) != none) {
+        killedScWithLaw= false;
+        killedFpWithLaw= false;
     }
 }
 
@@ -434,4 +465,7 @@ defaultproperties {
     achievements(41)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
     achievements(42)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
     achievements(43)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
+    achievements(44)=(title="Fire and Forget",description="Kill a Halloween Fleshpound and Scrake in the same explosion with the Seal Squeal Harpoon Bomber or the LAW",image=Texture'KillingFloor2HUD.Achievements.Achievement_240')
+    achievements(45)=(title="Under The Weather",description="Use Bile or the Flamethrower to kill one of each Halloween Zed",image=Texture'KillingFloor2HUD.Achievements.Achievement_241')
+    achievements(46)=(title="Most Bang for the Buck",description="Kill 10 Halloween zeds in explosions using the Seeker 6 or the M32 within 5 seconds",maxProgress=10,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_242')
 }
