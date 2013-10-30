@@ -465,7 +465,10 @@ defaultproperties {
     achievements(41)=(title="Hide and go Puke",description="[2013 Summer] Destroy all the Pukey the Clown dolls",image=Texture'KillingFloor2HUD.Achievements.Achievement_217')
     achievements(42)=(title="Arcade Gamer",description="[2013 Summer] Complete the Pop the Clot, the Strong Man and the Grenade Toss games",image=Texture'KillingFloor2HUD.Achievements.Achievement_219')
     achievements(43)=(title="Full Charge",description="[2013 Summer] Have 5 Breaker Boxes 100% repaired at the same time",image=Texture'KillingFloor2HUD.Achievements.Achievement_220')
-    achievements(44)=(title="Fire and Forget",description="Kill a Halloween Fleshpound and Scrake in the same explosion with the Seal Squeal Harpoon Bomber or the LAW",image=Texture'KillingFloor2HUD.Achievements.Achievement_240')
-    achievements(45)=(title="Under The Weather",description="Use Bile or the Flamethrower to kill one of each Halloween Zed",image=Texture'KillingFloor2HUD.Achievements.Achievement_241')
-    achievements(46)=(title="Most Bang for the Buck",description="Kill 10 Halloween zeds in explosions using the Seeker 6 or the M32 within 5 seconds",maxProgress=10,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_242')
+    achievements(44)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
+    achievements(45)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
+    achievements(46)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
+    achievements(47)=(title="Fire and Forget",description="Kill a Halloween Fleshpound and Scrake in the same explosion with the Seal Squeal Harpoon Bomber or the LAW",image=Texture'KillingFloor2HUD.Achievements.Achievement_240')
+    achievements(48)=(title="Under The Weather",description="Use Bile or the Flamethrower to kill one of each Halloween Zed",image=Texture'KillingFloor2HUD.Achievements.Achievement_241')
+    achievements(49)=(title="Most Bang for the Buck",description="Kill 10 Halloween zeds in explosions using the Seeker 6 or the M32 within 5 seconds",maxProgress=10,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_242')
 }

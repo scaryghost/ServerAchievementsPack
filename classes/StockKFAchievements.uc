@@ -11,7 +11,7 @@ enum StockIndex {
     COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, THE_BIG_ONE, HISTORICAL_REMNANTS,
     NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN, SINGLE_SHOT_EQUALIZER,
     FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER,
-    CLAW_MACHINE_MASTER, EX_SCIENTIST, SEVEN_SEVEN_SEVEN, BLINDING_BIG_BROTHER
+    CLAW_MACHINE_MASTER, EX_SCIENTIST, BLINDING_BIG_BROTHER
 };
 
 var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills;
@@ -478,7 +478,7 @@ defaultproperties {
     achievements(51)=(title="Assault Flayer Ordinance",description="Push a scrake back with the direct fire from a Hunting Shotgun or alt fire from the Multi-Chamber ZED Thrower",image=Texture'KillingFloor2HUD.Achievements.Achievement_225')
     achievements(52)=(title="Single-Load Doom Bombardier",description="Kill a ZED with an impact shot from the Orca Bomb Propeller or the M79/M32",image=Texture'KillingFloor2HUD.Achievements.Achievement_226')
     achievements(53)=(title="Turbo Executioner",description="Kill 5 zeds in ZED time without reloading with Dr. T's LDS or Bullpup",maxProgress=5,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_227')
-    achievements(54)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
-    achievements(55)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
-    achievements(56)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
+    achievements(54)=(title="Claw Machine Master",description="Attach the crane hook within 125 seconds",image=Texture'KillingFloor2HUD.Achievements.Achievement_236')
+    achievements(55)=(title="Ex-scientist",description="Collect all the bile without a contamination",image=Texture'KillingFloor2HUD.Achievements.Achievement_237')
+    achievements(56)=(title="Blinding Big Brother",description="Destroy all 30 Cameras",image=Texture'KillingFloor2HUD.Achievements.Achievement_239')
 }
