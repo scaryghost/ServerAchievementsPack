@@ -236,14 +236,13 @@ function bool isSniperDamage(class<DamageType> damageType) {
 
 event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local String menuName;
-    local bool isHillbilly, isOldHalloween, isXmas, isCircus;
+    local bool isHalloween, isXmas, isCircus;
 
     if (KFMonster(target) != none) {
         menuName= KFMonster(target).MenuName;
-        isHillbilly= InStr(menuName, "Hillbilly") != -1;
-        isOldHalloween= InStr(menuName, "Halloween") != -1;
-        isXmas= InStr(menuName, "Christmas") != -1;
-        isCircus= InStr(menuName, "Circus") != -1;
+        isHalloween= (InStr(menuName, "HILLBILLY") != -1) || (InStr(menuName, "HALLOWEEN") != -1);
+        isXmas= InStr(menuName, "CHRISTMAS") != -1;
+        isCircus= InStr(menuName, "CIRCUS") != -1;
     }
 
     if (target.IsA('ZombieBoss')) {
@@ -251,7 +250,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.MERRY_CHRISTMAS);
         } else if (target.IsA('ZombieBoss_CIRCUS')) {
             achievementCompleted(AchvIndex.RINGMASTER);
-        } else if (target.IsA('ZombieBoss_HALLOWEEN') && isOldHalloween && isBedlam) {
+        } else if (target.IsA('ZombieBoss_HALLOWEEN') && isBedlam) {
             achievementCompleted(AchvIndex.SPARKLING_TWILIGHT);
         }
     } else if (target.IsA('ZombieFleshPound')) {
@@ -269,7 +268,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             addProgress(AchvIndex.CANT_CATCH_ME, 1);
         } else if (target.IsA('ZombieGoreFast_CIRCUS') && ClassIsChildOf(damageType, class'DamTypeMelee')) {
             achievementCompleted(AchvIndex.SPARRING_WITH_MASTER);
-        } else if (target.IsA('ZombieGoreFast_HALLOWEEN') && isHillbilly && (ClassIsChildOf(damageType, class'DamTypeTrenchgun') || 
+        } else if (target.IsA('ZombieGoreFast_HALLOWEEN') && (ClassIsChildOf(damageType, class'DamTypeTrenchgun') || 
                 ClassIsChildOf(damageType, class'DamTypeFlareRevolver') || ClassIsChildOf(damageType, class'DamTypeFlareProjectileImpact')) 
                 && KFMonster(target).BurnDown == 10) {
             addProgress(AchvIndex.FIERY_PERSONALITY, 1);
@@ -282,7 +281,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
                 ClassIsChildOf(damageType, class'DamTypeCrossbowHeadShot'))) {
             achievementCompleted(AchvIndex.BIG_HUNT);
         } else if (target.IsA('ZombieScrake_HALLOWEEN')) {
-            if (isOldHalloween && isBedlam) {
+            if (isBedlam) {
                 addProgress(AchvIndex.ORDINARY_RABBIT, 1);
             }
             if (ClassIsChildOf(damageType, class'DamTypeLAW') || ClassIsChildOf(damageType, class'DamTypeSeekerSixRocket')) {
@@ -317,7 +316,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             xmasCrawler++;
         } else if (target.IsA('ZombieCrawler_CIRCUS') && ClassIsChildOf(damageType, class'DamTypeBullpup')) {
             addProgress(AchvIndex.SEEING_DOUBLE, 1);
-        } else if (target.IsA('ZombieCrawler_HALLOWEEN') && isHillbilly && (ClassIsChildOf(damageType, class'DamTypeThompson') || 
+        } else if (target.IsA('ZombieCrawler_HALLOWEEN') && (ClassIsChildOf(damageType, class'DamTypeThompson') || 
                 ClassIsChildOf(damageType, class'DamTypeMKb42AssaultRifle'))) {
             addProgress(AchvIndex.CREEPY_CRAWLIES, 1);
         }
@@ -342,7 +341,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
             achievementCompleted(AchvIndex.SNOW_BALL_FIGHT);
         } else if (target.IsA('ZombieHusk_CIRCUS') && ClassIsChildOf(damageType, class'DamTypeLaw')) {
             achievementCompleted(AchvIndex.LIFTING_A_DUMBELL);
-        } else if (target.IsA('ZombieHusk_HALLOWEEN') && isHillbilly && isSniperDamage(damageType) ) {
+        } else if (target.IsA('ZombieHusk_HALLOWEEN') && isSniperDamage(damageType) ) {
             killedHillbillyHuskWithM99= true;
         }
     }    
@@ -362,7 +361,7 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         if (xmasClot >= 15 && xmasStalker >= 5 && xmasCrawler >= 5 && xmasSiren >= 1 && xmasBloat >= 1) {
             achievementCompleted(AchvIndex.BLOODY_CHRISTMAS_CAROL);
         }
-    } else if (isHillbilly) {
+    } else if (isHalloween) {
         addProgress(AchvIndex.MEET_YOUR_MAKER, 1);
         if (isSniperDamage(damageType) && !target.IsA('ZombieHusk')) {
             killedOtherHillbillyWithM99= true;
@@ -380,12 +379,13 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
         } else if (ClassIsChildOf(damageType, class'DamTypeBurned') || ClassIsChildOf(damageType, class'DamTypeFlamethrower') || ClassIsChildOf(damageType, class'DamTypeBlowerThrower')) {
             updateKillTypes(ftKills, target.class);
         }
-    } else if (isOldHalloween && isBedlam) {
-        if (KFMonster(target).bDecapitated && KFMonster(target).bBurnified) {
-            achievementCompleted(AchvIndex.CARVING_JACK_O_LANTERN);
+        if (isBedlam) {
+            if (KFMonster(target).bDecapitated && KFMonster(target).bBurnified) {
+                achievementCompleted(AchvIndex.CARVING_JACK_O_LANTERN);
+            }
+            addProgress(AchvIndex.SCENE_IS_ZED, 1);
+            addProgress(AchvIndex.TRICK_NOT_TREAT, 1);
         }
-        addProgress(AchvIndex.SCENE_IS_ZED, 1);
-        addProgress(AchvIndex.TRICK_NOT_TREAT, 1);
     } else if (isCircus) {
         checkZEDTimeMeleeKill(damageType, AchvIndex.BIG_TOP);
     }
