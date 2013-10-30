@@ -1,4 +1,4 @@
-class StockKFAchievements extends AchievementPackPartImpl;
+class StockKFAchievements extends StockAchievements;
 
 enum StockIndex {
     EXPERIMENTICIDE, FACIST_DIETITIAN, HOMERS_HEROES, KEEP_THOSE_SNEAKERS, RANDOM_AXE,
@@ -10,15 +10,36 @@ enum StockIndex {
     HIGHLANDER, BLOODY_YANKS, FINISH_HIM, I_LOVE_ZE_HEALING, ITALIAN_MEAT_PASTA, FEELING_LUCKY,
     COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, THE_BIG_ONE, HISTORICAL_REMNANTS,
     NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN, SINGLE_SHOT_EQUALIZER,
-    FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER
+    FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER,
+    CLAW_MACHINE_MASTER, EX_SCIENTIST, SEVEN_SEVEN_SEVEN, BLINDING_BIG_BROTHER, FIRE_AND_FORGET,
+    UNDER_THE_WEATHER, BANG_FOR_THE_BUCK
 };
 
 var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills;
-var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
+var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal, clawMasterObj, exScientistObj;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters, m14MusketHeadShotKill;
+var BEResettableCounter cameraCounter;
+var KFStoryGameInfo.SObjectiveProgressEvent clawMaster, exScientist;
 
+function PostBeginPlay() {
+    local BEResettableCounter achvCounter;
+
+    foreach DynamicActors(class'BEResettableCounter', achvCounter) {
+        if (achvCounter.NumToCount > 0) {
+            if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.FrightyardCamerasEventName) {
+                cameraCounter= achvCounter;
+            }
+        }
+    }
+
+    SetTimer(1.0, true);
+}
+
+function Timer() {
+    cameraCounter != none && checkCounter(cameraCounter.NumToCount, StockIndex.BLINDING_BIG_BROTHER);
+}
 
 function resetCounters() {
     achievements[StockIndex.RANDOM_AXE].progress= 0;
@@ -77,8 +98,30 @@ function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> ac
 }
 
 event objectiveChanged(KF_StoryObjective newObjective) {
+    local int i, j;
+
+    if (clawMasterObj && !clawMaster.bWasTriggered) {
+        achievementCompleted(StockIndex.CLAW_MACHINE_MASTER);
+        clawMasterObj= false;
+    } else if (exScientistObj && !exScientist.bWasTriggered) {
+        achievementCompleted(StockIndex.EX_SCIENTIST);
+        exScientistObj= false;
+    }
+
     checkCowboy();
     resetCounters();
+
+    for(i= 0; i < newObjective.OptionalConditions.Length; i++) {
+        for(j= 0; j < newObjective.OptionalConditions[i].ProgressEvents.Length; j++) {
+            if (newObjective.OptionalConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.FrightyardClawMasterFailedEventName) {
+                clawMaster= newObjective.OptionalConditions[i].ProgressEvents[j];
+                clawMasterObj= true;
+            } else if (newObjective.OptionalConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.FrightyardContaminationFailedEventName) {
+                exScientist= newObjective.OptionalConditions[i].ProgressEvents[j];
+                exScientistObj= true;
+            }
+        }
+    }
 }
 
 event waveEnd(int waveNum) {
@@ -455,4 +498,7 @@ defaultproperties {
     achievements(51)=(title="Assault Flayer Ordinance",description="Push a scrake back with the direct fire from a Hunting Shotgun or alt fire from the Multi-Chamber ZED Thrower",image=Texture'KillingFloor2HUD.Achievements.Achievement_225')
     achievements(52)=(title="Single-Load Doom Bombardier",description="Kill a ZED with an impact shot from the Orca Bomb Propeller or the M79/M32",image=Texture'KillingFloor2HUD.Achievements.Achievement_226')
     achievements(53)=(title="Turbo Executioner",description="Kill 5 zeds in ZED time without reloading with Dr. T's LDS or Bullpup",maxProgress=5,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_227')
+    achievements(54)=(title="Extended Motion Protector",description="[2013 Summer] Protect the Ringmaster during the escort mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_221')
+    achievements(55)=(title="Guardian Assault Protector",description="[2013 Summer] Protect the ringmaster during the defense mission so that he does not get hit more than 15 times",image=Texture'KillingFloor2HUD.Achievements.Achievement_222')
+    achievements(56)=(title="Golden 3 Crown Note",description="[2013 Summer] Get all 3 gold bars without the carriers taking damage while they have them",image=Texture'KillingFloor2HUD.Achievements.Achievement_223')
 }
