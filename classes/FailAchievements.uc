@@ -79,12 +79,17 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
 }
 
 event damagedMonster(int damage, Pawn target, class<DamageType> damageType, bool headshot) {
-    if (ZombieFleshpound(target) != none && damageType == class'SingleFire'.default.DamageType && damage < target.Health && 
-            (!target.IsInState('BeginRaging') && !target.IsInState('RageCharging')) && 
-            ZombieFleshpound(target).TwoSecondDamageTotal + damage > ZombieFleshpound(target).RageDamageThreshold) {
+    local ZombieFleshpound zfp;
+    local ZombieScrake zsc;
+
+    zfp= ZombieFleshpound(target);
+    zsc= ZombieScrake(target);
+    if (zfp != none && damageType == class'SingleFire'.default.DamageType && damage < zfp.Health && 
+            (!zfp.IsInState('BeginRaging') && !zfp.IsInState('RageCharging')) && !zfp.bZapped && !(zfp.bCrispified && zfp.bBurnified) && 
+            !zfp.bDecapitated && zfp.TwoSecondDamageTotal + damage > zfp.RageDamageThreshold) {
         achievementCompleted(FailIndex.PISTOL_PETE);
-    } else if (ZombieScrake(target) != none) {
-        if (damage < target.Health && !isScrakeRaged(ZombieScrake(target), 0) && isScrakeRaged(ZombieScrake(target), damage) && 
+    } else if (zsc != none) {
+        if (damage < target.Health && !isScrakeRaged(zsc, 0) && isScrakeRaged(zsc, damage) && 
             (class<DamTypeFrag>(damageType) != none || class<DamTypeM79Grenade>(damageType) != none || class<DamTypeM203Grenade>(damageType) != none)) {
             addProgress(FailIndex.MASTER_DEMOLITIONS, 1);
         } else if (ClassIsChildOf(damageType, class'DamTypeM99HeadShot')) {
