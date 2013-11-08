@@ -51,8 +51,8 @@ event playerDied(Controller killer, class<DamageType> damageType, int waveNum) {
     if (Syringe(currWpn) != none || Welder(currWpn) != none || Knife(currWpn) != none) {
         addProgress(FailIndex.LOST_BAGGAGE,1);
     }
-    if (waveNum == 1 && Level.Game.GameDifficulty <= 2 && 
-            KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo).ClientVeteranSkillLevel == 6) {
+    if (KF_StoryGRI(Level.GRI) == none && waveNum == 1 && Level.Game.GameDifficulty <= 2 && 
+            KFPlayerReplicationInfo(ownerController.PlayerReplicationInfo).ClientVeteranSkillLevel >= 6) {
         achievementCompleted(FailIndex.LEVEL_6_PRO);
     }
     if (KFPawn(ownerController.Pawn).ShieldStrength == KFPawn(ownerController.Pawn).ShieldStrengthMax) {
