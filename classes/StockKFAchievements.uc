@@ -14,13 +14,14 @@ enum StockIndex {
     CLAW_MACHINE_MASTER, EX_SCIENTIST, BLINDING_BIG_BROTHER
 };
 
-var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills;
-var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal, clawMasterObj, exScientistObj;
+var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills, clawMachineStart;
+var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
 var bool claymoreScKill, claymoreFpKill, claymoreBossKill;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters, m14MusketHeadShotKill;
 var BEResettableCounter cameraCounter;
-var KFStoryGameInfo.SObjectiveProgressEvent clawMaster, exScientist;
+var ObjCondition_Counter exScientist;
+var ObjCondition_Timed clawMachine;
 
 function PostBeginPlay() {
     local BEResettableCounter achvCounter;
@@ -89,7 +90,7 @@ function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> ac
     local int i;
 
     for(i= 0; i < achievementPacks.Length; i++) {
-        if (achievementPacks[i].class != Self.class) {
+        if (achievementPacks[i].class == Self.class) {
             return StockKFAchievements(achievementPacks[i]);
         }
     }
@@ -97,14 +98,14 @@ function StockKFAchievements getStockKFAchievementsObj(array<AchievementPack> ac
 }
 
 event objectiveChanged(KF_StoryObjective newObjective) {
-    local int i, j;
+    local int i, j, k;
 
-    if (clawMasterObj && !clawMaster.bWasTriggered) {
-        achievementCompleted(StockIndex.CLAW_MACHINE_MASTER);
-        clawMasterObj= false;
-    } else if (exScientistObj && !exScientist.bWasTriggered) {
+    if (exScientist != none && exScientist.NumCounted == 0) {
         achievementCompleted(StockIndex.EX_SCIENTIST);
-        exScientistObj= false;
+        exScientist= None;
+    } else if (clawMachine != none && Level.TimeSeconds - clawMachineStart <= clawMachine.Duration) {
+        achievementCompleted(StockIndex.CLAW_MACHINE_MASTER);
+        clawMachine= None;
     }
 
     checkCowboy();
@@ -113,11 +114,20 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     for(i= 0; i < newObjective.OptionalConditions.Length; i++) {
         for(j= 0; j < newObjective.OptionalConditions[i].ProgressEvents.Length; j++) {
             if (newObjective.OptionalConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.FrightyardClawMasterFailedEventName) {
-                clawMaster= newObjective.OptionalConditions[i].ProgressEvents[j];
-                clawMasterObj= true;
+                clawMachineStart= Level.TimeSeconds;
+                for(k= 0; k < newObjective.OptionalConditions.Length; i++) {
+                    if (ObjCondition_Timed(newObjective.OptionalConditions[k]) != none) {
+                        clawMachine= ObjCondition_Timed(newObjective.OptionalConditions[k]);
+                        break;
+                    }
+                }
             } else if (newObjective.OptionalConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.FrightyardContaminationFailedEventName) {
-                exScientist= newObjective.OptionalConditions[i].ProgressEvents[j];
-                exScientistObj= true;
+                for(k= 0; k < newObjective.OptionalConditions.Length; i++) {
+                    if (ObjCondition_Counter(newObjective.OptionalConditions[k]) != none) {
+                        exScientist= ObjCondition_Counter(newObjective.OptionalConditions[k]);
+                        break;
+                    }
+                }
             }
         }
     }

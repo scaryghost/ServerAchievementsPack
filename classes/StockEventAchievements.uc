@@ -80,7 +80,7 @@ function StockEventAchievements getEventAchievementsObj(PlayerReplicationInfo pl
 
     saRepInfo= class'SAReplicationInfo'.static.findSAri(playerRepInfo);
     for(i= 0; i < saRepInfo.achievementPacks.Length; i++) {
-        if (saRepInfo.achievementPacks[i].class != Self.class) {
+        if (saRepInfo.achievementPacks[i].class == Self.class) {
             return StockEventAchievements(saRepInfo.achievementPacks[i]);
         }
     }
