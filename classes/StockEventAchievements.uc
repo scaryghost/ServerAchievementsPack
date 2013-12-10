@@ -21,14 +21,16 @@ enum AchvIndex {
     HIDE_AND_PUKE, ARCADE_GAMER,
     FULL_CHARGE, MOTION_PROTECTOR, ASSAULT_PROTECTOR, CROWN_NOTE, 
 
-    FIRE_AND_FORGET, UNDER_THE_WEATHER, BANG_FOR_THE_BUCK
+    FIRE_AND_FORGET, UNDER_THE_WEATHER, BANG_FOR_THE_BUCK,
+
+    ALL_RED
 };
 
 var bool failedEscort, failedDefense, damagedWithBars, goldBarsObjective, 
         killedHillbillyHuskWithM99, killedOtherHillbillyWithM99, isBedlam, killedScWithLaw, killedFpWithLaw;
 var byte survivedSiren, survivedBloat;
 var int screamedTime, vomitTime, axeStartTime, xmasClot, xmasStalker, xmasCrawler, xmasSiren, xmasBloat, m32KillStart;
-var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter;
+var BEResettableCounter miniGamesCounter, clownCounter, gnomeSoulsCounter, zedGunCounter;
 var array<KF_BreakerBoxNPC> breakerBoxes;
 var KF_RingMasterNPC ringMaster;
 var name prevObjName;
@@ -59,6 +61,8 @@ function PostBeginPlay() {
                 clownCounter= achvCounter;
             } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.HillBillyGnomesEventName) {
                 gnomeSoulsCounter= achvCounter;
+            } else if (achvCounter.Event == 'ZEDWeaponCompleted') {
+                zedGunCounter= achvCounter;
             }
         }
     }
@@ -160,6 +164,7 @@ function Timer() {
     clownCounter != none && checkCounter(clownCounter.NumToCount, AchvIndex.HIDE_AND_PUKE);
     gladosDoorTrigger != none && checkCounter(gladosDoorTrigger.WeldStrength, AchvIndex.GOLDEN_POTATOE);
     gnomeSoulsCounter != none && checkCounter(gnomeSoulsCounter.NumToCount, AchvIndex.SOUL_COLLECTOR);
+    zedGunCounter != none && checkCounter(zedGunCounter.NumToCount, AchvIndex.ALL_RED);
 
     for(i= 0; i < breakerBoxes.Length; i++) {
         if (breakerBoxes[i].Health >= breakerBoxes[i].NPCHealth) {
@@ -473,4 +478,5 @@ defaultproperties {
     achievements(47)=(title="Fire and Forget",description="Kill a Halloween Fleshpound and Scrake in the same explosion with the Seal Squeal Harpoon Bomber or the LAW",image=Texture'KillingFloor2HUD.Achievements.Achievement_240')
     achievements(48)=(title="Under The Weather",description="Use Bile or the Flamethrower to kill one of each Halloween Zed",image=Texture'KillingFloor2HUD.Achievements.Achievement_241')
     achievements(49)=(title="Most Bang for the Buck",description="Kill 10 Halloween zeds in explosions using the Seeker 6 or the M32 within 5 seconds",maxProgress=10,noSave=true,image=Texture'KillingFloor2HUD.Achievements.Achievement_242')
+    achievements(50)=(title="But It's All Red!",description="Collect all 16 Z.E.D. Gun pieces",image=Texture'KillingFloor2HUD.Achievements.Achievement_202')
 }

@@ -11,17 +11,22 @@ enum StockIndex {
     COWBOY, SPEC_OPS, COMBAT_MEDIC, FUGLY, BRITISH_SUPERIORITY, THE_BIG_ONE, HISTORICAL_REMNANTS,
     NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN, SINGLE_SHOT_EQUALIZER,
     FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER,
-    CLAW_MACHINE_MASTER, EX_SCIENTIST, BLINDING_BIG_BROTHER
+    CLAW_MACHINE_MASTER, EX_SCIENTIST, BLINDING_BIG_BROTHER, 
+    DR_JONES
 };
 
 var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills, clawMachineStart;
 var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
-var bool claymoreScKill, claymoreFpKill, claymoreBossKill, failedExScientist;
+var bool claymoreScKill, claymoreFpKill, claymoreBossKill, failedExScientist, canEarnBallHero;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters, m14MusketHeadShotKill;
 var BEResettableCounter cameraCounter;
 var ObjCondition_Counter exScientist;
 var ObjCondition_Timed clawMachine;
+
+function MatchStarting() {
+    canEarnBallHero= true;
+}
 
 function PostBeginPlay() {
     local BEResettableCounter achvCounter;
@@ -158,6 +163,9 @@ event waveEnd(int waveNum) {
 }
 
 event matchEnd(string mapname, float difficulty, int length, byte result, int waveNum) {
+    local Controller cIt;
+    local PlayerController pc;
+
     if (result == 2 && difficulty >= 5.0) {
         achievementCompleted(StockIndex.DEATH_TO_THE_MAD_SCIENTIST);
     }
@@ -165,6 +173,15 @@ event matchEnd(string mapname, float difficulty, int length, byte result, int wa
         achievementCompleted(StockIndex.HIGHLANDER);
     } else if (allSpeciesKilled(speciesKilled)) {
         achievementCompleted(StockIndex.FUGLY);
+    }
+
+    if (canEarnBallHero && mapname ~= "kf-hell" && length == KFGameType(Level.Game).GL_Short) {
+        for(cIt= Level.ControllerList; cIt != None; cIt= cIt.NextController) {
+            pc= PlayerController(cIt);
+            if (pc != none && (KFPawn(pc.Pawn).Species == class'KFMod.CivilianSpeciesBallHero' || KFPawn(pc.Pawn).Species == class'KFMod.CivilianSpeciesBallHeroII')) {
+                achievementCompleted(StockIndex.DR_JONES);
+            }
+        }
     }
 }
 
@@ -496,4 +513,5 @@ defaultproperties {
     achievements(54)=(title="Claw Machine Master",description="Attach the crane hook within 125 seconds",image=Texture'KillingFloor2HUD.Achievements.Achievement_236')
     achievements(55)=(title="Ex-scientist",description="Collect all the bile without a contamination",image=Texture'KillingFloor2HUD.Achievements.Achievement_237')
     achievements(56)=(title="Blinding Big Brother",description="Destroy all 30 Cameras",image=Texture'KillingFloor2HUD.Achievements.Achievement_239')
+    achievements(57)=(title="No Time for Love, Dr. Jones",description="Win a short round on KF-Hell playing as or with Harchier Spebbington",image=Texture'KillingFloor2HUD.Achievements.Achievement_251')
 }
