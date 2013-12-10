@@ -32,4 +32,6 @@ defaultproperties {
     achievements(25)=(title="Simplified Force Adhesion Afficianado",description="Win Steamland in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_213')
     achievements(26)=(title="Longshorman",description="Win a medium or long game on Fright Yard on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_228')
     achievements(27)=(title="Fork Lift Operator",description="Win Fright Yard in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_232')
+    achievements(28)=(title="Death",description="Win a medium or long game on Hell on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_243')
+    achievements(29)=(title="Brain Fart",description="Win a medium or long game on Forgotton on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_247')
 }

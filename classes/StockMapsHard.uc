@@ -32,5 +32,6 @@ defaultproperties {
     achievements(25)=(title="Oscillating Hydrogen Transition Achiever",description="Win Steamland in Objective Mode on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_214')
     achievements(26)=(title="Gang Crew",description="Win a medium or long game on Fright Yard on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_229')
     achievements(27)=(title="Truck Driver",description="Win Fright Yard in Objective Mode on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_233')
-
+    achievements(28)=(title="King Minos",description="Win a medium or long game on Hell on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_244')
+    achievements(29)=(title="Agnosia",description="Win a medium or long game on Forgotton on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_248')
 }

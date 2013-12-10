@@ -32,6 +32,7 @@ defaultproperties {
     achievements(25)=(title="Tachyon Cytoneutralization Explorer",description="Win Steamland in Objective Mode on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_216')
     achievements(26)=(title="Wharfinger",description="Win a medium or long game on Fright Yard on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_231')
     achievements(27)=(title="Shipping Magnate",description="Win Fright Yard in Objective Mode on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_235')
-
+    achievements(28)=(title="Lucifer",description="Win a medium or long game on Hell on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_246')
+    achievements(29)=(title="Dementia",description="Win a medium or long game on Forgotton on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_250')
 }
 
