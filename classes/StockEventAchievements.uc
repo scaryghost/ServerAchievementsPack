@@ -245,10 +245,10 @@ event killedMonster(Pawn target, class<DamageType> damageType, bool headshot) {
     local bool isHalloween, isXmas, isCircus;
 
     if (KFMonster(target) != none) {
-        menuName= KFMonster(target).MenuName;
-        isHalloween= (InStr(menuName, "HILLBILLY") != -1) || (InStr(menuName, "HALLOWEEN") != -1);
-        isXmas= InStr(menuName, "CHRISTMAS") != -1;
-        isCircus= InStr(menuName, "CIRCUS") != -1;
+        menuName= Locs(KFMonster(target).MenuName);
+        isHalloween= (InStr(menuName, "hillbilly") != -1) || (InStr(menuName, "halloween") != -1);
+        isXmas= InStr(menuName, "christmas") != -1;
+        isCircus= InStr(menuName, "circus") != -1;
     }
 
     if (target.IsA('ZombieBoss')) {
