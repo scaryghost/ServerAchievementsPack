@@ -5,9 +5,9 @@ This package contains custom achievements for Killing Floor and implements rough
 Currently there are no icons for the custom achievements.
 
 ## Version
-1.4
+1.5
 
-https://github.com/scaryghost/ServerAchievementsPack/wiki/Release-ServerAchievementsPack-1.4
+https://github.com/scaryghost/ServerAchievementsPack/wiki/Release-ServerAchievementsPack-1.5
 
 ## Install
 Copy the contents of the system and textures folders into your Killing Floor system and textures folders.
