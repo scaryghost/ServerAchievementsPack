@@ -12,20 +12,33 @@ enum StockIndex {
     NAILD, TRENCH_WARFARE, HAVE_MY_AXE, ONE_SMALL_STEP, GAME_OVER_MAN, SINGLE_SHOT_EQUALIZER,
     FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER,
     CLAW_MACHINE_MASTER, EX_SCIENTIST, BLINDING_BIG_BROTHER, 
-    DR_JONES
+    DR_JONES,
+    TOTALLY_METAL, NITRO_BOOST, MULTI_PASS, SCIENCE_HATER, RICH_EVIL_UNCLE, OKTOBERFEST_MASTER
 };
 
-var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills, clawMachineStart;
+struct CounterAchievement {
+    var BEResettableCounter counter;
+    var StockIndex achvIndex;
+};
+
+var int m4MagKills, benelliMagKills, revolverMagKills, mk23MagClotKills, mkb42Kills, clawMachineStart, 
+        nitroBoostStart;
 var bool survivedWave, canEarnThinIce, killedwithBullpup, killedWithFnFal;
-var bool claymoreScKill, claymoreFpKill, claymoreBossKill, failedExScientist, canEarnBallHero;
+var bool claymoreScKill, claymoreFpKill, claymoreBossKill, failedExScientist, canEarnBallHero, isKeyCardObj;
 var array<byte> speciesKilled;
 var array<Pawn> gibbedMonsters, m14MusketHeadShotKill;
-var BEResettableCounter cameraCounter;
-var ObjCondition_Counter exScientist;
-var ObjCondition_Timed clawMachine;
+var ObjCondition_Counter exScientist, totallyMetal;
+var ObjCondition_Timed clawMachine, nitroBoost;
+var array<CounterAchievement> counters;
 
 function MatchStarting() {
     canEarnBallHero= true;
+}
+
+function insertCounter(BEResettableCounter counter, StockIndex index) {
+    counters.Length= counters.Length + 1;
+    counters[counters.Length - 1].counter= counter;
+    counters[counters.Length - 1].achvIndex= index;
 }
 
 function PostBeginPlay() {
@@ -34,7 +47,13 @@ function PostBeginPlay() {
     foreach DynamicActors(class'BEResettableCounter', achvCounter) {
         if (achvCounter.NumToCount > 0) {
             if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.FrightyardCamerasEventName) {
-                cameraCounter= achvCounter;
+                insertCounter(achvCounter, StockIndex.BLINDING_BIG_BROTHER);
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.TransitDNAVialsEventName) {
+                insertCounter(achvCounter, StockIndex.SCIENCE_HATER);
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.SirensBelchBeerSteinsEventName) {
+                insertCounter(achvCounter, StockIndex.OKTOBERFEST_MASTER);
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.StrongholdGoldBagsEventName) {
+                insertCounter(achvCounter, StockIndex.RICH_EVIL_UNCLE);
             }
         }
     }
@@ -43,11 +62,18 @@ function PostBeginPlay() {
 }
 
 function Timer() {
-    cameraCounter != none && checkCounter(cameraCounter.NumToCount, StockIndex.BLINDING_BIG_BROTHER);
+    local int i;
+
+    for(i= 0; i < counters.Length; i++) {
+        checkCounter(counters[i].counter.NumToCount, counters[i].achvIndex);
+    }
     if (exScientist != none && exScientist.NumCounted != 0) {
         failedExScientist= true;
     } else if (clawMachine != none && clawMachine.bActive && clawMachineStart == 0) {
         clawMachineStart= Level.TimeSeconds;
+    } else if (isKeyCardObj && KFHumanPawn_Story(ownerController.Pawn).bHasStoryItem) {
+        achievementCompleted(StockIndex.MULTI_PASS);
+        isKeyCardObj= false;
     }
 }
 
@@ -116,10 +142,24 @@ event objectiveChanged(KF_StoryObjective newObjective) {
     } else if (clawMachine != none && Level.TimeSeconds - clawMachineStart <= clawMachine.Duration) {
         achievementCompleted(StockIndex.CLAW_MACHINE_MASTER);
         clawMachine= None;
+    } else if (nitroBoost != none) {
+        if (Level.TimeSeconds - nitroBoostStart <= nitroBoost.Duration) {
+            achievementCompleted(StockIndex.NITRO_BOOST);
+        }
+        nitroBoost= None;
+    } else if (totallyMetal != none) {
+        if (totallyMetal.NumToCount <= 0) {
+            achievementCompleted(StockIndex.TOTALLY_METAL);
+        }
+        totallyMetal= None;
+    } else if (isKeyCardObj && KFHumanPawn_Story(ownerController.Pawn).bHasStoryItem) {
+        achievementCompleted(StockIndex.MULTI_PASS);
     }
 
     checkCowboy();
     resetCounters();
+
+    isKeyCardObj= false;
 
     for(i= 0; i < newObjective.OptionalConditions.Length; i++) {
         for(j= 0; j < newObjective.OptionalConditions[i].ProgressEvents.Length; j++) {
@@ -135,6 +175,29 @@ event objectiveChanged(KF_StoryObjective newObjective) {
                 for(k= 0; k < newObjective.OptionalConditions.Length; k++) {
                     if (ObjCondition_Counter(newObjective.FailureConditions[k]) != none) {
                         exScientist= ObjCondition_Counter(newObjective.FailureConditions[k]);
+                        break;
+                    }
+                }
+            } else if (newObjective.OptionalConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.TransitNitroInXSecondsFailedEventName) {
+                nitroBoostStart= Level.TimeSeconds;
+                for(k= 0; k < newObjective.OptionalConditions.Length; k++) {
+                    if (ObjCondition_Timed(newObjective.OptionalConditions[k]) != none) {
+                        nitroBoost= ObjCondition_Timed(newObjective.OptionalConditions[k]);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    for(i= 0; i < newObjective.SuccessConditions.Length; i++) {
+        for(j= 0; j < newObjective.SuccessConditions[i].ProgressEvents.Length; j++) {
+            if (newObjective.SuccessConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.TransitPickUpKeyEventName) {
+                isKeyCardObj= true;
+                break;
+            } else if (newObjective.SuccessConditions[i].ProgressEvents[j].EventName == class'KFSteamStatsAndAchievements'.default.TransitKillXZedsDuringWeldEventName) {
+                for(k= 0; k < newObjective.SuccessConditions.Length; k++) {
+                    if (ObjCondition_Counter(newObjective.SuccessConditions[k]) != none) {
+                        totallyMetal= ObjCondition_Counter(newObjective.SuccessConditions[k]);
                         break;
                     }
                 }
@@ -514,4 +577,10 @@ defaultproperties {
     achievements(55)=(title="Ex-scientist",description="Collect all the bile without a contamination",image=Texture'KillingFloor2HUD.Achievements.Achievement_237')
     achievements(56)=(title="Blinding Big Brother",description="Destroy all 30 Cameras",image=Texture'KillingFloor2HUD.Achievements.Achievement_239')
     achievements(57)=(title="No Time for Love, Dr. Jones",description="Win a short round on KF-Hell playing as or with Harchier Spebbington",image=Texture'KillingFloor2HUD.Achievements.Achievement_251')
+    achievements(58)=(title="Totally Metal",description="Transit - Kill 250 Zeds before completing the welding objective",image=Texture'KillingFloor2HUD.Achievements.Achievement_269')
+    achievements(59)=(title="Nitro Boost!",description="Transit - Get the Nitro to the Objective in 135 seconds or less",image=Texture'KillingFloor2HUD.Achievements.Achievement_268')
+    achievements(60)=(title="Multi-pass",description="Transit - Pick up the door key",image=Texture'KillingFloor2HUD.Achievements.Achievement_270')
+    achievements(61)=(title="Science Hater",description="Transit - Destroy all the DNA vials",image=Texture'KillingFloor2HUD.Achievements.Achievement_271')
+    achievements(62)=(title="Rich Evil Uncle",description="Collect all the Treasure Bags",image=Texture'KillingFloor2HUD.Achievements.Achievement_273')
+    achievements(63)=(title="Oktoberfest Master",description="Collect all the Beer Steins",image=Texture'KillingFloor2HUD.Achievements.Achievement_274')
 }
