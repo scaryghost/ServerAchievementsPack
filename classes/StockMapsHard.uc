@@ -34,4 +34,8 @@ defaultproperties {
     achievements(27)=(title="Truck Driver",description="Win Fright Yard in Objective Mode on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_233')
     achievements(28)=(title="King Minos",description="Win a medium or long game on Hell on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_244')
     achievements(29)=(title="Agnosia",description="Win a medium or long game on Forgotton on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_248')
+    achievements(30)=(title="Micro Brewer",description="Win a medium or long game on Siren's Belch on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_253')
+    achievements(31)=(title="Squire",description="Win a medium or long game on Stronghold on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_257')
+    achievements(32)=(title="Economy Comfort",description="Win a medium or long game on Transit on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_261')
+    achievements(33)=(title="Long weekend",description="Win Transit in Objective Mode on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_265')
 }

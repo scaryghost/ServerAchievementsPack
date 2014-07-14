@@ -34,4 +34,8 @@ defaultproperties {
     achievements(27)=(title="Crane Operator",description="Win Fright Yard in Objective Mode on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_234')
     achievements(28)=(title="Cerberus",description="Win a medium or long game on Hell on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_245')
     achievements(29)=(title="Amnesia",description="Win a medium or long game on Forgotton on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_249')
+    achievements(30)=(title="Master Brewer",description="Win a medium or long game on Siren's Belch on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_254')
+    achievements(31)=(title="Prince",description="Win a medium or long game on Stronghold on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_258')
+    achievements(32)=(title="Business Class",description="Win a medium or long game on Transit on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_262')
+    achievements(33)=(title="Serious vacation",description="Win Transit in Objective Mode on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_266')
 }

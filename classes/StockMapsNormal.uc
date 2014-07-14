@@ -34,4 +34,8 @@ defaultproperties {
     achievements(27)=(title="Fork Lift Operator",description="Win Fright Yard in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_232')
     achievements(28)=(title="Death",description="Win a medium or long game on Hell on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_243')
     achievements(29)=(title="Brain Fart",description="Win a medium or long game on Forgotton on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_247')
+    achievements(30)=(title="Home Brewer",description="Win a medium or long game on Siren's Belch on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_252')
+    achievements(31)=(title="Peasant",description="Win a medium or long game on Stronghold on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_256')
+    achievements(32)=(title="Cattle Class",description="Win a medium or long game on Transit on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_260')
+    achievements(33)=(title="Day-trip",description="Win Transit in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_264')
 }

@@ -34,5 +34,9 @@ defaultproperties {
     achievements(27)=(title="Shipping Magnate",description="Win Fright Yard in Objective Mode on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_235')
     achievements(28)=(title="Lucifer",description="Win a medium or long game on Hell on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_246')
     achievements(29)=(title="Dementia",description="Win a medium or long game on Forgotton on Hell on Earth difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_250')
+    achievements(30)=(title="Trappist Monk",description="Win a medium or long game on Siren's Belch on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_252')
+    achievements(31)=(title="King",description="Win a medium or long game on Stronghold on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_256')
+    achievements(32)=(title="First Class",description="Win a medium or long game on Transit on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_260')
+    achievements(33)=(title="Moved to Paris!",description="Win Transit in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_264')
 }
 
