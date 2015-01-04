@@ -38,4 +38,6 @@ defaultproperties {
     achievements(31)=(title="Prince",description="Win a medium or long game on Stronghold on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_258')
     achievements(32)=(title="Business Class",description="Win a medium or long game on Transit on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_262')
     achievements(33)=(title="Serious vacation",description="Win Transit in Objective Mode on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_266')
+    achievements(34)=(title="Burned out",description="Win a medium or long game on Clandestine on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_277')
+    achievements(35)=(title="Grotto of Terror",description="Win a medium or long game on ThrillsChills on Suicidal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_282')
 }

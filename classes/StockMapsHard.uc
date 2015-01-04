@@ -38,4 +38,6 @@ defaultproperties {
     achievements(31)=(title="Squire",description="Win a medium or long game on Stronghold on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_257')
     achievements(32)=(title="Economy Comfort",description="Win a medium or long game on Transit on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_261')
     achievements(33)=(title="Long weekend",description="Win Transit in Objective Mode on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_265')
+    achievements(34)=(title="Rack 'em up",description="Win a medium or long game on Clandestine on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_276')
+    achievements(35)=(title="Cavern of Pain",description="Win a medium or long game on ThrillsChills on Hard difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_281')
 }

@@ -38,4 +38,6 @@ defaultproperties {
     achievements(31)=(title="Peasant",description="Win a medium or long game on Stronghold on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_256')
     achievements(32)=(title="Cattle Class",description="Win a medium or long game on Transit on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_260')
     achievements(33)=(title="Day-trip",description="Win Transit in Objective Mode on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_264')
+    achievements(34)=(title="Gone clubbing",description="Win a medium or long game on Clandestine on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_275')
+    achievements(35)=(title="Cave of Wonder",description="Win a medium or long game on ThrillsChills on Normal difficulty",image=Texture'KillingFloor2HUD.Achievements.Achievement_280')
 }
