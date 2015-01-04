@@ -13,7 +13,8 @@ enum StockIndex {
     FLAYER_ORDINANCE, DOOM_BOMBARDIER, TURBO_EXECUTIONER,
     CLAW_MACHINE_MASTER, EX_SCIENTIST, BLINDING_BIG_BROTHER, 
     DR_JONES,
-    TOTALLY_METAL, NITRO_BOOST, MULTI_PASS, SCIENCE_HATER, RICH_EVIL_UNCLE, OKTOBERFEST_MASTER
+    TOTALLY_METAL, NITRO_BOOST, MULTI_PASS, SCIENCE_HATER, RICH_EVIL_UNCLE, OKTOBERFEST_MASTER,
+    SKULL_CRACKER, ALL_SHOOK_UP
 };
 
 struct CounterAchievement {
@@ -54,6 +55,10 @@ function PostBeginPlay() {
                 insertCounter(achvCounter, StockIndex.OKTOBERFEST_MASTER);
             } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.StrongholdGoldBagsEventName) {
                 insertCounter(achvCounter, StockIndex.RICH_EVIL_UNCLE);
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.ClandestineSkullsEventName) {
+                insertCounter(achvCounter, StockIndex.SKULL_CRACKER);
+            } else if (achvCounter.Event == class'KFSteamStatsAndAchievements'.default.ThrillsChillsSnowglobeEventName) {
+                insertCounter(achvCounter, StockIndex.ALL_SHOOK_UP);
             }
         }
     }
@@ -548,7 +553,7 @@ defaultproperties {
     achievements(26)=(title="SCAR'd",description="Kill 1000 specimens with the SCAR",image=Texture'KillingFloor2HUD.Achievements.Achievement_62',maxProgress=1000,notifyIncrement=0.25)
     achievements(27)=(title="Healing Touch",description="Heal 200 teammates with the MP7's medication dart",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=200,notifyIncrement=0.20)
     achievements(28)=(title="Pound This",description="Kill 100 fleshpounds with the AA12",image=Texture'KillingFloor2HUD.Achievements.Achievement_64',maxProgress=100,notifyIncrement=0.2)
-    achievements(29)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'ServerAchievementsPack.StockKFAchievements.Achievement_26',maxProgress=20,notifyIncrement=0.5)
+    achievements(29)=(title="Killer Junior",description="Kill 20 crawlers in mid-air with the M79",image=Texture'KillingFloor2HUD.Achievements.Achievement_63',maxProgress=20,notifyIncrement=0.5)
     achievements(30)=(title="Let Them Burn",description="Get 1000 points of burn damage with the MAC-10",image=Texture'KillingFloor2HUD.Achievements.Achievement_113',maxProgress=1000,notifyIncrement=1.0)
     achievements(31)=(title="Burning Irony",description="Kill 15 husks with the Husk Cannon",image=Texture'KillingFloor2HUD.Achievements.Achievement_163',maxProgress=15,notifyIncrement=0.33333)
     achievements(32)=(title="Highlander",description="Kill a scrake, a fleshpound, and the patriarch with the Claymore sword within one map",image=Texture'KillingFloor2HUD.Achievements.Achievement_164')
