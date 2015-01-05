@@ -588,4 +588,6 @@ defaultproperties {
     achievements(61)=(title="Science Hater",description="Transit - Destroy all the DNA vials",image=Texture'KillingFloor2HUD.Achievements.Achievement_271')
     achievements(62)=(title="Rich Evil Uncle",description="Collect all the Treasure Bags",image=Texture'KillingFloor2HUD.Achievements.Achievement_273')
     achievements(63)=(title="Oktoberfest Master",description="Collect all the Beer Steins",image=Texture'KillingFloor2HUD.Achievements.Achievement_274')
+    achievements(64)=(title="Skull Cracker",description="Clandestine - Destroy 30 skulls",image=Texture'KillingFloor2HUD.Achievements.Achievement_279')
+    achievements(65)=(title="All shook up",description="Destroy all (15) Snow Globes",image=Texture'KillingFloor2HUD.Achievements.Achievement_284')
 }
